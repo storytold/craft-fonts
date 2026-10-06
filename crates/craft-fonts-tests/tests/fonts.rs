@@ -159,3 +159,46 @@ fn japanese_fonts_support_vertical_text() {
         );
     }
 }
+
+/// Coverage of `text` by every font tagged with `script`.
+fn covers(script: &str, text: &str) {
+    let fonts: Vec<&Font> = for_script(script).collect();
+    assert!(!fonts.is_empty(), "the manifest lists no {script} font");
+    for f in fonts {
+        let data = bytes(f);
+        let font = FontRef::new(&data).unwrap_or_else(|e| panic!("{}: {e}", f.file));
+        let charmap = font.charmap();
+        let missing: String = text.chars().filter(|c| charmap.map(*c).is_none()).collect();
+        assert!(
+            missing.is_empty(),
+            "{} {} has no glyph for {missing:?}",
+            f.family,
+            f.style
+        );
+    }
+}
+
+#[test]
+fn simplified_chinese_fonts_cover_chinese_text() {
+    covers(
+        "Hans",
+        concat!(
+            "中文简体字文件编辑视图窗口帮助新建打开保存关闭撤销重做复制粘贴删除选择图层页面样式颜色导出打印设置",
+            "，。、：；？！（）《》“”…",
+            "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789",
+        ),
+    );
+}
+
+#[test]
+fn arabic_fonts_cover_arabic_text() {
+    covers(
+        "Arab",
+        concat!(
+            "ابتثجحخدذرزسشصضطظعغفقكلمنهوي",
+            "ءآأؤإئةى",
+            "٠١٢٣٤٥٦٧٨٩",
+            "،؛؟",
+        ),
+    );
+}
