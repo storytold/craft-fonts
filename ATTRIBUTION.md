@@ -12,7 +12,10 @@ upstream sources (checked by `craft-fonts-tests`, which verifies each SHA-256 in
 | `fonts/biz-ud-mincho/BIZUDMincho-Regular.ttf` | BIZ UDMincho Regular | The BIZ UDMincho Project Authors (Morisawa Inc., design TypeBank Co., Ltd.) | [google/fonts@63833b7](https://github.com/google/fonts/tree/63833b7d10bb1f86a8f0b91cba2d3ae1f68d1aa3/ofl/bizudmincho) | OFL-1.1 (`fonts/biz-ud-mincho/OFL.txt`) |
 | `fonts/noto-sans-cjk-sc/NotoSansCJKsc-Regular.otf` | Noto Sans CJK SC Regular | The Noto Project Authors (Adobe, Google) | [notofonts/noto-cjk@f8d1575](https://github.com/notofonts/noto-cjk/tree/f8d157532fbfaeda587e826d4cd5b21a49186f7c/Sans/OTF/SimplifiedChinese) | OFL-1.1 (`fonts/noto-sans-cjk-sc/OFL.txt`) |
 | `fonts/noto-sans-arabic/NotoSansArabic.ttf` | Noto Sans Arabic (variable) | The Noto Project Authors | [google/fonts@7085eb8](https://github.com/google/fonts/tree/7085eb89a950e85db5b166b7a58d414544b4140c/ofl/notosansarabic) | OFL-1.1 (`fonts/noto-sans-arabic/OFL.txt`) |
+| `fonts/source-sans-3/SourceSans3-Regular.ttf` | Source Sans 3 Regular | Adobe (Paul D. Hunt) | [adobe-fonts/source-sans@87b37a2](https://github.com/adobe-fonts/source-sans/tree/87b37a2daaed80fcb8e8ccb0085c4d72ddade12e/TTF) | OFL-1.1 (`fonts/source-sans-3/OFL.txt`) |
+| `fonts/source-sans-3/SourceSans3-Medium.ttf` | Source Sans 3 Medium | Adobe (Paul D. Hunt) | [adobe-fonts/source-sans@87b37a2](https://github.com/adobe-fonts/source-sans/tree/87b37a2daaed80fcb8e8ccb0085c4d72ddade12e/TTF) | OFL-1.1 (`fonts/source-sans-3/OFL.txt`) |
+| `fonts/source-sans-3/SourceSans3-Semibold.ttf` | Source Sans 3 Semibold | Adobe (Paul D. Hunt) | [adobe-fonts/source-sans@87b37a2](https://github.com/adobe-fonts/source-sans/tree/87b37a2daaed80fcb8e8ccb0085c4d72ddade12e/TTF) | OFL-1.1 (`fonts/source-sans-3/OFL.txt`) |
 
 The OFL allows these fonts to be bundled, embedded and redistributed with software, provided the
 licence text travels with them and the fonts are not sold on their own. "Shippori Mincho",
-"BIZ UD" and "Noto" are the authors' names for their fonts; we use the files unmodified.
+"BIZ UD", "Noto" and "Source" are the authors' names for their fonts; we use the files unmodified.
