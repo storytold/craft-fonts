@@ -33,6 +33,7 @@ This library is meant to have the following:
 | Shippori Mincho | Regular | Japanese document text (serif) | OFL-1.1 |
 | BIZ UDMincho | Regular | Japanese document text (serif) | OFL-1.1 |
 | Noto Sans CJK SC | Regular | Simplified Chinese UI and document text (sans) | OFL-1.1 |
+| ChillRoundF | Regular | Simplified Chinese UI and document text (rounded sans; Adobe-free chain) | OFL-1.1 |
 | Noto Sans Arabic | Regular (variable: wdth, wght) | Arabic UI and document text (sans) | OFL-1.1 |
 
 ## How the apps use it
