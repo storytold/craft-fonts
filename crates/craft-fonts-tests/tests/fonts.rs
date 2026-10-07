@@ -191,6 +191,20 @@ fn simplified_chinese_fonts_cover_chinese_text() {
 }
 
 #[test]
+fn traditional_chinese_fonts_cover_chinese_text() {
+    covers(
+        "Hant",
+        concat!(
+            "繁體中文檔案編輯檢視視窗說明新增開啟儲存關閉復原重做複製貼上刪除選取圖層頁面樣式顏色匯出列印設定",
+            "圖庫曝光度對比亮部陰影紋理清晰度去朦朧鮮豔度飽和度色溫色調曲線混合器分級細節銳利化雜訊減少",
+            "鏡頭校正暗角顆粒裁切污點移除遮色片線性放射狀漸層預設集匯入評等旗標標籤收藏集中繼資料關鍵字階分佈白平衡相機描述檔",
+            "，。、：；？！（）《》「」『』…",
+            "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789",
+        ),
+    );
+}
+
+#[test]
 fn arabic_fonts_cover_arabic_text() {
     covers(
         "Arab",
