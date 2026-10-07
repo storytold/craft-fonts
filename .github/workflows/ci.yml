@@ -26,3 +26,5 @@ jobs:
         run: cargo test --workspace --locked
       - name: test (embed)
         run: cargo test -p craft-fonts --features embed --locked
+      - name: test (embed-latin)
+        run: cargo test -p craft-fonts --features embed-latin --locked

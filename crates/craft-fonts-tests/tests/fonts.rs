@@ -1,6 +1,7 @@
-//! Assertions on the font files themselves.
+//! Assertions on the font files themselves, from both manifests (`fonts/manifest.txt` and
+//! `fonts/latin-manifest.txt`).
 
-use craft_fonts::{FONTS, Font, for_script};
+use craft_fonts::{FONTS, Font, LATIN_FONTS, for_script};
 use sha2::{Digest, Sha256};
 use skrifa::raw::TableProvider;
 use skrifa::{FontRef, MetadataProvider, string::StringId};
@@ -10,9 +11,14 @@ fn bytes(f: &Font) -> Vec<u8> {
         .unwrap_or_else(|e| panic!("{}: {e}", f.file))
 }
 
+/// Every font in both manifests.
+fn all() -> impl Iterator<Item = &'static Font> {
+    FONTS.iter().chain(LATIN_FONTS)
+}
+
 #[test]
 fn every_file_matches_its_manifest_checksum() {
-    for f in FONTS {
+    for f in all() {
         let digest = Sha256::digest(bytes(f));
         let hex: String = digest.iter().map(|b| format!("{b:02x}")).collect();
         assert_eq!(
@@ -25,22 +31,28 @@ fn every_file_matches_its_manifest_checksum() {
 
 #[test]
 fn every_font_ships_its_licence() {
-    for f in FONTS {
+    for f in all() {
         let text = std::fs::read_to_string(craft_fonts_tests::repo_root().join(f.licence_file))
             .unwrap_or_else(|e| panic!("{}: {e}", f.licence_file));
-        if f.licence == "OFL-1.1" {
-            assert!(
+        match f.licence {
+            "OFL-1.1" => assert!(
                 text.contains("SIL OPEN FONT LICENSE Version 1.1"),
                 "{} is not the OFL 1.1 text",
                 f.licence_file
-            );
+            ),
+            "Apache-2.0" => assert!(
+                text.contains("Apache License") && text.contains("Version 2.0"),
+                "{} is not the Apache 2.0 text",
+                f.licence_file
+            ),
+            other => panic!("{}: licence {other:?} is not OFL-1.1 or Apache-2.0", f.file),
         }
     }
 }
 
 #[test]
 fn every_font_is_the_family_the_manifest_says() {
-    for f in FONTS {
+    for f in all() {
         let data = bytes(f);
         let font = FontRef::new(&data).unwrap_or_else(|e| panic!("{}: {e}", f.file));
         let names: Vec<String> = [StringId::TYPOGRAPHIC_FAMILY_NAME, StringId::FAMILY_NAME]
@@ -201,4 +213,115 @@ fn arabic_fonts_cover_arabic_text() {
             "،؛؟",
         ),
     );
+}
+
+/// Text every Latin presentation font must cover: ASCII, Western European accents and the
+/// typographic punctuation slide text uses.
+const LATIN: &str = concat!(
+    "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789",
+    " !\"#$%&'()*+,-./:;<=>?@[\\]^_`{|}~",
+    "ÀÁÂÃÄÅÆÇÈÉÊËÌÍÎÏÑÒÓÔÕÖØÙÚÛÜÝßàáâãäåæçèéêëìíîïñòóôõöøùúûüýÿŒœŸ",
+    "‘’“”–—…•€£¥©®™°±×÷",
+);
+
+#[test]
+fn latin_fonts_cover_western_european_text() {
+    assert!(!LATIN_FONTS.is_empty());
+    for f in LATIN_FONTS {
+        assert_eq!(
+            f.scripts,
+            ["Latn"],
+            "{}: the Latin manifest is for Latn fonts",
+            f.file
+        );
+        let data = bytes(f);
+        let font = FontRef::new(&data).unwrap_or_else(|e| panic!("{}: {e}", f.file));
+        let charmap = font.charmap();
+        let missing: String = LATIN
+            .chars()
+            .filter(|c| charmap.map(*c).is_none())
+            .collect();
+        assert!(
+            missing.is_empty(),
+            "{} {} has no glyph for {missing:?}",
+            f.family,
+            f.style
+        );
+    }
+}
+
+#[test]
+fn latin_glyphs_have_outlines() {
+    use skrifa::instance::{LocationRef, Size};
+    use skrifa::outline::{DrawSettings, OutlinePen};
+    struct Count(usize);
+    impl OutlinePen for Count {
+        fn move_to(&mut self, _: f32, _: f32) {}
+        fn line_to(&mut self, _: f32, _: f32) {
+            self.0 += 1;
+        }
+        fn quad_to(&mut self, _: f32, _: f32, _: f32, _: f32) {
+            self.0 += 1;
+        }
+        fn curve_to(&mut self, _: f32, _: f32, _: f32, _: f32, _: f32, _: f32) {
+            self.0 += 1;
+        }
+        fn close(&mut self) {}
+    }
+    for f in LATIN_FONTS {
+        let data = bytes(f);
+        let font = FontRef::new(&data).unwrap_or_else(|e| panic!("{}: {e}", f.file));
+        let outlines = font.outline_glyphs();
+        for c in ['A', 'g', 'é', '€'] {
+            let gid = font
+                .charmap()
+                .map(c)
+                .unwrap_or_else(|| panic!("{}: no glyph for {c}", f.file));
+            let glyph = outlines
+                .get(gid)
+                .unwrap_or_else(|| panic!("{}: no outline for {c}", f.file));
+            let mut pen = Count(0);
+            glyph
+                .draw(
+                    DrawSettings::unhinted(Size::new(64.0), LocationRef::default()),
+                    &mut pen,
+                )
+                .unwrap_or_else(|e| panic!("{}: drawing {c}: {e}", f.file));
+            assert!(pen.0 > 0, "{} {}: {c} draws nothing", f.family, f.style);
+        }
+    }
+}
+
+#[test]
+fn latin_variable_styles_are_variable_fonts() {
+    // A style named "... Variable" must be a variable font with a weight axis; any other style
+    // must be a static instance, so apps can trust the style field.
+    for f in LATIN_FONTS {
+        let data = bytes(f);
+        let font = FontRef::new(&data).unwrap_or_else(|e| panic!("{}: {e}", f.file));
+        let axes: Vec<String> = font.axes().iter().map(|a| a.tag().to_string()).collect();
+        if f.style.ends_with("Variable") {
+            assert!(
+                axes.iter().any(|t| t == "wght"),
+                "{}: style {:?} but axes {axes:?}",
+                f.file,
+                f.style
+            );
+        } else {
+            assert!(
+                axes.is_empty(),
+                "{}: style {:?} but it is variable ({axes:?})",
+                f.file,
+                f.style
+            );
+        }
+        assert_eq!(
+            f.style.contains("Italic"),
+            font.os2()
+                .is_ok_and(|os2| os2.fs_selection().bits() & 1 != 0),
+            "{}: style {:?} disagrees with the OS/2 italic bit",
+            f.file,
+            f.style
+        );
+    }
 }
