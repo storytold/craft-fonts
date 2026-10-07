@@ -202,3 +202,31 @@ fn arabic_fonts_cover_arabic_text() {
         ),
     );
 }
+
+#[test]
+fn interface_font_covers_european_interface_text() {
+    let fonts: Vec<&Font> = FONTS
+        .iter()
+        .filter(|f| f.family == "Source Sans 3")
+        .collect();
+    assert_eq!(fonts.len(), 3, "Source Sans 3 Regular, Medium and Semibold");
+    for f in fonts {
+        let data = bytes(f);
+        let font = FontRef::new(&data).unwrap_or_else(|e| panic!("{}: {e}", f.file));
+        let charmap = font.charmap();
+        let text = concat!(
+            "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789",
+            "àáâãäåçèéêëìíîïñòóôõöùúûüýÿßæøœ",
+            ".,:;?!()[]{}'\"‘’“”…–—·•%&@#/+-=×÷<>|_",
+            "ΑΒΓΔαβγδ",
+            "АБВГабвг",
+        );
+        let missing: String = text.chars().filter(|c| charmap.map(*c).is_none()).collect();
+        assert!(
+            missing.is_empty(),
+            "{} {} has no glyph for {missing:?}",
+            f.family,
+            f.style
+        );
+    }
+}
