@@ -34,6 +34,17 @@ This library is meant to have the following:
 | BIZ UDMincho | Regular | Japanese document text (serif) | OFL-1.1 |
 | Noto Sans CJK SC | Regular | Simplified Chinese UI and document text (sans) | OFL-1.1 |
 | Noto Sans Arabic | Regular (variable: wdth, wght) | Arabic UI and document text (sans) | OFL-1.1 |
+| Cairo | Regular (variable: slnt, wght) | Arabic UI and document text (sans) | OFL-1.1 |
+| Tajawal | ExtraLight, Light, Regular, Medium, Bold, ExtraBold, Black | Arabic UI and document text (sans) | OFL-1.1 |
+| Almarai | Light, Regular, Bold, ExtraBold | Arabic UI and document text (sans) | OFL-1.1 |
+| IBM Plex Sans Arabic | Thin, ExtraLight, Light, Regular, Medium, SemiBold, Bold | Arabic UI and document text (sans) | OFL-1.1 |
+| Noto Kufi Arabic | Regular (variable: wght) | Arabic display and document text (Kufi) | OFL-1.1 |
+| Amiri | Regular, Bold, Italic, Bold Italic | Arabic document text (Naskh serif) | OFL-1.1 |
+| Alexandria | Regular (variable: wght) | Arabic display and UI text (sans) | OFL-1.1 |
+| Fustat | Regular (variable: wght) | Arabic display and document text (sans) | OFL-1.1 |
+| Reem Kufi | Regular (variable: wght) | Arabic display text (Kufi) | OFL-1.1 |
+| Aref Ruqaa | Regular, Bold | Arabic display text (Ruqʿah calligraphic) | OFL-1.1 |
+| Gulzar | Regular | Urdu and Arabic document text (Nastaliq) | OFL-1.1 |
 
 ## How the apps use it
 

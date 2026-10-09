@@ -202,3 +202,47 @@ fn arabic_fonts_cover_arabic_text() {
         ),
     );
 }
+
+#[test]
+fn arabic_fonts_join_letters() {
+    // Arabic letters take initial, medial and final forms; a font without these GSUB features
+    // draws every letter isolated, which reads as broken text.
+    let arab: Vec<&Font> = for_script("Arab").collect();
+    assert!(!arab.is_empty(), "the manifest lists no Arabic font");
+    for f in arab {
+        let data = bytes(f);
+        let font = FontRef::new(&data).unwrap_or_else(|e| panic!("{}: {e}", f.file));
+        let gsub = font
+            .gsub()
+            .unwrap_or_else(|e| panic!("{}: no GSUB: {e}", f.file));
+        let features = gsub
+            .feature_list()
+            .unwrap_or_else(|e| panic!("{}: GSUB features: {e}", f.file));
+        let tags: Vec<String> = features
+            .feature_records()
+            .iter()
+            .map(|r| r.feature_tag().to_string())
+            .collect();
+        for needed in ["init", "medi", "fina"] {
+            assert!(
+                tags.iter().any(|t| t == needed),
+                "{} {}: no {needed} GSUB feature (has {tags:?})",
+                f.family,
+                f.style
+            );
+        }
+    }
+}
+
+#[test]
+fn noto_sans_arabic_is_the_first_arabic_font() {
+    // The apps take the first Arabic font in manifest order as the fallback for Arabic text.
+    let first = for_script("Arab")
+        .next()
+        .unwrap_or_else(|| panic!("the manifest lists no Arabic font"));
+    assert_eq!(
+        (first.family, first.style),
+        ("Noto Sans Arabic", "Regular"),
+        "keep Noto Sans Arabic as the first Arab line in fonts/manifest.txt"
+    );
+}
