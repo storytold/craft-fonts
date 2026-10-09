@@ -114,9 +114,15 @@ app was built without craft-fonts. Code that uses it must work when it is empty.
   the app was built with craft-fonts.
 - **Document text engines:** register them as fallback faces for Japanese, after the document's
   requested font and the app's bundled fonts.
+- **Arabic (`Arab`):** `Noto Sans Arabic` is the first Arabic font in the manifest and is meant as
+  the fallback for Arabic text. The other Arabic families are for users to choose by name; register
+  them in the document font database so they appear in font menus. Each is complete on its own
+  (Arabic plus basic Latin) and joins letters (GSUB `init`/`medi`/`fina`, checked by the tests).
 - **Web (wasm32):** the recipe embeds only `BIZ UDPGothic Regular` (~4.5 MB); all four fonts are
   ~24 MB, over typical per-file hosting limits. If the app's web build has a size check, measure
-  with `CRAFT_FONTS_DIR` set and shrink `WEB_FONTS` (even to empty) if it fails.
+  with `CRAFT_FONTS_DIR` set and shrink `WEB_FONTS` (even to empty) if it fails. Fonts that don't
+  fit can be served as separate files next to the wasm and fetched at startup instead of embedded
+  (VectorCraft and PhotoCraft do this for the Arabic fonts; see their `crates/text/web-fonts.txt`).
 - Prefer `BIZ UDPGothic` for UI text and `Shippori Mincho` / `BIZ UDMincho` for serif document
   text.
 - Tests that assert on these fonts' glyphs must skip (not fail) when `CRAFT_FONTS` is empty, and
