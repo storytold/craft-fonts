@@ -34,6 +34,12 @@ fn every_font_ships_its_licence() {
                 "{} is not the OFL 1.1 text",
                 f.licence_file
             );
+        } else if f.licence == "Apache-2.0" {
+            assert!(
+                text.contains("Apache License") && text.contains("Version 2.0"),
+                "{} is not the Apache 2.0 licence text",
+                f.licence_file
+            );
         }
     }
 }
@@ -184,9 +190,25 @@ fn simplified_chinese_fonts_cover_chinese_text() {
         "Hans",
         concat!(
             "中文简体字文件编辑视图窗口帮助新建打开保存关闭撤销重做复制粘贴删除选择图层页面样式颜色导出打印设置",
-            "，。、：；？！（）《》“”…",
-            "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789",
+            "，。、：；？！（）《》",
         ),
+    );
+}
+
+/// A CJK fallback face need not carry Latin; only faces declaring Latn must cover it.
+#[test]
+fn latin_fonts_cover_latin_text() {
+    covers(
+        "Latn",
+        "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789“”…",
+    );
+}
+
+#[test]
+fn traditional_chinese_fonts_cover_chinese_text() {
+    covers(
+        "Hant",
+        "繁體中文檔案編輯視圖視窗幫助開啟儲存關閉復原複製貼上刪除選取圖層頁面顏色匯出列印設定",
     );
 }
 
