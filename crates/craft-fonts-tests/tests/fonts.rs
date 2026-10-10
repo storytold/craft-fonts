@@ -202,3 +202,11 @@ fn arabic_fonts_cover_arabic_text() {
         ),
     );
 }
+
+#[test]
+fn thai_fonts_cover_vowels_tones_digits_and_latin() {
+    covers(
+        "Thai",
+        "สวัสดีภาษาไทย น้ำ ผู้ใช้ กิ่ ปู่ เก้า ฤๅ ฿ ๐๑๒๓๔๕๖๗๘๙ Hello 123",
+    );
+}
