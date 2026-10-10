@@ -22,7 +22,7 @@ This library is meant to have the following:
 | `fonts/manifest.txt` | Machine-readable list of every font: family, style, file, scripts, licence, SHA-256, pinned source. |
 | `ATTRIBUTION.md` | Authors, pinned sources and licences. |
 | `crates/craft-fonts` | Rust: the manifest as a static table, finding a checkout (`CRAFT_FONTS_DIR`), loading it, and an `embed` feature that compiles the fonts in. |
-| `crates/craft-fonts-tests` | Tests asserted on these fonts: checksums, licences, family names, Japanese coverage and outlines, vertical-text (`vert`/`vrt2`) support. |
+| `crates/craft-fonts-tests` | Tests asserted on these fonts: checksums, licence texts, family names, Latin coverage for `Latn` fonts, Japanese, Chinese (`Hans`, `Hant`) and Arabic coverage, Japanese and Chinese outlines, Japanese vertical-text (`vert`/`vrt2`) support. |
 | `docs/integration.md` | How an app uses craft-fonts as a fully optional build input. |
 
 ### Fonts
@@ -34,6 +34,7 @@ This library is meant to have the following:
 | BIZ UDMincho | Regular | Japanese document text (serif) | OFL-1.1 |
 | Noto Sans CJK SC | Regular | Simplified Chinese UI and document text (sans) | OFL-1.1 |
 | Noto Sans Arabic | Regular (variable: wdth, wght) | Arabic UI and document text (sans) | OFL-1.1 |
+| Droid Sans Fallback | Regular | Simplified and Traditional Chinese UI and document text (sans); no Latin | Apache-2.0 |
 
 ## How the apps use it
 
