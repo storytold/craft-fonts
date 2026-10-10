@@ -1,7 +1,7 @@
 # Using craft-fonts in a Crafting App
 
 craft-fonts is a **fully optional** source of fonts. An app must build, test and run without it;
-with it, the app embeds the fonts listed in `fonts/manifest.txt` and uses them (today: Japanese
+with it, the app embeds the fonts listed in `fonts/manifest.txt` and uses them (today: Japanese, Chinese and Arabic
 UI and document fallback).
 
 ## Why not a Cargo dependency
@@ -139,14 +139,16 @@ env:
   CRAFT_FONTS_REQUIRED: "1"
 ```
 
-Packages built with craft-fonts must include each embedded font's licence file (copy
-`$CRAFT_FONTS_DIR/fonts/*/{OFL,NOTICE}.txt` into the package's licences, named after the family) and the
-app's `NOTICE` must say that builds made with `CRAFT_FONTS_DIR` embed the fonts listed in
+Packages built with craft-fonts must copy each embedded font's `licence file` from its manifest
+entry into the package's licences, named after the family. Do not assume a filename or extension:
+Droid Sans Fallback's upstream `NOTICE` contains both its Apache-2.0 terms and copyright notice.
+The app's `NOTICE` must say that builds made with `CRAFT_FONTS_DIR` embed the fonts listed in
 craft-fonts' `ATTRIBUTION.md`.
 
 ## Adding a font
 
 1. Put the file and its licence under `fonts/<family>/`, from a pinned upstream commit.
 2. Add a manifest line (with its SHA-256) and an `ATTRIBUTION.md` row.
-3. `cargo test --workspace`: `craft-fonts-tests` checks the checksum, licence, family name and,
-   for Japanese fonts, coverage and vertical-text support. Add assertions for any new script.
+3. `cargo test --workspace`: `craft-fonts-tests` checks checksums, licence terms, family names,
+   script coverage, Japanese and Chinese outlines, and Japanese vertical-text support. Add
+   assertions for any new script and a licence-text check for any new licence.

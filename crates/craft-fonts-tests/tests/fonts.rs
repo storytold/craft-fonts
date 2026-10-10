@@ -28,19 +28,17 @@ fn every_font_ships_its_licence() {
     for f in FONTS {
         let text = std::fs::read_to_string(craft_fonts_tests::repo_root().join(f.licence_file))
             .unwrap_or_else(|e| panic!("{}: {e}", f.licence_file));
-        if f.licence == "OFL-1.1" {
-            assert!(
-                text.contains("SIL OPEN FONT LICENSE Version 1.1"),
-                "{} is not the OFL 1.1 text",
-                f.licence_file
-            );
-        } else if f.licence == "Apache-2.0" {
-            assert!(
-                text.contains("Apache License") && text.contains("Version 2.0"),
-                "{} is not the Apache 2.0 licence text",
-                f.licence_file
-            );
-        }
+        let marker = match f.licence {
+            "OFL-1.1" => "SIL OPEN FONT LICENSE Version 1.1",
+            "Apache-2.0" => "TERMS AND CONDITIONS FOR USE, REPRODUCTION, AND DISTRIBUTION",
+            other => panic!("{}: add a licence-text check for {other}", f.file),
+        };
+        assert!(
+            text.contains(marker),
+            "{} lacks the {} licence terms",
+            f.licence_file,
+            f.licence
+        );
     }
 }
 
@@ -100,6 +98,16 @@ fn japanese_fonts_cover_japanese_text() {
 
 #[test]
 fn japanese_glyphs_have_outlines() {
+    glyphs_have_outlines("Jpan", &['漢', 'あ', 'ア', '。']);
+}
+
+#[test]
+fn chinese_glyphs_have_outlines() {
+    glyphs_have_outlines("Hans", &['中', '简', '欢', '，']);
+    glyphs_have_outlines("Hant", &['中', '繁', '歡', '，']);
+}
+
+fn glyphs_have_outlines(script: &str, chars: &[char]) {
     use skrifa::instance::{LocationRef, Size};
     use skrifa::outline::{DrawSettings, OutlinePen};
     struct Count(usize);
@@ -116,11 +124,13 @@ fn japanese_glyphs_have_outlines() {
         }
         fn close(&mut self) {}
     }
-    for f in for_script("Jpan") {
+    let fonts: Vec<&Font> = for_script(script).collect();
+    assert!(!fonts.is_empty(), "the manifest lists no {script} font");
+    for f in fonts {
         let data = bytes(f);
         let font = FontRef::new(&data).unwrap_or_else(|e| panic!("{}: {e}", f.file));
         let outlines = font.outline_glyphs();
-        for c in ['漢', 'あ', 'ア', '。'] {
+        for &c in chars {
             let gid = font
                 .charmap()
                 .map(c)
@@ -190,6 +200,7 @@ fn simplified_chinese_fonts_cover_chinese_text() {
         "Hans",
         concat!(
             "中文简体字文件编辑视图窗口帮助新建打开保存关闭撤销重做复制粘贴删除选择图层页面样式颜色导出打印设置",
+            "欢迎签名证书压缩组织准备查找账务处理测试",
             "，。、：；？！（）《》",
         ),
     );
