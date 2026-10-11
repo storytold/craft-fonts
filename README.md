@@ -35,6 +35,9 @@ This library is meant to have the following:
 | Noto Sans CJK SC | Regular | Simplified Chinese UI and document text (sans) | OFL-1.1 |
 | Noto Sans Arabic | Regular (variable: wdth, wght) | Arabic UI and document text (sans) | OFL-1.1 |
 | Noto Sans Thai | Regular (variable: wdth, wght) | Thai UI and document text (sans) | OFL-1.1 |
+| Noto Sans Devanagari | Regular (variable: wdth, wght) | Hindi / Devanagari UI and document text | OFL-1.1 |
+| Noto Sans Bengali | Regular (variable: wdth, wght) | Bengali UI and document text | OFL-1.1 |
+| NanumGothic | Regular | Korean UI and document text | OFL-1.1 |
 
 ## How the apps use it
 
