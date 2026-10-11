@@ -1,0 +1,85 @@
+diff --git a/Cargo.lock b/Cargo.lock
+index 5d31563..b02e874 100644
+--- a/Cargo.lock
++++ b/Cargo.lock
+@@ -4614,6 +4614,7 @@ dependencies = [
+  "photocraft-io",
+  "photocraft-paint",
+  "photocraft-psd",
++ "photocraft-text",
+  "photocraft-ui-egui",
+  "rfd",
+  "serde_json",
+diff --git a/apps/photocraft-web/Cargo.toml b/apps/photocraft-web/Cargo.toml
+index 6b4c627..a3b9928 100644
+--- a/apps/photocraft-web/Cargo.toml
++++ b/apps/photocraft-web/Cargo.toml
+@@ -20,6 +20,7 @@ path = "src/main.rs"
+ 
+ [dependencies]
+ photocraft-engine = { workspace = true }
++photocraft-text = { workspace = true }
+ photocraft-io = { workspace = true }
+ photocraft-codecs = { workspace = true }
+ photocraft-doc = { workspace = true }
+diff --git a/apps/photocraft-web/src/web.rs b/apps/photocraft-web/src/web.rs
+index 21c55a8..face710 100644
+--- a/apps/photocraft-web/src/web.rs
++++ b/apps/photocraft-web/src/web.rs
+@@ -80,6 +80,7 @@ pub fn start() {
+                     PhotocraftApp::setup_context(&cc.egui_ctx, ThemeKind::Pro);
+                     let inbox: Inbox = Arc::default();
+                     let served: Served = Arc::default();
++                    suite_font_wake(cc.egui_ctx.clone());
+                     load_font_manifest(served.clone(), cc.egui_ctx.clone());
+                     let (session, warnings) = crate::preset_bridge::session(presets.clone());
+                     preset_warnings.extend(warnings);
+@@ -299,6 +300,13 @@ impl eframe::App for WebShell {
+                 }
+             });
+         }
++        let batch = suite_font_batch();
++        let delivered = batch.iter().map(|(_, family, _, bytes)| (family.clone(), bytes.clone())).collect();
++        served_fonts::install(&mut self.app, delivered);
++        for (id, family, _, _) in batch {
++            let ok = photocraft_text::shared().lock().unwrap_or_else(std::sync::PoisonError::into_inner).fonts.has_family(&family);
++            craft_font_ack(&id, ok, if ok { "Registered in PhotoCraft" } else { "Unsupported font" });
++        }
+         self.serve_fonts(ctx);
+         self.app.logic(ctx, frame);
+         self.save_presets(ctx);
+@@ -513,3 +521,34 @@ fn screen_color_service() -> Option<photocraft_ui_egui::screen_picker::Service>
+         Pending { receiver: rx, cancelled }
+     }))
+ }
++
++// *Craft's origin-local library passes real font bytes to the native text engine.
++#[wasm_bindgen::prelude::wasm_bindgen(
++    inline_js = "export function craft_font_take(){return globalThis.CraftFonts?.take() || [];} export function craft_font_ack(id,ok,message){globalThis.CraftFonts?.ack(id,ok,message);} export function craft_font_wake(callback){globalThis.addEventListener('craft:font-change',callback);}"
++)]
++extern "C" {
++    fn craft_font_take() -> js_sys::Array;
++    fn craft_font_ack(id: &str, ok: bool, message: &str);
++    fn craft_font_wake(callback: &js_sys::Function);
++}
++fn suite_font_wake(ctx: egui::Context) {
++    let callback = wasm_bindgen::closure::Closure::<dyn FnMut()>::new(move || ctx.request_repaint());
++    craft_font_wake(callback.as_ref().unchecked_ref());
++    callback.forget(); // One wake listener per app runner, for the lifetime of its page.
++}
++fn suite_font_batch() -> Vec<(String, String, String, Vec<u8>)> {
++    craft_font_take()
++        .iter()
++        .filter_map(|r| {
++            let get = |key: &str| js_sys::Reflect::get(&r, &key.into()).ok();
++            let id = get("id")?.as_string()?;
++            let family = get("family")?.as_string()?;
++            let style = get("style")?.as_string()?;
++            let bytes = js_sys::Uint8Array::new(&get("bytes")?);
++            if bytes.length() > 24 * 1024 * 1024 || id.len() != 64 || family.len() > 160 {
++                return None;
++            }
++            Some((id, family, style, bytes.to_vec()))
++        })
++        .collect()
++}

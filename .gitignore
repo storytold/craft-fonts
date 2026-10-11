@@ -1,2 +1,7 @@
 *~
 /target
+
+/.cache/
+/web/node_modules
+__pycache__/
+*.pyc

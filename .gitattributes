@@ -1,0 +1,2 @@
+# Unified diff reference files contain significant blank context lines.
+web/adapters/*.patch -whitespace

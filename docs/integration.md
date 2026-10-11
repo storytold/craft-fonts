@@ -150,3 +150,11 @@ craft-fonts' `ATTRIBUTION.md`.
 2. Add a manifest line (with its SHA-256) and an `ATTRIBUTION.md` row.
 3. `cargo test --workspace`: `craft-fonts-tests` checks the checksum, licence, family name and,
    for Japanese fonts, coverage and vertical-text support. Add assertions for any new script.
+
+## Optional browser library and fonts outside WASM
+
+A launcher can serve font files separately and share user imports between same-origin web apps
+using the optional [web font library](weblauncher.md). This avoids embedding the complete catalog
+into WASM. Editors consume actual bytes through a versioned bridge and register them in their
+native font databases. CSS previews alone do not update editor fonts. The existing build-time
+`CRAFT_FONTS_DIR` integration remains independent and optional.

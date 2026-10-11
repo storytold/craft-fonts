@@ -1,0 +1,16 @@
+<!doctype html>
+<html lang="en"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Craft font library</title><link rel="stylesheet" href="./library.css">
+<style>body{margin:0;padding:48px;background:#181b20;color:#f2f0eb;font:16px/1.6 system-ui}main{max-width:720px;margin:auto}button{padding:12px 20px;cursor:pointer}pre{white-space:pre-wrap}</style>
+<main><h1>Craft font library</h1><p>Search and preview fonts. Import styles or upload TTF and OTF files. Fonts stay in this browser and can be shared by editors hosted on the same origin.</p>
+<button data-open-fonts>Open font library</button><p id="status" role="status"></p>
+<p>This standalone example demonstrates storage and the byte bridge. It does not render or export documents through a Craft editor.</p>
+<details><summary>Inspect the byte bridge</summary><p>The test consumer acknowledges fonts after inspecting their metadata. Real apps must register these bytes in their text engine before acknowledging success.</p><button id="consume">Consume pending fonts</button><pre id="result"></pre></details></main>
+<script>window.CraftFontsConfig={autoActivate:false};</script>
+<script type="module">
+import './manager.mjs';
+import {ready} from './library.mjs';
+await ready;
+document.querySelector('#status').textContent='Font storage ready.';
+document.querySelector('#consume').onclick=()=>{const batch=window.CraftFonts.take();document.querySelector('#result').textContent=JSON.stringify(batch.map(({bytes,...font})=>({...font,byteLength:bytes.length})),null,2);for(const font of batch)window.CraftFonts.ack(font.id,true,'Example inspected bytes only');};
+</script></html>

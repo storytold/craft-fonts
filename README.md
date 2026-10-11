@@ -55,3 +55,13 @@ cargo test -p craft-fonts --features embed   # the embedded bytes match the file
 ```
 
 Code is MIT OR Apache-2.0 (`LICENSE-MIT`, `LICENSE-APACHE`); each font keeps its own licence.
+
+## Optional web launcher library
+
+[`web/`](web/) provides a static font manager with local TTF/OTF imports, Font Library discovery,
+previews, same-origin IndexedDB storage, backups and a versioned byte bridge for WASM editors.
+It packages this repository's existing manifest without changing native builds. An optional
+96-family collection and four native engine adapter references are also included.
+
+Start with `node web/tools/build.mjs`, then serve `.cache/web-fonts` over HTTP locally.
+See [`docs/weblauncher.md`](docs/weblauncher.md) for configuration, app adoption and limits.
