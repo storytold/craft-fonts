@@ -204,6 +204,15 @@ fn arabic_fonts_cover_arabic_text() {
 }
 
 #[test]
+fn telugu_fonts_cover_telugu_text() {
+    covers(
+        "Telu",
+        concat!(
+            "అఆఇఈఉఊఋౠఌౡఎఏఐఒఓఔ",
+            "కఖగఘఙచఛజఝఞటఠడఢణతథదధనపఫబభమయరఱలళవశషసహ",
+            "ాిీుూృౄెేైొోౌ",
+            "ఁంః్",
+            "౦౧౨౩౪౫౬౭౮౯",
 fn thai_fonts_cover_thai_text() {
     covers(
         "Thai",
