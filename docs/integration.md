@@ -1,8 +1,8 @@
 # Using craft-fonts in a Crafting App
 
 craft-fonts is a **fully optional** source of fonts. An app must build, test and run without it;
-with it, the app embeds the fonts listed in `fonts/manifest.txt` and uses them (today: Japanese
-UI and document fallback).
+with it, the app embeds the fonts listed in `fonts/manifest.txt` and uses them (today: Japanese,
+Chinese and Arabic UI and document fallback).
 
 ## Why not a Cargo dependency
 
@@ -119,13 +119,21 @@ app was built without craft-fonts. Code that uses it must work when it is empty.
   with `CRAFT_FONTS_DIR` set and shrink `WEB_FONTS` (even to empty) if it fails.
 - Prefer `BIZ UDPGothic` for UI text and `Shippori Mincho` / `BIZ UDMincho` for serif document
   text.
+- **Chinese:** select faces by script tag, `Hans` (Simplified) or `Hant` (Traditional), and put
+  the UI language's group before the Japanese faces: shared ideographs would otherwise take
+  Japanese glyph shapes, and Simplified-only ones would fall to a face with other metrics.
+  `Hans` lists Noto Sans CJK SC, then Droid Sans Fallback; `Hant` lists only Droid Sans Fallback.
+  Noto Sans CJK SC is the Source Han design, so an app whose asset policy excludes Source
+  Han–derived fonts picks Droid Sans Fallback by family. Droid Sans Fallback has **no Latin
+  glyphs** (not tagged `Latn`): keep a Latin face before it.
 - Tests that assert on these fonts' glyphs must skip (not fail) when `CRAFT_FONTS` is empty, and
   CI should run them with `CRAFT_FONTS_DIR` set so they are exercised.
 
 ## Releases and licences
 
-The fonts are OFL-1.1: they can be embedded and redistributed, but the licence text must go with
-them. In `release.yml`, check out craft-fonts at a pinned commit and build with it:
+The fonts are OFL-1.1 or Apache-2.0 (the `licence` field of each manifest line): they can be
+embedded and redistributed, but the licence text must go with them. In `release.yml`, check out
+craft-fonts at a pinned commit and build with it:
 
 ```yaml
 - uses: actions/checkout@v4
@@ -139,14 +147,19 @@ env:
   CRAFT_FONTS_REQUIRED: "1"
 ```
 
-Packages built with craft-fonts must include each embedded font's licence file (copy
-`$CRAFT_FONTS_DIR/fonts/*/OFL.txt` into the package's licences, named after the family) and the
-app's `NOTICE` must say that builds made with `CRAFT_FONTS_DIR` embed the fonts listed in
-craft-fonts' `ATTRIBUTION.md`.
+Packages built with craft-fonts must include each embedded font's licence file: the `licence file`
+field of its manifest line (`fonts/<family>/OFL.txt` for the OFL fonts,
+`fonts/droid-sans-fallback/NOTICE` for Droid Sans Fallback, which holds the Apache-2.0 notice and
+licence text that must travel with it). Copy each into the package's licences, named after the
+family; a glob over `fonts/*/OFL.txt` misses the Apache-2.0 one. The app's `NOTICE` must say that
+builds made with `CRAFT_FONTS_DIR` embed the fonts listed in craft-fonts' `ATTRIBUTION.md`.
 
 ## Adding a font
 
 1. Put the file and its licence under `fonts/<family>/`, from a pinned upstream commit.
 2. Add a manifest line (with its SHA-256) and an `ATTRIBUTION.md` row.
-3. `cargo test --workspace`: `craft-fonts-tests` checks the checksum, licence, family name and,
-   for Japanese fonts, coverage and vertical-text support. Add assertions for any new script.
+3. `cargo test --workspace`: `craft-fonts-tests` checks the checksum, the licence text, the family
+   name, Latin coverage for fonts tagged `Latn`, coverage for Japanese, Chinese (`Hans`, `Hant`)
+   and Arabic fonts, outlines for Japanese and Chinese fonts, and vertical-text support for
+   Japanese fonts. Add assertions for any new script, and a licence-text check for any new
+   licence.
