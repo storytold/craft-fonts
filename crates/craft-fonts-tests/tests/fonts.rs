@@ -204,6 +204,19 @@ fn arabic_fonts_cover_arabic_text() {
 }
 
 #[test]
+fn thai_fonts_cover_thai_text() {
+    covers(
+        "Thai",
+        concat!(
+            "กขฃคฅฆงจฉชซฌญฎฏฐฑฒณดตถทธนบปผฝพฟภมยรฤลฦวศษสหฬอฮ",
+            "ะัาำิีึืุูเแโใไๅ็่้๊๋์",
+            "๐๑๒๓๔๕๖๗๘๙",
+            "ฯๆ฿",
+        ),
+    );
+}
+
+#[test]
 fn hebrew_fonts_cover_hebrew_text() {
     covers(
         "Hebr",
