@@ -35,6 +35,15 @@ This library is meant to have the following:
 | Noto Sans CJK SC | Regular | Simplified Chinese UI and document text (sans) | OFL-1.1 |
 | Noto Sans Arabic | Regular (variable: wdth, wght) | Arabic UI and document text (sans) | OFL-1.1 |
 | Noto Sans Thai | Regular (variable: wdth, wght) | Thai UI and document text (sans) | OFL-1.1 |
+| Noto Sans Devanagari | Regular (variable: wdth, wght) | Hindi, Marathi UI and document text (sans) | OFL-1.1 |
+| Noto Sans Bengali | Regular (variable: wdth, wght) | Bengali UI and document text (sans) | OFL-1.1 |
+| Noto Sans Gurmukhi | Regular (variable: wdth, wght) | Punjabi UI and document text (sans) | OFL-1.1 |
+| Noto Sans Gujarati | Regular (variable: wdth, wght) | Gujarati UI and document text (sans) | OFL-1.1 |
+| Noto Sans Oriya | Regular (variable: wdth, wght) | Odia UI and document text (sans) | OFL-1.1 |
+| Noto Sans Tamil | Regular (variable: wdth, wght) | Tamil UI and document text (sans) | OFL-1.1 |
+| Noto Sans Telugu | Regular (variable: wdth, wght) | Telugu UI and document text (sans) | OFL-1.1 |
+| Noto Sans Kannada | Regular (variable: wdth, wght) | Kannada UI and document text (sans) | OFL-1.1 |
+| Noto Sans Malayalam | Regular (variable: wdth, wght) | Malayalam UI and document text (sans) | OFL-1.1 |
 
 ## How the apps use it
 

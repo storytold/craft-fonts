@@ -117,6 +117,10 @@ app was built without craft-fonts. Code that uses it must work when it is empty.
 - **Web (wasm32):** the recipe embeds only `BIZ UDPGothic Regular` (~4.5 MB); all four fonts are
   ~24 MB, over typical per-file hosting limits. If the app's web build has a size check, measure
   with `CRAFT_FONTS_DIR` set and shrink `WEB_FONTS` (even to empty) if it fails.
+- **Indian scripts:** the nine Noto Sans faces (`Deva`, `Beng`, `Guru`, `Gujr`, `Orya`, `Taml`,
+  `Telu`, `Knda`, `Mlym`) are 0.3–0.9 MB each, ~5 MB together, small enough to add to a web
+  build's `WEB_FONTS`. Every desktop system ships faces for these scripts (Nirmala UI, Kohinoor,
+  Noto), so on desktop put them after the system faces as a last resort.
 - Prefer `BIZ UDPGothic` for UI text and `Shippori Mincho` / `BIZ UDMincho` for serif document
   text.
 - Tests that assert on these fonts' glyphs must skip (not fail) when `CRAFT_FONTS` is empty, and

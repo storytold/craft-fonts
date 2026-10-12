@@ -215,3 +215,129 @@ fn thai_fonts_cover_thai_text() {
         ),
     );
 }
+
+#[test]
+fn devanagari_fonts_cover_devanagari_text() {
+    // Devanagari (Hindi, Marathi): letters, vowel signs and virama, digits, danda.
+    covers(
+        "Deva",
+        concat!(
+            "ऄअआइईउऊऋऌऍऎएऐऑऒओऔकखगघङचछजझञटठडढणतथदधनऩपफबभमयरऱलळऴवशषसहऽॐक़ख़ग़ज़ड़ढ़फ़य़ॠॡॲॳॴॵॶॷॸॹॺॻॼॽॾॿ",
+            "ऀँंःऺऻ़ािीुूृॄॅॆेैॉॊोौ्ॎॏ॒॑॓॔ॕॖॗॢॣ",
+            "०१२३४५६७८९",
+            "।॥",
+        ),
+    );
+}
+
+#[test]
+fn bengali_fonts_cover_bengali_text() {
+    // Bengali: letters, vowel signs and virama, digits, danda.
+    covers(
+        "Beng",
+        concat!(
+            "ঀঅআইঈউঊঋঌএঐওঔকখগঘঙচছজঝঞটঠডঢণতথদধনপফবভমযরলশষসহঽৎড়ঢ়য়ৠৡৰৱ",
+            "ঁংঃ়ািীুূৃৄেৈোৌ্ৗৢৣ৾",
+            "০১২৩৪৫৬৭৮৯",
+            "।॥",
+        ),
+    );
+}
+
+#[test]
+fn gurmukhi_fonts_cover_gurmukhi_text() {
+    // Gurmukhi (Punjabi): letters, vowel signs and virama, digits, danda.
+    covers(
+        "Guru",
+        concat!(
+            "ਅਆਇਈਉਊਏਐਓਔਕਖਗਘਙਚਛਜਝਞਟਠਡਢਣਤਥਦਧਨਪਫਬਭਮਯਰਲਲ਼ਵਸ਼ਸਹਖ਼ਗ਼ਜ਼ੜਫ਼ੲੳੴ",
+            "ਁਂਃ਼ਾਿੀੁੂੇੈੋੌ੍ੑੰੱੵ",
+            "੦੧੨੩੪੫੬੭੮੯",
+            "।॥",
+        ),
+    );
+}
+
+#[test]
+fn gujarati_fonts_cover_gujarati_text() {
+    // Gujarati: letters, vowel signs and virama, digits, danda.
+    covers(
+        "Gujr",
+        concat!(
+            "અઆઇઈઉઊઋઌઍએઐઑઓઔકખગઘઙચછજઝઞટઠડઢણતથદધનપફબભમયરલળવશષસહઽૐૠૡૹ",
+            "ઁંઃ઼ાિીુૂૃૄૅેૈૉોૌ્ૢૣૺૻૼ૽૾૿",
+            "૦૧૨૩૪૫૬૭૮૯",
+            "।॥",
+        ),
+    );
+}
+
+#[test]
+fn oriya_fonts_cover_oriya_text() {
+    // Odia: letters, vowel signs and virama, digits, danda.
+    covers(
+        "Orya",
+        concat!(
+            "ଅଆଇଈଉଊଋଌଏଐଓଔକଖଗଘଙଚଛଜଝଞଟଠଡଢଣତଥଦଧନପଫବଭମଯରଲଳଵଶଷସହଽଡ଼ଢ଼ୟୠୡୱ",
+            "ଁଂଃ଼ାିୀୁୂୃୄେୈୋୌ୍୕ୖୗୢୣ",
+            "୦୧୨୩୪୫୬୭୮୯",
+            "।॥",
+        ),
+    );
+}
+
+#[test]
+fn tamil_fonts_cover_tamil_text() {
+    // Tamil: letters, vowel signs and virama, digits, danda.
+    covers(
+        "Taml",
+        concat!(
+            "ஃஅஆஇஈஉஊஎஏஐஒஓஔகஙசஜஞடணதநனபமயரறலளழவஶஷஸஹௐ",
+            "ஂாிீுூெேைொோௌ்ௗ",
+            "௦௧௨௩௪௫௬௭௮௯",
+            "।॥",
+        ),
+    );
+}
+
+#[test]
+fn telugu_fonts_cover_telugu_text() {
+    // Telugu: letters, vowel signs and virama, digits, danda.
+    covers(
+        "Telu",
+        concat!(
+            "అఆఇఈఉఊఋఌఎఏఐఒఓఔకఖగఘఙచఛజఝఞటఠడఢణతథదధనపఫబభమయరఱలళఴవశషసహఽౘౙౚౠౡ",
+            "ఀఁంఃఄాిీుూృౄెేైొోౌ్ౕౖౢౣ",
+            "౦౧౨౩౪౫౬౭౮౯",
+            "।॥",
+        ),
+    );
+}
+
+#[test]
+fn kannada_fonts_cover_kannada_text() {
+    // Kannada: letters, vowel signs and virama, digits, danda.
+    covers(
+        "Knda",
+        concat!(
+            "ಀಅಆಇಈಉಊಋಌಎಏಐಒಓಔಕಖಗಘಙಚಛಜಝಞಟಠಡಢಣತಥದಧನಪಫಬಭಮಯರಱಲಳವಶಷಸಹಽೞೠೡೱೲ",
+            "ಁಂಃ಼ಾಿೀುೂೃೄೆೇೈೊೋೌ್ೕೖೢೣ",
+            "೦೧೨೩೪೫೬೭೮೯",
+            "।॥",
+        ),
+    );
+}
+
+#[test]
+fn malayalam_fonts_cover_malayalam_text() {
+    // Malayalam: letters, vowel signs and virama, digits, danda.
+    covers(
+        "Mlym",
+        concat!(
+            "അആഇഈഉഊഋഌഎഏഐഒഓഔകഖഗഘങചഛജഝഞടഠഡഢണതഥദധനഩപഫബഭമയരറലളഴവശഷസഹഺഽൎൔൕൖൠൡൺൻർൽൾൿ",
+            "ഀഁംഃ഻഼ാിീുൂൃൄെേൈൊോൌ്ൗൢൣ",
+            "൦൧൨൩൪൫൬൭൮൯",
+            "।॥",
+        ),
+    );
+}
