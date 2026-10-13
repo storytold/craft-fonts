@@ -215,3 +215,19 @@ fn thai_fonts_cover_thai_text() {
         ),
     );
 }
+
+#[test]
+fn korean_fonts_cover_korean_text() {
+    // Any of the 11,172 modern Hangul syllables can be typed, so cover them all, not a sample.
+    let syllables: String = ('가'..='힣').collect();
+    covers(
+        "Hang",
+        &[
+            &syllables,
+            "ㄱㄲㄴㄷㄸㄹㅁㅂㅃㅅㅆㅇㅈㅉㅊㅋㅌㅍㅎㅏㅐㅑㅒㅓㅔㅕㅖㅗㅘㅙㅚㅛㅜㅝㅞㅟㅠㅡㅢㅣ",
+            "·…「」『』《》〈〉“”‘’₩",
+            "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789",
+        ]
+        .concat(),
+    );
+}
