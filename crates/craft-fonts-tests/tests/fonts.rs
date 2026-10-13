@@ -5,6 +5,55 @@ use sha2::{Digest, Sha256};
 use skrifa::raw::TableProvider;
 use skrifa::{FontRef, MetadataProvider, string::StringId};
 
+#[test]
+fn ibm_plex_chinese_assets_have_provenance_and_glyphs() {
+    for (family, script, sample) in [
+        (
+            "IBM Plex Sans SC",
+            "Hans",
+            "简体中文测试编辑汉龙马山田太郎〒ABC0123",
+        ),
+        (
+            "IBM Plex Sans TC",
+            "Hant",
+            "繁體中文測試編輯漢龍馬山田太郎〒ABC0123",
+        ),
+    ] {
+        let face = FONTS
+            .iter()
+            .find(|f| f.family == family && f.style == "Regular")
+            .unwrap();
+        assert!(for_script(script).any(|f| f.file == face.file));
+        assert!(face.source.starts_with(
+            "https://raw.githubusercontent.com/IBM/plex/222657a016f31e6d913ede88520de7dec84dc81b/"
+        ));
+        let data = bytes(face);
+        let digest: String = Sha256::digest(&data)
+            .iter()
+            .map(|b| format!("{b:02x}"))
+            .collect();
+        assert_eq!(digest, face.sha256);
+        let license =
+            std::fs::read_to_string(craft_fonts_tests::repo_root().join(face.licence_file))
+                .unwrap();
+        assert!(license.contains("SIL OPEN FONT LICENSE Version 1.1"));
+        assert!(license.contains("IBM"));
+        let font = FontRef::new(&data).unwrap();
+        assert!(
+            [StringId::TYPOGRAPHIC_FAMILY_NAME, StringId::FAMILY_NAME]
+                .into_iter()
+                .any(|id| font.localized_strings(id).any(|s| s.to_string() == family))
+        );
+        for c in sample.chars() {
+            let glyph = font.charmap().map(c).filter(|g| g.to_u32() != 0).unwrap();
+            assert!(
+                font.outline_glyphs().get(glyph).is_some(),
+                "{family} has no outline for {c}"
+            );
+        }
+    }
+}
+
 fn bytes(f: &Font) -> Vec<u8> {
     std::fs::read(craft_fonts_tests::repo_root().join(f.file))
         .unwrap_or_else(|e| panic!("{}: {e}", f.file))

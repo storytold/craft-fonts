@@ -17,3 +17,11 @@ upstream sources (checked by `craft-fonts-tests`, which verifies each SHA-256 in
 The OFL allows these fonts to be bundled, embedded and redistributed with software, provided the
 licence text travels with them and the fonts are not sold on their own. "Shippori Mincho",
 "BIZ UD" and "Noto" are the authors' names for their fonts; we use the files unmodified.
+
+## IBM Plex Sans SC and TC
+
+IBM Corp.; manufactured by Sandoll Inc. OFL-1.1. Complete static hinted Regular TTFs, unmodified.
+
+IBM Plex Sans SC | Regular | fonts/ibm-plex-sans-sc/IBMPlexSansSC-Regular.ttf | Hans,Latn | OFL-1.1 | fonts/ibm-plex-sans-sc/OFL.txt | 012e587c5a78d25f456057614b880fc7450b748c352573d8052245df2a71158a | https://raw.githubusercontent.com/IBM/plex/222657a016f31e6d913ede88520de7dec84dc81b/packages/plex-sans-sc/fonts/complete/ttf/hinted/IBMPlexSansSC-Regular.ttf
+
+IBM Plex Sans TC | Regular | fonts/ibm-plex-sans-tc/IBMPlexSansTC-Regular.ttf | Hant,Latn | OFL-1.1 | fonts/ibm-plex-sans-tc/OFL.txt | 654677156ffc9ba35503ff569a4d55bc7044501f055bd7752a404445ed31cee7 | https://raw.githubusercontent.com/IBM/plex/222657a016f31e6d913ede88520de7dec84dc81b/packages/plex-sans-tc/fonts/complete/ttf/hinted/IBMPlexSansTC-Regular.ttf
