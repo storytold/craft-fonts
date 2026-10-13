@@ -13,6 +13,7 @@ upstream sources (checked by `craft-fonts-tests`, which verifies each SHA-256 in
 | `fonts/noto-sans-cjk-sc/NotoSansCJKsc-Regular.otf` | Noto Sans CJK SC Regular | The Noto Project Authors (Adobe, Google) | [notofonts/noto-cjk@f8d1575](https://github.com/notofonts/noto-cjk/tree/f8d157532fbfaeda587e826d4cd5b21a49186f7c/Sans/OTF/SimplifiedChinese) | OFL-1.1 (`fonts/noto-sans-cjk-sc/OFL.txt`) |
 | `fonts/noto-sans-arabic/NotoSansArabic.ttf` | Noto Sans Arabic (variable) | The Noto Project Authors | [google/fonts@7085eb8](https://github.com/google/fonts/tree/7085eb89a950e85db5b166b7a58d414544b4140c/ofl/notosansarabic) | OFL-1.1 (`fonts/noto-sans-arabic/OFL.txt`) |
 | `fonts/noto-sans-thai/NotoSansThai.ttf` | Noto Sans Thai (variable) | The Noto Project Authors | [google/fonts@8b0a1d0](https://github.com/google/fonts/tree/8b0a1d0f5983c89bc2b93f1b5fb55f9e252744b5/ofl/notosansthai) | OFL-1.1 (`fonts/noto-sans-thai/OFL.txt`) |
+| `fonts/noto-sans-devanagari/NotoSansDevanagari[wdth,wght].ttf` | Noto Sans Devanagari (variable) | The Noto Project Authors | [google/fonts@6692879](https://github.com/google/fonts/tree/66928797f271fed5ee428544e7229685e2d90127/ofl/notosansdevanagari) | OFL-1.1 (`fonts/noto-sans-devanagari/OFL.txt`) |
 
 The OFL allows these fonts to be bundled, embedded and redistributed with software, provided the
 licence text travels with them and the fonts are not sold on their own. "Shippori Mincho",
