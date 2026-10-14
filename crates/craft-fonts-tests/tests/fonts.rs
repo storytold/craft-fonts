@@ -215,3 +215,17 @@ fn thai_fonts_cover_thai_text() {
         ),
     );
 }
+
+#[test]
+fn korean_fonts_cover_korean_text() {
+    covers(
+        "Hang",
+        concat!(
+            "한국어문서편집보기창도움말새로만들기열기저장닫기실행취소다시복제붙여넣기삭제선택페이지스타일색상내보내기인쇄설정",
+            "각낙닭랄밤솟않쬣힣뷁",
+            "ㄱㄴㄷㄹㅁㅂㅅㅇㅈㅊㅋㅌㅍㅎㅏㅓㅗㅜㅡㅣ",
+            "·…「」『』“”‘’、。",
+            "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789",
+        ),
+    );
+}
