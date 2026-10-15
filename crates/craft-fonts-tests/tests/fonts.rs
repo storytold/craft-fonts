@@ -215,3 +215,42 @@ fn thai_fonts_cover_thai_text() {
         ),
     );
 }
+
+#[test]
+fn korean_fonts_cover_korean_text() {
+    covers(
+        "Kore",
+        concat!(
+            // Every syllable a Korean UI or document commonly needs, plus rarer ones from
+            // the KS X 1001 set and beyond (똠, 뷁, 햏 are outside it).
+            "가나다라마바사아자차카타파하한글편집파일보기도움말저장열기닫기인쇄취소삭제선택복사붙여넣기",
+            "문서페이지주석서명양식필드암호설정글꼴색상크기확대축소회전검색바꾸기내보내기가져오기",
+            "똠뷁햏읽쓁",
+            // Compatibility jamo, typed alone while composing.
+            "ㄱㄴㄷㄹㅁㅂㅅㅇㅈㅊㅋㅌㅍㅎㅏㅑㅓㅕㅗㅛㅜㅠㅡㅣ",
+            "·…「」『』〈〉《》※",
+            "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789",
+        ),
+    );
+}
+
+/// Every one of the 11,172 modern Hangul syllables (U+AC00–U+D7A3), so any Korean text can be
+/// written with these faces, not only the 2,350 of KS X 1001.
+#[test]
+fn korean_fonts_cover_every_hangul_syllable() {
+    for f in for_script("Kore") {
+        let data = bytes(f);
+        let font = FontRef::new(&data).unwrap_or_else(|e| panic!("{}: {e}", f.file));
+        let charmap = font.charmap();
+        let missing: Vec<char> = ('\u{AC00}'..='\u{D7A3}')
+            .filter(|&c| charmap.map(c).is_none())
+            .collect();
+        assert!(
+            missing.is_empty(),
+            "{} lacks {} syllables, e.g. {:?}",
+            f.file,
+            missing.len(),
+            &missing[..missing.len().min(10)]
+        );
+    }
+}
