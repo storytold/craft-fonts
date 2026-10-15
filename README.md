@@ -35,6 +35,8 @@ This library is meant to have the following:
 | Noto Sans CJK SC | Regular | Simplified Chinese UI and document text (sans) | OFL-1.1 |
 | Noto Sans Arabic | Regular (variable: wdth, wght) | Arabic UI and document text (sans) | OFL-1.1 |
 | Noto Sans Thai | Regular (variable: wdth, wght) | Thai UI and document text (sans) | OFL-1.1 |
+| NanumGothic | Regular, Bold | Korean UI and document text (sans) | OFL-1.1 |
+| NanumMyeongjo | Regular, Bold | Korean document text (serif) | OFL-1.1 |
 
 ## How the apps use it
 
