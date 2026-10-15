@@ -215,3 +215,16 @@ fn thai_fonts_cover_thai_text() {
         ),
     );
 }
+
+#[test]
+fn bold_fonts_are_bold() {
+    for f in FONTS.iter().filter(|f| f.style == "Bold") {
+        let data = bytes(f);
+        let font = FontRef::new(&data).unwrap_or_else(|e| panic!("{}: {e}", f.file));
+        let weight = font
+            .os2()
+            .unwrap_or_else(|e| panic!("{}: {e}", f.file))
+            .us_weight_class();
+        assert_eq!(weight, 700, "{}: OS/2 weight class is {weight}", f.file);
+    }
+}
