@@ -60,6 +60,33 @@ fn every_font_is_the_family_the_manifest_says() {
     }
 }
 
+/// A variable font is drawn at its default location by readers that don't pick one (skrifa's
+/// `LocationRef::default()`, egui), so a "Regular" font must default to weight 400, not Thin.
+#[test]
+fn regular_fonts_default_to_regular_weight() {
+    for f in FONTS.iter().filter(|f| f.style == "Regular") {
+        let data = bytes(f);
+        let font = FontRef::new(&data).unwrap_or_else(|e| panic!("{}: {e}", f.file));
+        if let Some(wght) = font
+            .axes()
+            .iter()
+            .find(|a| a.tag() == skrifa::Tag::new(b"wght"))
+        {
+            assert_eq!(
+                wght.default_value(),
+                400.0,
+                "{}: its default weight would draw it {}",
+                f.file,
+                if wght.default_value() < 400.0 {
+                    "light"
+                } else {
+                    "bold"
+                }
+            );
+        }
+    }
+}
+
 /// Text every Japanese font must cover: kana, common kanji, Japanese punctuation, full-width
 /// forms and basic Latin (UI strings mix them).
 const JAPANESE: &str = concat!(
@@ -212,6 +239,20 @@ fn thai_fonts_cover_thai_text() {
             "ะัาำิีึืุูเแโใไๅ็่้๊๋์",
             "๐๑๒๓๔๕๖๗๘๙",
             "ฯๆ฿",
+        ),
+    );
+}
+
+#[test]
+fn korean_fonts_cover_korean_text() {
+    covers(
+        "Kore",
+        concat!(
+            "가나다라마바사아자차카타파하한국어파일편집보기삽입서식도구도움말새로열기저장닫기취소확인삭제검색설정받은편지함",
+            "ㄱㄴㄷㄹㅁㅂㅅㅇㅈㅊㅋㅌㅍㅎㅏㅑㅓㅕㅗㅛㅜㅠㅡㅣ",
+            "韓國語漢字",
+            "，。、：；？！（）「」『』…·₩",
+            "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789",
         ),
     );
 }
