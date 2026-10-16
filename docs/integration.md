@@ -1,8 +1,8 @@
 # Using craft-fonts in a Crafting App
 
 craft-fonts is a **fully optional** source of fonts. An app must build, test and run without it;
-with it, the app embeds the fonts listed in `fonts/manifest.txt` and uses them (today: Japanese
-UI and document fallback).
+with it, the app embeds the fonts listed in `fonts/manifest.txt` and uses them (today: Japanese,
+Chinese and Arabic UI and document fallback).
 
 ## Why not a Cargo dependency
 
@@ -107,6 +107,52 @@ include!(concat!(env!("OUT_DIR"), "/craft_fonts.rs"));
 `CRAFT_FONTS` is always defined, so there is no `cfg` to thread through: an empty slice means the
 app was built without craft-fonts. Code that uses it must work when it is empty.
 
+## Optional: the Latin presentation fonts (`fonts/latin-manifest.txt`)
+
+`fonts/latin-manifest.txt` is a **second, opt-in manifest** in exactly the same format as
+`fonts/manifest.txt` (same 8 fields, same parser in `crates/craft-fonts/src/parse.rs`). It lists
+Latin presentation fonts for slide and document apps (SlideCraft first): Inter, the
+metric-compatible Office substitutes (Carlito for Calibri, Caladea for Cambria, Liberation
+Sans / Serif / Mono for Arial / Times New Roman / Courier New), Source Sans 3, Source Serif 4,
+Montserrat, Lato, Open Sans, Roboto, Merriweather, Playfair Display, Poppins and Nunito Sans,
+about 19.5 MB in all. The fonts are listed in `README.md` and `ATTRIBUTION.md`.
+
+The recipe above reads only `fonts/manifest.txt`, so **apps that don't opt in are unchanged**. An
+app that wants these fonts reads the second manifest too, in addition to the first. Generalise
+`craft_fonts` to take the manifest path and its web allowlist, and call it once per manifest:
+
+```rust
+/// Manifests this app embeds, each with the (family, style) pairs its wasm32 build keeps.
+const MANIFESTS: &[(&str, &[(&str, &str)])] = &[
+    ("fonts/manifest.txt", &[("BIZ UDPGothic", "Regular")]),
+    // Opt in to the Latin presentation fonts; on the web keep only Inter Regular + Bold.
+    ("fonts/latin-manifest.txt", &[("Inter", "Regular"), ("Inter", "Bold")]),
+];
+
+// In main(), match on this instead of on craft_fonts(&dir) (same Ok/Err handling):
+//     MANIFESTS.iter().map(|(rel, web)| craft_fonts(&dir, rel, web)).collect::<Result<String, String>>()
+// and in craft_fonts(dir, rel, web): read dir.join(rel) instead of "fonts/manifest.txt",
+// and use `web` instead of WEB_FONTS.
+```
+
+- **Styles.** Most families are static files (`Regular`, `Bold`, `Italic`, `Bold Italic`,
+  `SemiBold` / `Semibold` as each family names it). Montserrat, Open Sans, Roboto, Playfair
+  Display and Nunito Sans are variable fonts, one file per upright/italic, listed with style
+  `Variable` or `Italic Variable`: register them once and select weights through the `wght` axis
+  (set it explicitly, e.g. 400 / 700: a variable font's default instance isn't always Regular). The tests check that exactly these styles have a `wght` axis.
+- **Scripts.** Every line is tagged `Latn` (many also cover Greek and Cyrillic, but nothing
+  asserts that, so don't rely on it).
+- **Office documents.** When a document asks for Calibri, Cambria, Arial, Times New Roman or
+  Courier New and the system doesn't have it, substitute Carlito, Caladea, Liberation Sans,
+  Liberation Serif or Liberation Mono: same advance widths, so line breaks and text boxes match.
+- **Web (wasm32).** Embed only **Inter Regular and Inter Bold** (~0.8 MB) from this manifest, as
+  in the allowlist above; the full set would push a web build past typical per-file hosting
+  limits together with the main manifest's fonts.
+- **Licences.** All are OFL-1.1 and each family directory has its `OFL.txt`, so the packaging rule
+  below (copy `fonts/*/OFL.txt` for each embedded font) covers them unchanged.
+- From Rust tools that can depend on this repo, the same table is `craft_fonts::LATIN_FONTS`
+  (`load_latin`, feature `embed-latin`).
+
 ## Using the fonts
 
 - **UI (egui):** add each `Jpan` font as a fallback at the end of every font family, after the
@@ -119,13 +165,21 @@ app was built without craft-fonts. Code that uses it must work when it is empty.
   with `CRAFT_FONTS_DIR` set and shrink `WEB_FONTS` (even to empty) if it fails.
 - Prefer `BIZ UDPGothic` for UI text and `Shippori Mincho` / `BIZ UDMincho` for serif document
   text.
+- **Chinese:** select faces by script tag, `Hans` (Simplified) or `Hant` (Traditional), and put
+  the UI language's group before the Japanese faces: shared ideographs would otherwise take
+  Japanese glyph shapes, and Simplified-only ones would fall to a face with other metrics.
+  `Hans` lists Noto Sans CJK SC, then Droid Sans Fallback; `Hant` lists only Droid Sans Fallback.
+  Noto Sans CJK SC is the Source Han design, so an app whose asset policy excludes Source
+  Han–derived fonts picks Droid Sans Fallback by family. Droid Sans Fallback has **no Latin
+  glyphs** (not tagged `Latn`): keep a Latin face before it.
 - Tests that assert on these fonts' glyphs must skip (not fail) when `CRAFT_FONTS` is empty, and
   CI should run them with `CRAFT_FONTS_DIR` set so they are exercised.
 
 ## Releases and licences
 
-The fonts are OFL-1.1: they can be embedded and redistributed, but the licence text must go with
-them. In `release.yml`, check out craft-fonts at a pinned commit and build with it:
+The fonts are OFL-1.1 or Apache-2.0 (the `licence` field of each manifest line): they can be
+embedded and redistributed, but the licence text must go with them. In `release.yml`, check out
+craft-fonts at a pinned commit and build with it:
 
 ```yaml
 - uses: actions/checkout@v4
@@ -139,14 +193,20 @@ env:
   CRAFT_FONTS_REQUIRED: "1"
 ```
 
-Packages built with craft-fonts must include each embedded font's licence file (copy
-`$CRAFT_FONTS_DIR/fonts/*/OFL.txt` into the package's licences, named after the family) and the
-app's `NOTICE` must say that builds made with `CRAFT_FONTS_DIR` embed the fonts listed in
-craft-fonts' `ATTRIBUTION.md`.
+Packages built with craft-fonts must include each embedded font's licence file: the `licence file`
+field of its manifest line (`fonts/<family>/OFL.txt` for the OFL fonts,
+`fonts/droid-sans-fallback/NOTICE` for Droid Sans Fallback, which holds the Apache-2.0 notice and
+licence text that must travel with it). Copy each into the package's licences, named after the
+family; a glob over `fonts/*/OFL.txt` misses the Apache-2.0 one. The app's `NOTICE` must say that
+builds made with `CRAFT_FONTS_DIR` embed the fonts listed in craft-fonts' `ATTRIBUTION.md`.
 
 ## Adding a font
 
 1. Put the file and its licence under `fonts/<family>/`, from a pinned upstream commit.
-2. Add a manifest line (with its SHA-256) and an `ATTRIBUTION.md` row.
-3. `cargo test --workspace`: `craft-fonts-tests` checks the checksum, licence, family name and,
-   for Japanese fonts, coverage and vertical-text support. Add assertions for any new script.
+2. Add a manifest line (with its SHA-256) and an `ATTRIBUTION.md` row. Fonts every app should
+   embed go in `fonts/manifest.txt`; Latin presentation fonts go in `fonts/latin-manifest.txt`
+   (adding to `manifest.txt` changes what every app ships).
+3. `cargo test --workspace`: `craft-fonts-tests` checks both manifests' checksums, licence texts
+   and family names, script coverage and outlines, Japanese vertical-text support, and Latin
+   variable/static styles. Add assertions for any new script, and a licence-text check for any
+   new licence.

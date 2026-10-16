@@ -1,6 +1,7 @@
-//! Assertions on the font files themselves.
+//! Assertions on the font files themselves, from both manifests (`fonts/manifest.txt` and
+//! `fonts/latin-manifest.txt`).
 
-use craft_fonts::{FONTS, Font, for_script};
+use craft_fonts::{FONTS, Font, LATIN_FONTS, for_script};
 use sha2::{Digest, Sha256};
 use skrifa::raw::TableProvider;
 use skrifa::{FontRef, MetadataProvider, string::StringId};
@@ -10,9 +11,14 @@ fn bytes(f: &Font) -> Vec<u8> {
         .unwrap_or_else(|e| panic!("{}: {e}", f.file))
 }
 
+/// Every font in both manifests.
+fn all() -> impl Iterator<Item = &'static Font> {
+    FONTS.iter().chain(LATIN_FONTS)
+}
+
 #[test]
 fn every_file_matches_its_manifest_checksum() {
-    for f in FONTS {
+    for f in all() {
         let digest = Sha256::digest(bytes(f));
         let hex: String = digest.iter().map(|b| format!("{b:02x}")).collect();
         assert_eq!(
@@ -25,22 +31,31 @@ fn every_file_matches_its_manifest_checksum() {
 
 #[test]
 fn every_font_ships_its_licence() {
-    for f in FONTS {
+    for f in all() {
         let text = std::fs::read_to_string(craft_fonts_tests::repo_root().join(f.licence_file))
             .unwrap_or_else(|e| panic!("{}: {e}", f.licence_file));
-        if f.licence == "OFL-1.1" {
-            assert!(
-                text.contains("SIL OPEN FONT LICENSE Version 1.1"),
-                "{} is not the OFL 1.1 text",
-                f.licence_file
-            );
-        }
+        // The full licence text, not just a pointer to it: both licences require the text to
+        // travel with the font.
+        let marker = match f.licence {
+            "OFL-1.1" => "SIL OPEN FONT LICENSE Version 1.1",
+            "Apache-2.0" => "TERMS AND CONDITIONS FOR USE, REPRODUCTION, AND DISTRIBUTION",
+            other => panic!(
+                "{}: no licence-text check for {other:?}; add one here",
+                f.file
+            ),
+        };
+        assert!(
+            text.contains(marker),
+            "{} is not the {} text",
+            f.licence_file,
+            f.licence
+        );
     }
 }
 
 #[test]
 fn every_font_is_the_family_the_manifest_says() {
-    for f in FONTS {
+    for f in all() {
         let data = bytes(f);
         let font = FontRef::new(&data).unwrap_or_else(|e| panic!("{}: {e}", f.file));
         let names: Vec<String> = [StringId::TYPOGRAPHIC_FAMILY_NAME, StringId::FAMILY_NAME]
@@ -94,6 +109,18 @@ fn japanese_fonts_cover_japanese_text() {
 
 #[test]
 fn japanese_glyphs_have_outlines() {
+    have_outlines("Jpan", &['漢', 'あ', 'ア', '。']);
+}
+
+/// Every font tagged with `script` draws ink for each of `chars` (a mapped but empty glyph would
+/// pass a coverage check and still render nothing).
+fn have_outlines(script: &str, chars: &[char]) {
+    let fonts: Vec<&Font> = for_script(script).collect();
+    assert!(!fonts.is_empty(), "the manifest lists no {script} font");
+    assert_outlines(fonts, chars);
+}
+
+fn assert_outlines<'a>(fonts: impl IntoIterator<Item = &'a Font>, chars: &[char]) {
     use skrifa::instance::{LocationRef, Size};
     use skrifa::outline::{DrawSettings, OutlinePen};
     struct Count(usize);
@@ -110,11 +137,11 @@ fn japanese_glyphs_have_outlines() {
         }
         fn close(&mut self) {}
     }
-    for f in for_script("Jpan") {
+    for f in fonts {
         let data = bytes(f);
         let font = FontRef::new(&data).unwrap_or_else(|e| panic!("{}: {e}", f.file));
         let outlines = font.outline_glyphs();
-        for c in ['漢', 'あ', 'ア', '。'] {
+        for &c in chars {
             let gid = font
                 .charmap()
                 .map(c)
@@ -178,16 +205,50 @@ fn covers(script: &str, text: &str) {
     }
 }
 
+/// Fonts tagged `Latn` can draw a UI string's Latin on their own. Fonts without the tag (Droid Sans
+/// Fallback has no Latin at all) need an app's Latin face in front of them.
+#[test]
+fn latin_fonts_cover_latin_text() {
+    covers(
+        "Latn",
+        concat!(
+            "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789",
+            "“”‘’…",
+        ),
+    );
+}
+
 #[test]
 fn simplified_chinese_fonts_cover_chinese_text() {
     covers(
         "Hans",
         concat!(
             "中文简体字文件编辑视图窗口帮助新建打开保存关闭撤销重做复制粘贴删除选择图层页面样式颜色导出打印设置",
-            "，。、：；？！（）《》“”…",
-            "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789",
+            // UI words with Simplified-only forms that Japanese fonts lack (欢 签 证 书 压 缩 组 织
+            // 备 查 账 务 处 测 单 图 认): they rendered as tofu in a Chinese UI drawn with Japanese
+            // fallbacks.
+            "欢迎签名证书压缩组织准备查找账务处理测试单图认",
+            "，。、：；？！（）《》",
         ),
     );
+}
+
+#[test]
+fn traditional_chinese_fonts_cover_chinese_text() {
+    covers(
+        "Hant",
+        concat!(
+            "繁體中文檔案編輯檢視視窗說明開啟儲存關閉復原重做複製貼上刪除選取圖層頁面樣式顏色匯出列印設定",
+            "歡迎簽名證書壓縮組織準備查找帳務處理測試單圖認",
+            "，。、：；？！（）「」『』《》",
+        ),
+    );
+}
+
+#[test]
+fn chinese_glyphs_have_outlines() {
+    have_outlines("Hans", &['中', '简', '欢', '，']);
+    have_outlines("Hant", &['中', '繁', '歡', '，']);
 }
 
 #[test]
@@ -214,4 +275,94 @@ fn thai_fonts_cover_thai_text() {
             "ฯๆ฿",
         ),
     );
+}
+
+#[test]
+fn korean_names_have_glyphs_and_outlines() {
+    covers(
+        "Hang",
+        "한국어 테스트_문서.pdf 1장 들어가며 2장 본문 예시 부록 참고 자료",
+    );
+    have_outlines("Hang", &['한', '글', '각', '힣']);
+}
+
+#[test]
+fn hebrew_names_have_glyphs_and_outlines() {
+    covers("Hebr", "אבגדהוזחטיךכלםמןנסעףפץצקרשת־׳״₪0123456789 ABC.pdf");
+    have_outlines("Hebr", &['א', 'ך', 'ם', 'ת']);
+}
+
+/// Text every Latin presentation font must cover: ASCII, Western European accents and the
+/// typographic punctuation slide text uses.
+const LATIN: &str = concat!(
+    "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789",
+    " !\"#$%&'()*+,-./:;<=>?@[\\]^_`{|}~",
+    "ÀÁÂÃÄÅÆÇÈÉÊËÌÍÎÏÑÒÓÔÕÖØÙÚÛÜÝßàáâãäåæçèéêëìíîïñòóôõöøùúûüýÿŒœŸ",
+    "‘’“”–—…•€£¥©®™°±×÷",
+);
+
+#[test]
+fn latin_fonts_cover_western_european_text() {
+    assert!(!LATIN_FONTS.is_empty());
+    for f in LATIN_FONTS {
+        assert_eq!(
+            f.scripts,
+            ["Latn"],
+            "{}: the Latin manifest is for Latn fonts",
+            f.file
+        );
+        let data = bytes(f);
+        let font = FontRef::new(&data).unwrap_or_else(|e| panic!("{}: {e}", f.file));
+        let charmap = font.charmap();
+        let missing: String = LATIN
+            .chars()
+            .filter(|c| charmap.map(*c).is_none())
+            .collect();
+        assert!(
+            missing.is_empty(),
+            "{} {} has no glyph for {missing:?}",
+            f.family,
+            f.style
+        );
+    }
+}
+
+#[test]
+fn latin_glyphs_have_outlines() {
+    assert!(!LATIN_FONTS.is_empty());
+    assert_outlines(LATIN_FONTS, &['A', 'g', 'é', '€']);
+}
+
+#[test]
+fn latin_variable_styles_are_variable_fonts() {
+    // A style named "... Variable" must be a variable font with a weight axis; any other style
+    // must be a static instance, so apps can trust the style field.
+    for f in LATIN_FONTS {
+        let data = bytes(f);
+        let font = FontRef::new(&data).unwrap_or_else(|e| panic!("{}: {e}", f.file));
+        let axes: Vec<String> = font.axes().iter().map(|a| a.tag().to_string()).collect();
+        if f.style.ends_with("Variable") {
+            assert!(
+                axes.iter().any(|t| t == "wght"),
+                "{}: style {:?} but axes {axes:?}",
+                f.file,
+                f.style
+            );
+        } else {
+            assert!(
+                axes.is_empty(),
+                "{}: style {:?} but it is variable ({axes:?})",
+                f.file,
+                f.style
+            );
+        }
+        assert_eq!(
+            f.style.contains("Italic"),
+            font.os2()
+                .is_ok_and(|os2| os2.fs_selection().bits() & 1 != 0),
+            "{}: style {:?} disagrees with the OS/2 italic bit",
+            f.file,
+            f.style
+        );
+    }
 }
