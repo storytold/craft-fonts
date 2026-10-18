@@ -14,7 +14,9 @@ upstream sources (checked by `craft-fonts-tests`, which verifies each SHA-256 in
 | `fonts/noto-sans-arabic/NotoSansArabic.ttf` | Noto Sans Arabic (variable) | The Noto Project Authors | [google/fonts@7085eb8](https://github.com/google/fonts/tree/7085eb89a950e85db5b166b7a58d414544b4140c/ofl/notosansarabic) | OFL-1.1 (`fonts/noto-sans-arabic/OFL.txt`) |
 | `fonts/noto-sans-thai/NotoSansThai.ttf` | Noto Sans Thai (variable) | The Noto Project Authors | [google/fonts@8b0a1d0](https://github.com/google/fonts/tree/8b0a1d0f5983c89bc2b93f1b5fb55f9e252744b5/ofl/notosansthai) | OFL-1.1 (`fonts/noto-sans-thai/OFL.txt`) |
 | `fonts/noto-sans-georgian/NotoSansGeorgian.ttf` | Noto Sans Georgian (variable) | The Noto Project Authors | [google/fonts@8b0a1d0](https://github.com/google/fonts/tree/8b0a1d0f5983c89bc2b93f1b5fb55f9e252744b5/ofl/notosansgeorgian) | OFL-1.1 (`fonts/noto-sans-georgian/OFL.txt`) |
+| `fonts/nanum-gothic/NanumGothic-Regular.ttf` | NanumGothic Regular | NHN Corporation (design Sandoll Communications) | [google/fonts@133ccbe](https://github.com/google/fonts/tree/133ccbee9a8b408eb71f31a36ccb9116f5c695ad/ofl/nanumgothic) | OFL-1.1 (`fonts/nanum-gothic/OFL.txt`) |
+| `fonts/nanum-gothic/NanumGothic-Bold.ttf` | NanumGothic Bold | NHN Corporation (design Sandoll Communications) | [google/fonts@133ccbe](https://github.com/google/fonts/tree/133ccbee9a8b408eb71f31a36ccb9116f5c695ad/ofl/nanumgothic) | OFL-1.1 (`fonts/nanum-gothic/OFL.txt`) |
 
 The OFL allows these fonts to be bundled, embedded and redistributed with software, provided the
 licence text travels with them and the fonts are not sold on their own. "Shippori Mincho",
-"BIZ UD" and "Noto" are the authors' names for their fonts; we use the files unmodified.
+"BIZ UD", "Noto" and "Nanum" are the authors' names for their fonts; we use the files unmodified.

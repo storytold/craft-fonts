@@ -227,3 +227,15 @@ fn georgian_fonts_cover_georgian_text() {
         ),
     );
 }
+
+#[test]
+fn korean_fonts_cover_korean_text() {
+    covers(
+        "Kore",
+        concat!(
+            "가각간갇갈감갑갓강개객걀거검게겨경계고과관괘교구궈귀규그기긱나다라마바사아자차카타파하힣",
+            "ㄱㄲㄴㄷㄸㄹㅁㅂㅃㅅㅆㅇㅈㅉㅊㅋㅌㅍㅎㅏㅐㅑㅒㅓㅔㅕㅖㅗㅘㅙㅚㅛㅜㅝㅞㅟㅠㅡㅢㅣ",
+            "다람쥐 헌 쳇바퀴에 타고파. 「한국어」 ※ ~ ·",
+        ),
+    );
+}
