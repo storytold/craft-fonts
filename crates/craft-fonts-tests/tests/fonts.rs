@@ -213,6 +213,11 @@ fn telugu_fonts_cover_telugu_text() {
             "ాిీుూృౄెేైొోౌ",
             "ఁంః్",
             "౦౧౨౩౪౫౬౭౮౯",
+        ),
+    );
+}
+
+#[test]
 fn thai_fonts_cover_thai_text() {
     covers(
         "Thai",
