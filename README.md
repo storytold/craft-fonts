@@ -37,6 +37,7 @@ This library is meant to have the following:
 | IBM Plex Sans TC | Regular | Traditional Chinese UI and document text (sans) | OFL-1.1 |
 | Noto Sans Arabic | Regular (variable: wdth, wght) | Arabic UI and document text (sans) | OFL-1.1 |
 | Noto Sans Thai | Regular (variable: wdth, wght) | Thai UI and document text (sans) | OFL-1.1 |
+| Noto Sans Georgian | Regular (variable: wdth, wght) | Georgian UI and document text (sans) | OFL-1.1 |
 
 ## How the apps use it
 

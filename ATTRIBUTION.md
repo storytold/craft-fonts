@@ -15,6 +15,7 @@ upstream sources (checked by `craft-fonts-tests`, which verifies each SHA-256 in
 | `fonts/noto-sans-thai/NotoSansThai.ttf` | Noto Sans Thai (variable) | The Noto Project Authors | [google/fonts@8b0a1d0](https://github.com/google/fonts/tree/8b0a1d0f5983c89bc2b93f1b5fb55f9e252744b5/ofl/notosansthai) | OFL-1.1 (`fonts/noto-sans-thai/OFL.txt`) |
 | `fonts/ibm-plex-sans-sc/IBMPlexSansSC-Regular.ttf` | IBM Plex Sans SC Regular | IBM Corp. (design: Mike Abbink, Bold Monday and Sandoll Inc.) | [IBM/plex@763c36e](https://github.com/IBM/plex/blob/763c36ef9117782905ae010056dfbe8fd2653a25/packages/plex-sans-sc/fonts/complete/ttf/unhinted/IBMPlexSansSC-Regular.ttf) | OFL-1.1 (`fonts/ibm-plex-sans-sc/OFL.txt`) |
 | `fonts/ibm-plex-sans-tc/IBMPlexSansTC-Regular.ttf` | IBM Plex Sans TC Regular | IBM Corp. (design: Mike Abbink, Bold Monday and Sandoll Inc.) | [IBM/plex@763c36e](https://github.com/IBM/plex/blob/763c36ef9117782905ae010056dfbe8fd2653a25/packages/plex-sans-tc/fonts/complete/ttf/unhinted/IBMPlexSansTC-Regular.ttf) | OFL-1.1 (`fonts/ibm-plex-sans-tc/OFL.txt`) |
+| `fonts/noto-sans-georgian/NotoSansGeorgian.ttf` | Noto Sans Georgian (variable) | The Noto Project Authors | [google/fonts@8b0a1d0](https://github.com/google/fonts/tree/8b0a1d0f5983c89bc2b93f1b5fb55f9e252744b5/ofl/notosansgeorgian) | OFL-1.1 (`fonts/noto-sans-georgian/OFL.txt`) |
 
 The OFL allows these fonts to be bundled, embedded and redistributed with software, provided the
 licence text travels with them and the fonts are not sold on their own. "Shippori Mincho",
