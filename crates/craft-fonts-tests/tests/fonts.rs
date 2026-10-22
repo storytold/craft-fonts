@@ -229,3 +229,15 @@ fn hebrew_fonts_cover_hebrew_text() {
         ),
     );
 }
+
+#[test]
+fn georgian_fonts_cover_georgian_text() {
+    covers(
+        "Geor",
+        concat!(
+            "აბგდევზთიკლმნოპჟრსტუფქღყშჩცძწჭხჯჰ",
+            "ᲐᲑᲒᲓᲔᲕᲖᲗᲘᲙᲚᲛᲜᲝᲞᲟᲠᲡᲢᲣᲤᲥᲦᲧᲨᲩᲪᲫᲬᲭᲮᲯᲰ",
+            "„“–№",
+        ),
+    );
+}
