@@ -190,6 +190,42 @@ fn simplified_chinese_fonts_cover_chinese_text() {
     );
 }
 
+/// Both Chinese character collections need an independently authored, OFL face. Keep the
+/// regional faces separate: a Simplified Chinese face is not a Traditional Chinese fallback.
+#[test]
+fn ibm_plex_chinese_faces_cover_their_regional_text() {
+    for (script, family, text) in [
+        (
+            "Hans",
+            "IBM Plex Sans SC",
+            "中文简体字文件编辑视图窗口帮助打开保存关闭撤销复制粘贴删除选择页面颜色导出打印设置，。、：；？！（）《》“”…ABCabc012",
+        ),
+        (
+            "Hant",
+            "IBM Plex Sans TC",
+            "中文繁體字檔案編輯檢視視窗說明開啟儲存關閉復原複製貼上刪除選取頁面顏色匯出列印設定，。、：；？！（）《》「」…ABCabc012",
+        ),
+    ] {
+        let face = for_script(script)
+            .find(|f| f.family == family && f.style == "Regular")
+            .unwrap_or_else(|| panic!("no {family} Regular tagged {script}"));
+        let data = bytes(face);
+        let font = FontRef::new(&data).unwrap_or_else(|e| panic!("{}: {e}", face.file));
+        let missing: String = text
+            .chars()
+            .filter(|c| font.charmap().map(*c).is_none())
+            .collect();
+        assert!(missing.is_empty(), "{family}: no glyph for {missing:?}");
+        for c in text.chars() {
+            let gid = font.charmap().map(c).unwrap();
+            assert!(
+                font.outline_glyphs().get(gid).is_some(),
+                "{family}: no outline for {c}"
+            );
+        }
+    }
+}
+
 #[test]
 fn arabic_fonts_cover_arabic_text() {
     covers(
