@@ -1,2 +1,5 @@
 *~
 /target
+# Local environment files: never commit secrets.
+.env
+.env.*

@@ -38,6 +38,9 @@ This library is meant to have the following:
 | Noto Sans Arabic | Regular (variable: wdth, wght) | Arabic UI and document text (sans) | OFL-1.1 |
 | Noto Sans Thai | Regular (variable: wdth, wght) | Thai UI and document text (sans) | OFL-1.1 |
 | Noto Sans Georgian | Regular (variable: wdth, wght) | Georgian UI and document text (sans) | OFL-1.1 |
+| Hakgyoansim Namu | Regular, Light | Korean UI and document text (학교안심 나무, KERIS; full 11 172-glyph Hangul syllable block) | OFL-1.1 |
+| Hakgyoansim Sangjang R | Regular | Korean UI and document text (학교안심 상장, KERIS; serif; full 11 172-glyph Hangul syllable block) | OFL-1.1 |
+| Hakgyoansim Chulseokbu TTF | Light, Bold | Korean UI and document text (학교안심 출석부, KERIS; sans; full 11 172-glyph Hangul syllable block) | OFL-1.1 |
 
 ## How the apps use it
 
