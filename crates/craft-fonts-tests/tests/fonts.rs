@@ -217,6 +217,16 @@ fn thai_fonts_cover_thai_text() {
 }
 
 #[test]
+fn lao_fonts_cover_lao_text() {
+    covers(
+        "Laoo",
+        concat!(
+            "ກຂຄງຈຊຍດຕຖທນບປຜຝພຟມຢຣລວສຫອຮໝໜ",
+            "ະັາຳິີຶືຸູົຼຽ",
+            "ເແໂໃໄໆ",
+            "່້໊໋໌ໍ",
+            "໐໑໒໓໔໕໖໗໘໙",
+            "ຯ",
 fn georgian_fonts_cover_georgian_text() {
     covers(
         "Geor",
