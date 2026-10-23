@@ -227,3 +227,11 @@ fn georgian_fonts_cover_georgian_text() {
         ),
     );
 }
+
+#[test]
+fn thaana_fonts_cover_dhivehi_text() {
+    covers(
+        "Thaa",
+        concat!("ހށނރބޅކއވމފދތލގޏސޑޒޓޔޕޖޗ", "ޘޙޚޛޜޝޞޟޠޡޢޣޤޥ", "ަާިީުޫެޭޮޯްޱ", "،؛؟",),
+    );
+}
