@@ -38,6 +38,7 @@ This library is meant to have the following:
 | Noto Sans Arabic | Regular (variable: wdth, wght) | Arabic UI and document text (sans) | OFL-1.1 |
 | Noto Sans Thai | Regular (variable: wdth, wght) | Thai UI and document text (sans) | OFL-1.1 |
 | Noto Sans Georgian | Regular (variable: wdth, wght) | Georgian UI and document text (sans) | OFL-1.1 |
+| Noto Sans Hebrew | Regular (variable: wdth, wght) | Hebrew UI and document text (sans) | OFL-1.1 |
 
 ## How the apps use it
 

@@ -14,6 +14,7 @@ upstream sources (checked by `craft-fonts-tests`, which verifies each SHA-256 in
 | `fonts/noto-sans-arabic/NotoSansArabic.ttf` | Noto Sans Arabic (variable) | The Noto Project Authors | [google/fonts@7085eb8](https://github.com/google/fonts/tree/7085eb89a950e85db5b166b7a58d414544b4140c/ofl/notosansarabic) | OFL-1.1 (`fonts/noto-sans-arabic/OFL.txt`) |
 | `fonts/noto-sans-thai/NotoSansThai.ttf` | Noto Sans Thai (variable) | The Noto Project Authors | [google/fonts@8b0a1d0](https://github.com/google/fonts/tree/8b0a1d0f5983c89bc2b93f1b5fb55f9e252744b5/ofl/notosansthai) | OFL-1.1 (`fonts/noto-sans-thai/OFL.txt`) |
 | `fonts/noto-sans-georgian/NotoSansGeorgian.ttf` | Noto Sans Georgian (variable) | The Noto Project Authors | [google/fonts@8b0a1d0](https://github.com/google/fonts/tree/8b0a1d0f5983c89bc2b93f1b5fb55f9e252744b5/ofl/notosansgeorgian) | OFL-1.1 (`fonts/noto-sans-georgian/OFL.txt`) |
+| `fonts/noto-sans-hebrew/NotoSansHebrew.ttf` | Noto Sans Hebrew (variable) | The Noto Project Authors | [google/fonts@8b0a1d0](https://github.com/google/fonts/tree/8b0a1d0f5983c89bc2b93f1b5fb55f9e252744b5/ofl/notosanshebrew) | OFL-1.1 (`fonts/noto-sans-hebrew/OFL.txt`) |
 
 The OFL allows these fonts to be bundled, embedded and redistributed with software, provided the
 licence text travels with them and the fonts are not sold on their own. "Shippori Mincho",

@@ -227,3 +227,11 @@ fn georgian_fonts_cover_georgian_text() {
         ),
     );
 }
+
+#[test]
+fn hebrew_fonts_cover_hebrew_text() {
+    covers(
+        "Hebr",
+        concat!("אבגדהוזחטיכלמנסעפצקרשת", "ךםןףץ", "ְֱֲֳִֵֶַָֹֻּׁׂ", "־׀׃׳״",),
+    );
+}
