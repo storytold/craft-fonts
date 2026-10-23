@@ -1,0 +1,58 @@
+diff --git a/apps/vectorcraft-web/src/web.rs b/apps/vectorcraft-web/src/web.rs
+index b9ca143..5da6b42 100644
+--- a/apps/vectorcraft-web/src/web.rs
++++ b/apps/vectorcraft-web/src/web.rs
+@@ -102,6 +102,7 @@ async fn run(host: Host, canvas: web_sys::HtmlCanvasElement, moving: Option<Movi
+             web_options(),
+             Box::new(move |cc| {
+                 let ctx = &cc.egui_ctx;
++                suite_font_wake(ctx.clone());
+                 crate::fonts::spawn_background_fonts(ctx.clone());
+                 let loss = GraphicsLoss::default();
+                 watch_canvas(&page, &loss, ctx);
+@@ -385,6 +386,10 @@ impl eframe::App for WebShell {
+     }
+ 
+     fn ui(&mut self, ui: &mut egui::Ui, _frame: &mut eframe::Frame) {
++        for (id, _, _, bytes) in suite_font_batch() {
++            let added = vectorcraft_text::FontDb::global().add_font(bytes);
++            craft_font_ack(&id, added > 0, if added > 0 { "Registered in VectorCraft" } else { "Already bundled or unsupported" });
++        }
+         if let Some(app) = &mut self.app {
+             app.ui(ui);
+         }
+@@ -573,3 +578,34 @@ fn print_pdf(pdf: &[u8]) -> Result<(), String> {
+     document.body().ok_or("no body")?.append_child(&frame).map_err(js_err)?;
+     Ok(())
+ }
++
++// *Craft's origin-local library passes real font bytes to the native text engine.
++#[wasm_bindgen::prelude::wasm_bindgen(
++    inline_js = "export function craft_font_take(){return globalThis.CraftFonts?.take() || [];} export function craft_font_ack(id,ok,message){globalThis.CraftFonts?.ack(id,ok,message);} export function craft_font_wake(callback){globalThis.addEventListener('craft:font-change',callback);}"
++)]
++extern "C" {
++    fn craft_font_take() -> js_sys::Array;
++    fn craft_font_ack(id: &str, ok: bool, message: &str);
++    fn craft_font_wake(callback: &js_sys::Function);
++}
++fn suite_font_wake(ctx: egui::Context) {
++    let callback = wasm_bindgen::closure::Closure::<dyn FnMut()>::new(move || ctx.request_repaint());
++    craft_font_wake(callback.as_ref().unchecked_ref());
++    callback.forget(); // One wake listener per app runner, for the lifetime of its page.
++}
++fn suite_font_batch() -> Vec<(String, String, String, Vec<u8>)> {
++    craft_font_take()
++        .iter()
++        .filter_map(|r| {
++            let get = |key: &str| js_sys::Reflect::get(&r, &key.into()).ok();
++            let id = get("id")?.as_string()?;
++            let family = get("family")?.as_string()?;
++            let style = get("style")?.as_string()?;
++            let bytes = js_sys::Uint8Array::new(&get("bytes")?);
++            if bytes.length() > 24 * 1024 * 1024 || id.len() != 64 || family.len() > 160 {
++                return None;
++            }
++            Some((id, family, style, bytes.to_vec()))
++        })
++        .collect()
++}

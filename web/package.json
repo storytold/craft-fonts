@@ -1,0 +1,13 @@
+{
+  "name": "craft-fonts-weblauncher",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "node tools/build.mjs",
+    "test": "node --test tests/*.test.mjs"
+  },
+  "devDependencies": {
+    "fake-indexeddb": "6.2.4",
+    "happy-dom": "20.14.5"
+  }
+}

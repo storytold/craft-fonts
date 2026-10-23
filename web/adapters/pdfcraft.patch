@@ -1,0 +1,494 @@
+diff --git a/Cargo.lock b/Cargo.lock
+index ec52131..702b18f 100644
+--- a/Cargo.lock
++++ b/Cargo.lock
+@@ -3949,7 +3949,9 @@ dependencies = [
+  "eframe",
+  "egui",
+  "js-sys",
++ "pdfcraft-fonts",
+  "pdfcraft-ui-egui",
++ "wasm-bindgen",
+  "wasm-bindgen-futures",
+  "web-sys",
+ ]
+diff --git a/apps/pdfcraft-web/Cargo.toml b/apps/pdfcraft-web/Cargo.toml
+index a64d729..702634a 100644
+--- a/apps/pdfcraft-web/Cargo.toml
++++ b/apps/pdfcraft-web/Cargo.toml
+@@ -11,10 +11,12 @@ workspace = true
+ 
+ [dependencies]
+ pdfcraft-ui-egui = { workspace = true }
++pdfcraft-fonts = { workspace = true }
+ eframe = { workspace = true, features = ["default_fonts", "glow", "persistence", "accesskit"] }
+ egui = { workspace = true }
+ 
+ [target.'cfg(target_arch = "wasm32")'.dependencies]
+ wasm-bindgen-futures = "0.4"
++wasm-bindgen = "0.2"
+ web-sys = { version = "0.3", features = ["Window", "Document", "Element", "HtmlCanvasElement", "HtmlElement", "Location", "Url", "UrlSearchParams", "Response", "Event", "MessageEvent", "EventTarget"] }
+ js-sys = "0.3"
+diff --git a/apps/pdfcraft-web/src/main.rs b/apps/pdfcraft-web/src/main.rs
+index a46a467..7376c63 100644
+--- a/apps/pdfcraft-web/src/main.rs
++++ b/apps/pdfcraft-web/src/main.rs
+@@ -71,7 +71,8 @@ fn main() {
+                         app.host_dirty = Some(bridge.dirty_fn());
+                         bridge.post_ready();
+                     }
+-                    Ok(Box::new(app))
++                    suite_font_wake(cc.egui_ctx.clone());
++                    Ok(Box::new(SuiteApp(app)))
+                 }),
+             )
+             .await;
+@@ -249,3 +250,69 @@ mod host {
+ fn main() {
+     eprintln!("pdfcraft-web targets wasm32: run `trunk serve` or `trunk build --release` in apps/pdfcraft-web");
+ }
++
++#[cfg(target_arch = "wasm32")]
++mod suite_fonts {
++    use wasm_bindgen::JsCast as _;
++    // *Craft's origin-local library passes real font bytes to the native text engine.
++    #[wasm_bindgen::prelude::wasm_bindgen(
++        inline_js = "export function craft_font_take(){return globalThis.CraftFonts?.take() || [];} export function craft_font_ack(id,ok,message){globalThis.CraftFonts?.ack(id,ok,message);} export function craft_font_wake(callback){globalThis.addEventListener('craft:font-change',callback);}"
++    )]
++    extern "C" {
++        fn craft_font_take() -> js_sys::Array;
++        fn craft_font_ack(id: &str, ok: bool, message: &str);
++        fn craft_font_wake(callback: &js_sys::Function);
++    }
++    pub fn suite_font_wake(ctx: egui::Context) {
++        let callback = wasm_bindgen::closure::Closure::<dyn FnMut()>::new(move || ctx.request_repaint());
++        craft_font_wake(callback.as_ref().unchecked_ref());
++        callback.forget(); // One wake listener per app runner, for the lifetime of its page.
++    }
++    fn suite_font_batch() -> Vec<(String, String, String, Vec<u8>)> {
++        craft_font_take()
++            .iter()
++            .filter_map(|r| {
++                let get = |key: &str| js_sys::Reflect::get(&r, &key.into()).ok();
++                let id = get("id")?.as_string()?;
++                let family = get("family")?.as_string()?;
++                let style = get("style")?.as_string()?;
++                let bytes = js_sys::Uint8Array::new(&get("bytes")?);
++                if bytes.length() > 24 * 1024 * 1024 || id.len() != 64 || family.len() > 160 {
++                    return None;
++                }
++                Some((id, family, style, bytes.to_vec()))
++            })
++            .collect()
++    }
++
++    pub struct SuiteApp(pub pdfcraft_ui_egui::PdfCraftApp);
++    impl eframe::App for SuiteApp {
++        fn raw_input_hook(&mut self, ctx: &egui::Context, raw: &mut egui::RawInput) {
++            self.0.raw_input_hook(ctx, raw);
++        }
++        fn logic(&mut self, ctx: &egui::Context, frame: &mut eframe::Frame) {
++            self.0.logic(ctx, frame);
++        }
++        fn ui(&mut self, ui: &mut egui::Ui, frame: &mut eframe::Frame) {
++            for (id, family, style, bytes) in suite_font_batch() {
++                let preview_bytes = bytes.clone();
++                let ok = pdfcraft_fonts::runtime::install(id.clone(), format!("{family} · {style}"), bytes);
++                if ok {
++                    use egui::epaint::text::{FontInsert, FontPriority, InsertFontFamily};
++                    ui.ctx().add_font(FontInsert {
++                        name: id.clone(),
++                        data: egui::FontData::from_owned(preview_bytes),
++                        families: vec![InsertFontFamily { family: egui::FontFamily::Name(id.clone().into()), priority: FontPriority::Highest }],
++                    });
++                }
++                craft_font_ack(&id, ok, if ok { "Registered for added PDF text" } else { "Unsupported font" });
++            }
++            self.0.ui(ui, frame);
++        }
++        fn save(&mut self, storage: &mut dyn eframe::Storage) {
++            self.0.save(storage);
++        }
++    }
++}
++#[cfg(target_arch = "wasm32")]
++use suite_fonts::{SuiteApp, suite_font_wake};
+diff --git a/crates/edit/src/added.rs b/crates/edit/src/added.rs
+index daf4a25..0956bf3 100644
+--- a/crates/edit/src/added.rs
++++ b/crates/edit/src/added.rs
+@@ -94,6 +94,7 @@ pub struct AddedText {
+     pub rect: [f64; 4],
+     pub text: String,
+     pub family: Family,
++    pub font_id: String,
+     pub bold: bool,
+     pub italic: bool,
+     pub size: f64,
+@@ -107,6 +108,7 @@ impl Default for AddedText {
+             rect: [0.0; 4],
+             text: String::new(),
+             family: Family::Helvetica,
++            font_id: String::new(),
+             bold: false,
+             italic: false,
+             size: 12.0,
+@@ -217,7 +219,7 @@ fn wrapped(t: &AddedText) -> Vec<(String, bool)> {
+     let width = (t.rect[2] - t.rect[0]).max(t.size);
+     let mut out = Vec::new();
+     for para in t.text.split('\n') {
+-        let arabic = para.chars().any(is_arabic);
++        let arabic = !t.font_id.is_empty() || para.chars().any(is_arabic);
+         let rtl = arabic && unicode_bidi::get_base_direction(para) == unicode_bidi::Direction::Rtl;
+         // Arabic words are shaped one by one (joining stops at spaces), so a line's width is the
+         // sum of its words' and shaping stays linear in the paragraph's length. The space is the
+@@ -253,6 +255,13 @@ fn is_arabic(c: char) -> bool {
+ /// with the craft-fonts Arabic face (#125), or Arabic that the face can't draw (or that has no
+ /// face to draw it). Page-content tools refuse such text; the Add-text editor keeps it open.
+ pub fn first_undrawable(t: &AddedText) -> Option<char> {
++    if !t.font_id.is_empty() {
++        return t
++            .text
++            .chars()
++            .filter(|c| !c.is_whitespace() && !is_bidi_control(*c))
++            .find(|c| pdfcraft_fonts::runtime::shape(&t.font_id, &c.to_string(), false).is_err());
++    }
+     // Arabic that nothing can draw: there's no face, or the face lacks it.
+     if let Some(c) = t.text.chars().find(|c| shaped_arabic(*c) && !pdfcraft_fonts::arabic_has(*c)) {
+         return Some(c);
+@@ -324,7 +333,7 @@ fn arabic_layout(t: &AddedText, line: &str, rtl: bool) -> Result<(Vec<Piece>, f6
+         // shaper then mirrors. Latin text (and what the face lacks) keeps the item's font.
+         let mut segments: Vec<(bool, String)> = Vec::new();
+         for c in text.chars().filter(|c| !is_bidi_control(*c)) {
+-            let arabic = is_arabic(c) || (run_rtl && !c.is_alphanumeric() && pdfcraft_fonts::arabic_has(c));
++            let arabic = !t.font_id.is_empty() || is_arabic(c) || (run_rtl && !c.is_alphanumeric() && pdfcraft_fonts::arabic_has(c));
+             match segments.last_mut() {
+                 Some((kind, s)) if *kind == arabic => s.push(c),
+                 _ => segments.push((arabic, c.to_string())),
+@@ -335,7 +344,13 @@ fn arabic_layout(t: &AddedText, line: &str, rtl: bool) -> Result<(Vec<Piece>, f6
+         }
+         for (arabic, s) in segments {
+             pieces.push(if arabic {
+-                Piece::Arabic(shape_arabic(&s, run_rtl).map_err(|e| arabic_error(e, &s))?)
++                Piece::Arabic(if t.font_id.is_empty() {
++                    shape_arabic(&s, run_rtl).map_err(|e| arabic_error(e, &s))?
++                } else {
++                    pdfcraft_fonts::runtime::shape(&t.font_id, &s, run_rtl).map_err(|_| {
++                        EditError::Invalid("Selected font is missing or cannot shape this text. Activate the font in Font library.".into())
++                    })?
++                })
+             } else if run_rtl {
+                 Piece::Latin(s.chars().rev().map(mirrored).collect())
+             } else {
+@@ -414,13 +429,14 @@ fn draw_arabic(doc: &mut Document, t: &AddedText, latin: &str, taken: &Dict, fon
+     for c in &keys {
+         for (id, _) in &c.glyphs {
+             if !outlines.contains_key(id) {
+-                outlines.insert(*id, arabic_glyph(*id).map_err(|e| arabic_error(e, &c.text))?);
++                let g = if t.font_id.is_empty() { arabic_glyph(*id) } else { pdfcraft_fonts::runtime::glyph(&t.font_id, *id) };
++                outlines.insert(*id, g.map_err(|_| EditError::Invalid("Selected font contains unsupported glyph outlines".into()))?);
+             }
+         }
+     }
+     let mut names = Vec::new();
+     for chunk in keys.chunks(GLYPHS_PER_FONT) {
+-        let font = type3_arabic(doc, chunk, &outlines);
++        let font = type3_arabic(doc, chunk, &outlines, &t.font_id);
+         // A name no font on the page has, so items never replace each other's fonts (object
+         // numbers alone don't do: a full save renumbers objects but keeps resource names).
+         let mut name = format!("PCAr{}", font.num);
+@@ -489,7 +505,7 @@ fn cluster_key(c: &ShapedCluster) -> ClusterKey<'_> {
+ }
+ 
+ /// A Type 3 font with `clusters` as codes 1…, each drawn from the Arabic face's glyph `outlines`.
+-fn type3_arabic(doc: &mut Document, clusters: &[&ShapedCluster], outlines: &HashMap<u32, GlyphOutline>) -> ObjRef {
++fn type3_arabic(doc: &mut Document, clusters: &[&ShapedCluster], outlines: &HashMap<u32, GlyphOutline>, font_id: &str) -> ObjRef {
+     let mut charprocs = Dict::new();
+     let mut differences = vec![Object::Int(1)];
+     let mut widths = Vec::with_capacity(clusters.len());
+@@ -538,7 +554,8 @@ fn type3_arabic(doc: &mut Document, clusters: &[&ShapedCluster], outlines: &Hash
+     }
+     cmap.push_str("endcmap\nCMapName currentdict /CMap defineresource pop\nend\nend\n");
+     let cmap = doc.add(Object::Stream(Stream::flate(Dict::new(), cmap.as_bytes())));
+-    let family = pdfcraft_fonts::document_arabic_font().map_or("Arabic", |f| f.family);
++    let selected = pdfcraft_fonts::runtime::get(font_id);
++    let family = selected.as_ref().map(|f| f.label.as_str()).unwrap_or_else(|| pdfcraft_fonts::document_arabic_font().map_or("Arabic", |f| f.family));
+     let mut descriptor = Dict::new();
+     descriptor.set(b"Type".to_vec(), Object::name("FontDescriptor"));
+     descriptor.set(b"FontName".to_vec(), Object::name(&family.replace(' ', "")));
+@@ -585,7 +602,7 @@ fn draw(doc: &mut Document, c: &Content, view: [f64; 6], taken: &Dict, existing:
+             }
+             let mut fonts = Dict::new();
+             fonts.set(name.clone().into_bytes(), Object::Dict(font));
+-            if t.text.chars().any(is_arabic) && (pdfcraft_fonts::document_arabic_font().is_some() || !existing) {
++            if !t.font_id.is_empty() || (t.text.chars().any(is_arabic) && (pdfcraft_fonts::document_arabic_font().is_some() || !existing)) {
+                 draw_arabic(doc, t, &name, taken, &mut fonts, &mut out)?;
+                 res.set(b"Font".to_vec(), Object::Dict(fonts));
+                 out.extend_from_slice(b"Q\n");
+@@ -655,6 +672,7 @@ fn params(c: &Content) -> Dict {
+         Content::Text(t) => {
+             d.set(b"Kind".to_vec(), Object::name("Text"));
+             d.set(b"Text".to_vec(), PdfString::text(&t.text));
++            d.set(b"CraftFontId".to_vec(), PdfString::text(&t.font_id));
+             d.set(b"Font".to_vec(), Object::name(t.family.base_font(t.bold, t.italic)));
+             d.set(b"Size".to_vec(), Object::Real(t.size));
+             d.set(b"Color".to_vec(), arr(&t.color));
+@@ -701,6 +719,7 @@ fn parse(doc: &Document, d: &Dict) -> Option<Content> {
+                 rect,
+                 text: d.get(b"Text").and_then(|t| doc.resolve(t).as_string().map(|s| s.to_text())).unwrap_or_default(),
+                 family,
++                font_id: d.get(b"CraftFontId").and_then(|v| v.as_string()).map(|v| v.to_text()).unwrap_or_default(),
+                 bold,
+                 italic,
+                 size: d.get(b"Size").and_then(Object::as_f64).unwrap_or(12.0),
+@@ -747,6 +766,12 @@ fn validate(c: &Content) -> Result<(), EditError> {
+             // Without the Arabic face, `draw` decides for the Arabic letters themselves (#403): a new
+             // item is refused with what's missing, and one that already holds Arabic stays movable.
+             // Everything else in it is drawn in the standard font, so it still has to fit.
++            if !t.font_id.is_empty() {
++                for (line, rtl) in wrapped(t) {
++                    arabic_layout(t, &line, rtl)?;
++                }
++                return Ok(());
++            }
+             let undrawable = if t.text.chars().any(shaped_arabic) && pdfcraft_fonts::document_arabic_font().is_none() {
+                 t.text.split('\n').find_map(|line| line.chars().find(|c| !shaped_arabic(*c) && !pdfcraft_fonts::win_ansi_encodable(*c)))
+             } else {
+diff --git a/crates/edit/src/tests.rs b/crates/edit/src/tests.rs
+index d9f7f54..83e979e 100644
+--- a/crates/edit/src/tests.rs
++++ b/crates/edit/src/tests.rs
+@@ -2028,3 +2028,25 @@ fn group_move_budget_refusals_keep_the_original_page_selectable() {
+         assert_eq!(editable_objects(&doc, 0).unwrap(), objects, "refusal retains a usable inventory");
+     }
+ }
++
++#[test]
++fn suite_font_text_keeps_identity_and_portable_pdf_glyphs() {
++    let id = "f".repeat(64);
++    assert!(pdfcraft_fonts::runtime::install(
++        id.clone(),
++        "Dancing Script".into(),
++        include_bytes!("../../../assets/fonts/DancingScript.ttf").to_vec()
++    ));
++    let mut doc = fixture();
++    let text = AddedText { text: "Office Café".into(), font_id: id.clone(), rect: [72.0, 600.0, 360.0, 700.0], ..Default::default() };
++    add_content(&mut doc, 0, &Content::Text(text.clone())).unwrap();
++    let mut saved = reopen(&doc);
++    let all = list_added(&saved);
++    let Content::Text(restored) = &all[0].content else { panic!("text expected") };
++    assert_eq!(restored.font_id, id);
++    assert_eq!(restored.text, text.text);
++    assert!(streams(&saved, 0).join("\n").contains("/PCAr"));
++    update_content(&mut saved, 0, 0, &Content::Text(AddedText { text: "Revised".into(), ..text.clone() })).unwrap();
++    let missing = AddedText { font_id: "missing".repeat(9), ..text };
++    assert!(add_content(&mut saved, 0, &Content::Text(missing)).is_err());
++}
+diff --git a/crates/fonts/src/lib.rs b/crates/fonts/src/lib.rs
+index ee94566..e0d4f3c 100644
+--- a/crates/fonts/src/lib.rs
++++ b/crates/fonts/src/lib.rs
+@@ -9,6 +9,7 @@ mod arabic;
+ mod craft;
+ mod encodings;
+ pub mod pdf;
++pub mod runtime;
+ mod script;
+ pub use arabic::{ShapedCluster, arabic_glyph, arabic_has, shape_arabic};
+ pub use craft::{
+diff --git a/crates/fonts/src/runtime.rs b/crates/fonts/src/runtime.rs
+new file mode 100644
+index 0000000..e651fa4
+--- /dev/null
++++ b/crates/fonts/src/runtime.rs
+@@ -0,0 +1,112 @@
++//! Origin-local editable fonts, supplied by the suite browser bridge.
++use crate::{GlyphError, GlyphOutline, ShapedCluster};
++use harfrust::{BufferClusterLevel, Direction, ShapeOptions, ShaperData, UnicodeBuffer};
++use skrifa::instance::{LocationRef, Size};
++use skrifa::raw::TableProvider;
++use skrifa::{FontRef, GlyphId, MetadataProvider};
++use std::sync::{Arc, Mutex, PoisonError};
++#[derive(Clone)]
++pub struct RuntimeFont {
++    pub id: String,
++    pub label: String,
++    pub bytes: Arc<Vec<u8>>,
++}
++static FONTS: Mutex<Vec<RuntimeFont>> = Mutex::new(Vec::new());
++pub fn list() -> Vec<RuntimeFont> {
++    FONTS.lock().unwrap_or_else(PoisonError::into_inner).clone()
++}
++pub fn get(id: &str) -> Option<RuntimeFont> {
++    list().into_iter().find(|f| f.id == id)
++}
++pub fn install(id: String, label: String, bytes: Vec<u8>) -> bool {
++    if bytes.len() > 24 * 1024 * 1024 || id.len() != 64 || label.len() > 320 || FontRef::new(&bytes).is_err() {
++        return false;
++    }
++    // OS/2 fsType: restricted, preview/print-only, no-subsetting or bitmap-only.
++    let u16_at = |p: usize| bytes.get(p..p.saturating_add(2)).and_then(|s| <[u8; 2]>::try_from(s).ok()).map(u16::from_be_bytes);
++    let u32_at = |p: usize| bytes.get(p..p.saturating_add(4)).and_then(|s| <[u8; 4]>::try_from(s).ok()).map(u32::from_be_bytes);
++    for i in 0..usize::from(u16_at(4).unwrap_or(0)).min(256) {
++        let p = 12 + i * 16;
++        if bytes.get(p..p + 4) == Some(b"OS/2") {
++            let Some(offset) = u32_at(p + 8).map(|v| v as usize) else {
++                return false;
++            };
++            if u16_at(offset.saturating_add(8)).is_none_or(|v| v & 0x0306 != 0) {
++                return false;
++            }
++        }
++    }
++    let mut fonts = FONTS.lock().unwrap_or_else(PoisonError::into_inner);
++    if fonts.iter().any(|f| f.id == id) {
++        return true;
++    }
++    if fonts.iter().map(|f| f.bytes.len()).sum::<usize>() + bytes.len() > 128 * 1024 * 1024 {
++        return false;
++    }
++    fonts.push(RuntimeFont { id, label, bytes: Arc::new(bytes) });
++    true
++}
++pub fn shape(id: &str, text: &str, rtl: bool) -> Result<Vec<ShapedCluster>, GlyphError> {
++    if text.len() > 32768 {
++        return Err(GlyphError::TooComplex);
++    }
++    let selected = get(id).ok_or(GlyphError::NoFont)?;
++    let font = FontRef::new(&selected.bytes).map_err(|_| GlyphError::Missing)?;
++    let data = ShaperData::new(&font);
++    let shaper = data.shaper(&font).build();
++    let scale = 1.0 / f64::from(shaper.units_per_em().max(1));
++    let mut buffer = UnicodeBuffer::new();
++    buffer.push_str(text);
++    buffer.set_direction(if rtl { Direction::RightToLeft } else { Direction::LeftToRight });
++    buffer.guess_segment_properties();
++    // One cluster per character, so marks keep their own text for copy and search.
++    buffer.set_cluster_level(BufferClusterLevel::Characters);
++    let shaped = shaper.shape(buffer, ShapeOptions::new());
++    // Clusters are byte offsets into `text`; a cluster shows the characters up to the next one.
++    let mut starts: Vec<usize> = shaped.glyph_infos().iter().map(|g| g.cluster as usize).collect();
++    starts.sort_unstable();
++    starts.dedup();
++    let mut out: Vec<(usize, ShapedCluster)> = Vec::new();
++    for (info, pos) in shaped.glyph_infos().iter().zip(shaped.glyph_positions()) {
++        if info.glyph_id == 0 {
++            return Err(GlyphError::Missing);
++        }
++        let start = info.cluster as usize;
++        // A cluster's glyphs are adjacent in the shaped run.
++        let cluster = match out.last_mut() {
++            Some((s, c)) if *s == start => c,
++            _ => {
++                let end = starts.get(starts.partition_point(|s| *s <= start)).copied().unwrap_or(text.len());
++                let text = text.get(start..end).unwrap_or_default().to_string();
++                out.push((start, ShapedCluster { glyphs: Vec::new(), advance: 0.0, text }));
++                // Just pushed.
++                let Some((_, c)) = out.last_mut() else { continue };
++                c
++            }
++        };
++        let at = [cluster.advance + f64::from(pos.x_offset) * scale, f64::from(pos.y_offset) * scale];
++        cluster.glyphs.push((info.glyph_id, at));
++        cluster.advance += f64::from(pos.x_advance) * scale;
++    }
++    Ok(out.into_iter().map(|(_, c)| c).collect())
++}
++
++pub fn glyph(font_id: &str, id: u32) -> Result<GlyphOutline, GlyphError> {
++    let selected = get(font_id).ok_or(GlyphError::NoFont)?;
++    let font = FontRef::new(&selected.bytes).map_err(|_| GlyphError::Missing)?;
++    if font.maxp().map_or(true, |m| id >= u32::from(m.num_glyphs())) {
++        return Err(GlyphError::Missing);
++    }
++    let gid = GlyphId::new(id);
++    let loc = LocationRef::default();
++    let scale = 1.0 / font.metrics(Size::unscaled(), loc).units_per_em.max(1) as f64;
++    let width = font.glyph_metrics(Size::unscaled(), loc).advance_width(gid).unwrap_or(0.0) as f64 * scale;
++    // Marks have no advance; the widest ligatures (U+FDFD) span a few em.
++    if !width.is_finite() || !(0.0..=8.0).contains(&width) {
++        return Err(GlyphError::Missing);
++    }
++    if font.outline_glyphs().get(gid).is_none() {
++        return Ok(GlyphOutline { contours: Vec::new(), width, bbox: [0.0, 0.0, width, 0.0] });
++    }
++    crate::script::bounded_outline(&font, gid, width)
++}
+diff --git a/crates/ui-egui/src/content_ui.rs b/crates/ui-egui/src/content_ui.rs
+index 1dab43e..4f16c6d 100644
+--- a/crates/ui-egui/src/content_ui.rs
++++ b/crates/ui-egui/src/content_ui.rs
+@@ -342,7 +342,14 @@ pub(crate) fn editor(ctx: &egui::Context, view: &mut DocView, info: &DocInfo, ad
+             ui.spacing_mut().item_spacing.x = 4.0;
+             let resp = ui.add(
+                 egui::TextEdit::multiline(&mut t.text)
+-                    .font(egui::FontId::proportional((t.style.size as f32 * zoom).max(8.0)))
++                    .font(egui::FontId::new(
++                        (t.style.size as f32 * zoom).max(8.0),
++                        if !t.style.font_id.is_empty() && pdfcraft_fonts::runtime::get(&t.style.font_id).is_some() {
++                            egui::FontFamily::Name(t.style.font_id.clone().into())
++                        } else {
++                            egui::FontFamily::Proportional
++                        },
++                    ))
+                     .desired_width(r.width().max(60.0))
+                     .desired_rows(1)
+                     .background_color(Color32::from_rgba_unmultiplied(255, 255, 255, 235))
+@@ -412,9 +419,26 @@ fn finish(cv: &mut ContentView, d: TextDraft, added: &[Added]) -> Option<Edit> {
+ 
+ /// Format text (shown in the Edit panel while a text item is selected, or for new text).
+ /// Returns the changed style; for a selected item the caller turns it into an update.
+-pub(crate) fn format_panel(ui: &mut egui::Ui, t: &Tokens, style: &AddedText) -> Option<AddedText> {
++pub(crate) fn format_panel(ui: &mut egui::Ui, t: &Tokens, style: &AddedText, library_faces: bool) -> Option<AddedText> {
+     let mut s = style.clone();
+     widgets::section_title(ui, tl!("Format text"));
++    if library_faces {
++        egui::ComboBox::from_id_salt("craft-font-face")
++            .selected_text(
++                pdfcraft_fonts::runtime::get(&s.font_id)
++                    .map(|f| f.label)
++                    .unwrap_or_else(|| if s.font_id.is_empty() { "Standard PDF font".into() } else { "Missing library font".into() }),
++            )
++            .show_ui(ui, |ui| {
++                ui.selectable_value(&mut s.font_id, String::new(), "Standard PDF font");
++                for f in pdfcraft_fonts::runtime::list() {
++                    ui.selectable_value(&mut s.font_id, f.id, f.label);
++                }
++            });
++        if !s.font_id.is_empty() {
++            ui.small("Library face uses its own style. Activate the bold/italic face you need.");
++        }
++    }
+     ui.horizontal(|ui| {
+         egui::ComboBox::from_id_salt("font-family").selected_text(s.family.label()).width(110.0).show_ui(ui, |ui| {
+             for f in [FontFamily::Helvetica, FontFamily::Times, FontFamily::Courier] {
+diff --git a/crates/ui-egui/src/panels.rs b/crates/ui-egui/src/panels.rs
+index b4127ec..d12ee80 100644
+--- a/crates/ui-egui/src/panels.rs
++++ b/crates/ui-egui/src/panels.rs
+@@ -315,7 +315,7 @@ fn format_section(app: &mut PdfCraftApp, ui: &mut egui::Ui, t: &Tokens) {
+     {
+         let mut ed = ed;
+         let mut changed = false;
+-        if let Some(look) = crate::content_ui::format_panel(ui, t, &ed.look) {
++        if let Some(look) = crate::content_ui::format_panel(ui, t, &ed.look, false) {
+             ed.look = look;
+             changed = true;
+         }
+@@ -367,14 +367,14 @@ fn format_section(app: &mut PdfCraftApp, ui: &mut egui::Ui, t: &Tokens) {
+     });
+     match selected {
+         Some((page, index, text)) => {
+-            if let Some(style) = crate::content_ui::format_panel(ui, t, &text) {
++            if let Some(style) = crate::content_ui::format_panel(ui, t, &text, true) {
+                 app.text_style = pdfcraft_engine::AddedText { text: String::new(), rect: [0.0; 4], ..style.clone() };
+                 app.apply_edit(pdfcraft_engine::Edit::UpdateContent { page, index, content: pdfcraft_engine::AddedContent::Text(style) });
+             }
+         }
+         None if app.quick_tool == crate::QuickTool::AddText => {
+             crate::content_ui::hint(ui, t);
+-            if let Some(style) = crate::content_ui::format_panel(ui, t, &app.text_style) {
++            if let Some(style) = crate::content_ui::format_panel(ui, t, &app.text_style, true) {
+                 app.text_style = style;
+             }
+         }

@@ -1,0 +1,274 @@
+diff --git a/apps/lightcraft-web/src/web.rs b/apps/lightcraft-web/src/web.rs
+index dc59023..40d2a27 100644
+--- a/apps/lightcraft-web/src/web.rs
++++ b/apps/lightcraft-web/src/web.rs
+@@ -386,6 +386,7 @@ struct WebApp {
+ 
+ impl WebApp {
+     fn new(cc: &eframe::CreationContext<'_>, boot: Boot, chinese_font: Vec<u8>) -> Self {
++        suite_font_wake(cc.egui_ctx.clone());
+         let Boot { opts, backend, files, index, lib_dir } = boot;
+         let originals = Originals::default();
+         let t = perf_now();
+@@ -656,6 +657,10 @@ impl eframe::App for WebApp {
+     }
+ 
+     fn ui(&mut self, ui: &mut egui::Ui, _frame: &mut eframe::Frame) {
++        for (id, family, style, bytes) in suite_font_batch() {
++            let ok = lightcraft_engine::fonts::install_runtime(id.clone(), format!("{family} · {style}"), bytes);
++            craft_font_ack(&id, ok, if ok { "Registered for watermarks" } else { "Unsupported font" });
++        }
+         self.app.ui(ui);
+         if !self.first_frame_logged && !self.app.widgets.is_empty() {
+             self.first_frame_logged = true;
+@@ -707,3 +712,34 @@ pub fn start(chinese_font: Vec<u8>) {
+         }
+     });
+ }
++
++// *Craft's origin-local library passes real font bytes to the native text engine.
++#[wasm_bindgen::prelude::wasm_bindgen(
++    inline_js = "export function craft_font_take(){return globalThis.CraftFonts?.take() || [];} export function craft_font_ack(id,ok,message){globalThis.CraftFonts?.ack(id,ok,message);} export function craft_font_wake(callback){globalThis.addEventListener('craft:font-change',callback);}"
++)]
++extern "C" {
++    fn craft_font_take() -> js_sys::Array;
++    fn craft_font_ack(id: &str, ok: bool, message: &str);
++    fn craft_font_wake(callback: &js_sys::Function);
++}
++fn suite_font_wake(ctx: egui::Context) {
++    let callback = wasm_bindgen::closure::Closure::<dyn FnMut()>::new(move || ctx.request_repaint());
++    craft_font_wake(callback.as_ref().unchecked_ref());
++    callback.forget(); // One wake listener per app runner, for the lifetime of its page.
++}
++fn suite_font_batch() -> Vec<(String, String, String, Vec<u8>)> {
++    craft_font_take()
++        .iter()
++        .filter_map(|r| {
++            let get = |key: &str| js_sys::Reflect::get(&r, &key.into()).ok();
++            let id = get("id")?.as_string()?;
++            let family = get("family")?.as_string()?;
++            let style = get("style")?.as_string()?;
++            let bytes = js_sys::Uint8Array::new(&get("bytes")?);
++            if bytes.length() > 24 * 1024 * 1024 || id.len() != 64 || family.len() > 160 {
++                return None;
++            }
++            Some((id, family, style, bytes.to_vec()))
++        })
++        .collect()
++}
+diff --git a/crates/engine/src/contact_sheet.rs b/crates/engine/src/contact_sheet.rs
+index 663d6f8..0242f68 100644
+--- a/crates/engine/src/contact_sheet.rs
++++ b/crates/engine/src/contact_sheet.rs
+@@ -14,11 +14,12 @@ pub struct Options {
+     pub columns: usize,
+     pub rows: usize,
+     pub captions: bool,
++    pub font_id: String,
+ }
+ 
+ impl Default for Options {
+     fn default() -> Self {
+-        Self { paper: "a4".into(), landscape: false, columns: 3, rows: 4, captions: true }
++        Self { paper: "a4".into(), landscape: false, columns: 3, rows: 4, captions: true, font_id: String::new() }
+     }
+ }
+ 
+@@ -34,6 +35,9 @@ impl Options {
+     }
+ 
+     fn layout(&self) -> Result<Layout, String> {
++        if self.captions && !self.font_id.is_empty() && crate::fonts::runtime_font(&self.font_id).is_none() {
++            return Err("Caption font is missing. Activate it in Font library.".into());
++        }
+         if !(1..=8).contains(&self.columns) || !(1..=10).contains(&self.rows) {
+             return Err("columns must be 1–8 and rows 1–10".into());
+         }
+@@ -134,6 +138,7 @@ impl Prepared {
+                 draw_watermark(
+                     &mut caption,
+                     &Watermark {
++                        font_id: self.options.font_id.clone(),
+                         text: caption_text(&name, l.cell_w - 16),
+                         size: 0.5,
+                         opacity: 1.0,
+diff --git a/crates/engine/src/export.rs b/crates/engine/src/export.rs
+index 6a9e914..7e3df42 100644
+--- a/crates/engine/src/export.rs
++++ b/crates/engine/src/export.rs
+@@ -202,6 +202,7 @@ pub enum Anchor {
+ #[serde(default, rename_all = "camelCase")]
+ pub struct Watermark {
+     pub text: String,
++    pub font_id: String,
+     /// Basic Japanese vertical lettering: upright glyphs in columns from right to left.
+     pub vertical: bool,
+     /// Text height as a fraction of the image's short edge.
+@@ -228,6 +229,7 @@ impl Default for Watermark {
+     fn default() -> Self {
+         Self {
+             text: String::new(),
++            font_id: String::new(),
+             vertical: false,
+             size: 0.035,
+             opacity: 0.7,
+@@ -347,7 +349,11 @@ fn watermark_coverage(
+     if text.is_empty() || width == 0 || height == 0 {
+         return;
+     }
+-    let fonts = watermark_fonts(craft);
++    let selected = crate::fonts::runtime_font(&wm.font_id);
++    let mut fonts = watermark_fonts(craft);
++    if let Some(font) = selected.as_ref().and_then(|f| ab_glyph::FontRef::try_from_slice(f.bytes.as_slice()).ok()) {
++        fonts.insert(0, font);
++    }
+     let Some(latin) = fonts.first() else { return };
+     let vertical_data: Vec<_> = if wm.vertical {
+         fonts.iter().map(|font| harfrust::FontRef::new(font.font_data()).ok().map(|face| harfrust::ShaperData::new(&face))).collect()
+@@ -668,7 +674,7 @@ pub const OPTION_PARAMS: &[&str] = &[
+ ];
+ 
+ /// The keys of a `watermark` object ([`Watermark`], camelCase).
+-pub const WATERMARK_PARAMS: &[&str] = &["text", "vertical", "size", "opacity", "anchor", "inset", "color", "shadow", "image", "imageWidth"];
++pub const WATERMARK_PARAMS: &[&str] = &["text", "vertical", "size", "opacity", "anchor", "inset", "color", "shadow", "image", "imageWidth", "fontId"];
+ 
+ /// Text height as a fraction of the short edge: the range the renderer draws without clamping.
+ pub const WATERMARK_SIZE_RANGE: (f32, f32) = (0.005, 0.5);
+@@ -856,7 +862,7 @@ impl ExportOptions {
+                 continue;
+             }
+             match k.as_str() {
+-                "text" | "image" => {
++                "text" | "image" | "fontId" => {
+                     v.as_str().ok_or_else(|| bad(format!("`watermark.{k}` must be a string")))?;
+                 }
+                 "vertical" | "shadow" => {
+@@ -1139,6 +1145,11 @@ pub fn encode_image(img: &Rgba8, o: &ExportOptions) -> Result<Vec<u8>, String> {
+ 
+ /// Like [`encode_image`], embedding `meta` (already filtered by the policy) as EXIF + XMP.
+ pub fn encode_with_metadata(img: &Rgba8, o: &ExportOptions, meta: Option<&Metadata>) -> Result<Vec<u8>, String> {
++    if let Some(wm) = &o.watermark {
++        if wm.image.trim().is_empty() && !wm.font_id.is_empty() && crate::fonts::runtime_font(&wm.font_id).is_none() {
++            return Err("Watermark font is missing. Activate it in Font library before exporting.".into());
++        }
++    }
+     let img = finish_8bit(img, o);
+     let space = o.effective_space();
+     let profile = icc::write_named(named_space(space));
+@@ -1269,6 +1280,11 @@ pub fn encode_rendered(r: &lightcraft_pipeline::Rendered, o: &ExportOptions, met
+ 
+ /// Encode a high-bit-depth image (see [`encode_rendered`]).
+ pub fn encode_deep(img: &DeepImage, o: &ExportOptions, meta: Option<&Metadata>) -> Result<Vec<u8>, String> {
++    if let Some(wm) = &o.watermark {
++        if wm.image.trim().is_empty() && !wm.font_id.is_empty() && crate::fonts::runtime_font(&wm.font_id).is_none() {
++            return Err("Watermark font is missing. Activate it in Font library before exporting.".into());
++        }
++    }
+     let img = finish_deep(img, o);
+     let profile = match img.samples {
+         DeepSamples::F32(_) => icc::write_matrix_trc(&img.space.rgb_space(), &lightcraft_codecs::Trc::Linear),
+@@ -2512,10 +2528,9 @@ mod tests {
+             err(json!(5))
+                 .contains("`watermark` must be text or an object {text, vertical, size, opacity, anchor, inset, color, shadow, image, imageWidth}")
+         );
+-        assert!(
+-            err(json!({"text": "x", "bogus": 1}))
+-                .contains("unknown watermark key `bogus` (one of text, vertical, size, opacity, anchor, inset, color, shadow, image, imageWidth)")
+-        );
++        assert!(err(json!({"text": "x", "bogus": 1})).contains(
++            "unknown watermark key `bogus` (one of text, vertical, size, opacity, anchor, inset, color, shadow, image, imageWidth, fontId)"
++        ));
+         assert!(err(json!({"text": "x", "sizee": 0.1})).contains("did you mean `size`"));
+         for size in [json!(3), json!(0.5001), json!(0), json!("big")] {
+             let e = err(json!({"text": "x", "size": size}));
+@@ -2639,4 +2654,26 @@ mod tests {
+         assert_eq!(render_weight(0, 0, SourceLevel::Full, 0), 0);
+         assert!(render_weight(usize::MAX, 1, SourceLevel::Full, usize::MAX) > 0, "no overflow");
+     }
++    #[test]
++    fn suite_font_changes_pixels_and_roundtrips_presets() {
++        let id = "e".repeat(64);
++        assert!(crate::fonts::install_runtime(
++            id.clone(),
++            "Inter Regular".into(),
++            include_bytes!("../../../assets/fonts/Inter-Regular.ttf").to_vec()
++        ));
++        let mut wm = Watermark { text: "Library watermark".into(), size: 0.12, ..Default::default() };
++        let mut a = Rgba8::filled(400, 300, [0, 0, 0, 255]);
++        let mut b = a.clone();
++        draw_watermark(&mut a, &wm);
++        wm.font_id = id.clone();
++        draw_watermark(&mut b, &wm);
++        assert_ne!(a.data, b.data);
++        let json = serde_json::to_value(&wm).unwrap();
++        let o = ExportOptions::from_params(&json!({"watermark": json})).unwrap();
++        assert_eq!(o.watermark.unwrap().font_id, id);
++        let o =
++            ExportOptions { watermark: Some(Watermark { font_id: "missing".into(), text: "x".into(), ..Default::default() }), ..Default::default() };
++        assert!(encode_image(&b, &o).is_err());
++    }
+ }
+diff --git a/crates/engine/src/fonts.rs b/crates/engine/src/fonts.rs
+index 97a8306..ed00165 100644
+--- a/crates/engine/src/fonts.rs
++++ b/crates/engine/src/fonts.rs
+@@ -113,3 +113,31 @@ mod tests {
+         assert_eq!(cjk_fallback(&[], "Hans", "Regular").len(), 0);
+     }
+ }
++
++#[derive(Clone)]
++pub struct RuntimeFont {
++    pub id: String,
++    pub label: String,
++    pub bytes: std::sync::Arc<Vec<u8>>,
++}
++static RUNTIME: std::sync::Mutex<Vec<RuntimeFont>> = std::sync::Mutex::new(Vec::new());
++pub fn runtime_fonts() -> Vec<RuntimeFont> {
++    RUNTIME.lock().unwrap_or_else(std::sync::PoisonError::into_inner).clone()
++}
++pub fn runtime_font(id: &str) -> Option<RuntimeFont> {
++    runtime_fonts().into_iter().find(|f| f.id == id)
++}
++pub fn install_runtime(id: String, label: String, bytes: Vec<u8>) -> bool {
++    if bytes.len() > 24 * 1024 * 1024 || id.len() != 64 || label.len() > 320 || ab_glyph::FontRef::try_from_slice(&bytes).is_err() {
++        return false;
++    }
++    let mut fonts = RUNTIME.lock().unwrap_or_else(std::sync::PoisonError::into_inner);
++    if fonts.iter().any(|f| f.id == id) {
++        return true;
++    }
++    if fonts.iter().map(|f| f.bytes.len()).sum::<usize>() + bytes.len() > 128 * 1024 * 1024 {
++        return false;
++    }
++    fonts.push(RuntimeFont { id, label, bytes: std::sync::Arc::new(bytes) });
++    true
++}
+diff --git a/crates/ui-egui/src/panels/dialogs.rs b/crates/ui-egui/src/panels/dialogs.rs
+index 173d76e..cb5c43f 100644
+--- a/crates/ui-egui/src/panels/dialogs.rs
++++ b/crates/ui-egui/src/panels/dialogs.rs
+@@ -492,6 +492,10 @@ pub fn show(app: &mut LightcraftApp, ctx: &egui::Context) {
+                     field(ui, "Columns", |ui| { ui.add(egui::DragValue::new(&mut options.columns).range(1..=8)); });
+                     field(ui, "Rows", |ui| { ui.add(egui::DragValue::new(&mut options.rows).range(1..=10)); });
+                     ui.checkbox(&mut options.captions, "Filename captions");
++                    egui::ComboBox::from_id_salt("craft-caption-font").selected_text(lightcraft_engine::fonts::runtime_font(&options.font_id).map(|f| f.label).unwrap_or_else(|| "Default caption font".into())).show_ui(ui, |ui| {
++                        ui.selectable_value(&mut options.font_id, String::new(), "Default caption font");
++                        for f in lightcraft_engine::fonts::runtime_fonts() { ui.selectable_value(&mut options.font_id, f.id, f.label); }
++                    });
+                     ui.label("150 dpi · sRGB · current edits · fit without cropping");
+                     ui.label("Choose a PDF destination after confirming. Print the PDF from your viewer.");
+                 }
+@@ -658,6 +662,12 @@ pub fn show(app: &mut LightcraftApp, ctx: &egui::Context) {
+                             }
+                         } else {
+                             choices(ui, app.ui.language.tr("Text direction"), "exportWmOrientation", &[(false, app.ui.language.tr("Horizontal text")), (true, app.ui.language.tr("Vertical text"))], &mut wm.vertical);
++                            egui::ComboBox::from_id_salt("craft-watermark-font")
++                                .selected_text(lightcraft_engine::fonts::runtime_font(&wm.font_id).map(|f| f.label).unwrap_or_else(|| if wm.font_id.is_empty() { "Inter SemiBold".into() } else { "Missing font — activate it in Font library".into() }))
++                                .show_ui(ui, |ui| {
++                                    ui.selectable_value(&mut wm.font_id, String::new(), "Inter SemiBold");
++                                    for font in lightcraft_engine::fonts::runtime_fonts() { ui.selectable_value(&mut wm.font_id, font.id, font.label); }
++                                });
+                             field(ui, "Text", |ui| {
+                                 ui.add(egui::TextEdit::multiline(&mut wm.text).desired_rows(2).hint_text(crate::i18n::tr("© Your Name")).desired_width(f32::INFINITY))
+                             });

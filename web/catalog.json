@@ -1,0 +1,137 @@
+{
+  "schemaVersion": 1,
+  "families": [
+    {
+      "id": "shippori-mincho",
+      "name": "Shippori Mincho",
+      "category": "",
+      "scripts": [
+        "Jpan",
+        "Latn"
+      ],
+      "license": "OFL-1.1",
+      "licensePath": "fonts/shippori-mincho/OFL.txt",
+      "faces": [
+        {
+          "path": "fonts/shippori-mincho/ShipporiMincho-Regular.ttf",
+          "sha256": "769b5269f0f9bc6534b352c0e6bd856a566e03ff788f107191c2d835863570b2",
+          "url": "https://github.com/google/fonts/tree/9710da1eacb3be272583c3224dcb70f9da6eadbb/ofl/shipporimincho",
+          "name": "Regular",
+          "style": "Regular",
+          "size": 8677284
+        }
+      ]
+    },
+    {
+      "id": "biz-ud-pgothic",
+      "name": "BIZ UDPGothic",
+      "category": "",
+      "scripts": [
+        "Jpan",
+        "Latn"
+      ],
+      "license": "OFL-1.1",
+      "licensePath": "fonts/biz-ud-pgothic/OFL.txt",
+      "faces": [
+        {
+          "path": "fonts/biz-ud-pgothic/BIZUDPGothic-Regular.ttf",
+          "sha256": "258d7156c165f2ff774b6efee637c22c3b950de0d8a10e501137061bc8085d01",
+          "url": "https://github.com/googlefonts/morisawa-biz-ud-gothic/tree/18934af56b9c003ca58c54bffbf226848cb11032",
+          "name": "Regular",
+          "style": "Regular",
+          "size": 4669688
+        },
+        {
+          "path": "fonts/biz-ud-pgothic/BIZUDPGothic-Bold.ttf",
+          "sha256": "30eba52fc837e8b62c97d4b82e6706583149fb7294e3712dd71a655eaea80a90",
+          "url": "https://github.com/googlefonts/morisawa-biz-ud-gothic/tree/18934af56b9c003ca58c54bffbf226848cb11032",
+          "name": "Bold",
+          "style": "Bold",
+          "size": 4640596
+        }
+      ]
+    },
+    {
+      "id": "biz-ud-mincho",
+      "name": "BIZ UDMincho",
+      "category": "",
+      "scripts": [
+        "Jpan",
+        "Latn"
+      ],
+      "license": "OFL-1.1",
+      "licensePath": "fonts/biz-ud-mincho/OFL.txt",
+      "faces": [
+        {
+          "path": "fonts/biz-ud-mincho/BIZUDMincho-Regular.ttf",
+          "sha256": "468ee6d9b149ca144809e03841bf18740ecf014e055a00da6ecaf1aaf4165af2",
+          "url": "https://github.com/google/fonts/tree/63833b7d10bb1f86a8f0b91cba2d3ae1f68d1aa3/ofl/bizudmincho",
+          "name": "Regular",
+          "style": "Regular",
+          "size": 6153932
+        }
+      ]
+    },
+    {
+      "id": "noto-sans-cjk-sc",
+      "name": "Noto Sans CJK SC",
+      "category": "",
+      "scripts": [
+        "Hans",
+        "Latn"
+      ],
+      "license": "OFL-1.1",
+      "licensePath": "fonts/noto-sans-cjk-sc/OFL.txt",
+      "faces": [
+        {
+          "path": "fonts/noto-sans-cjk-sc/NotoSansCJKsc-Regular.otf",
+          "sha256": "2c76254f6fc379fddfce0a7e84fb5385bb135d3e399294f6eeb6680d0365b74b",
+          "url": "https://github.com/notofonts/noto-cjk/tree/f8d157532fbfaeda587e826d4cd5b21a49186f7c/Sans/OTF/SimplifiedChinese",
+          "name": "Regular",
+          "style": "Regular",
+          "size": 16437364
+        }
+      ]
+    },
+    {
+      "id": "noto-sans-arabic",
+      "name": "Noto Sans Arabic",
+      "category": "",
+      "scripts": [
+        "Arab"
+      ],
+      "license": "OFL-1.1",
+      "licensePath": "fonts/noto-sans-arabic/OFL.txt",
+      "faces": [
+        {
+          "path": "fonts/noto-sans-arabic/NotoSansArabic.ttf",
+          "sha256": "63111b5b2e074dd48cc67692e0a2726d86ee94c1c37fe8598257b7b4e87e869e",
+          "url": "https://github.com/google/fonts/tree/7085eb89a950e85db5b166b7a58d414544b4140c/ofl/notosansarabic",
+          "name": "Regular",
+          "style": "Regular",
+          "size": 844676
+        }
+      ]
+    },
+    {
+      "id": "noto-sans-thai",
+      "name": "Noto Sans Thai",
+      "category": "",
+      "scripts": [
+        "Thai"
+      ],
+      "license": "OFL-1.1",
+      "licensePath": "fonts/noto-sans-thai/OFL.txt",
+      "faces": [
+        {
+          "path": "fonts/noto-sans-thai/NotoSansThai.ttf",
+          "sha256": "5a1c559bb539583c8a1fd99d1c5b9491e5e14478c9cd2bd0970d5c3096cc9ef8",
+          "url": "https://github.com/google/fonts/tree/8b0a1d0f5983c89bc2b93f1b5fb55f9e252744b5/ofl/notosansthai",
+          "name": "Regular",
+          "style": "Regular",
+          "size": 218652
+        }
+      ]
+    }
+  ]
+}
