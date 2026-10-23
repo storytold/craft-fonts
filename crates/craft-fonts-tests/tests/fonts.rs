@@ -178,6 +178,33 @@ fn covers(script: &str, text: &str) {
     }
 }
 
+/// Text the serif interface previews must carry: the Latin letters, digits and punctuation a
+/// paragraph's first line mixes into a Times-labelled preview.
+const SERIF_PREVIEW: &str =
+    "Times New Roman ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz 0123456789.,:;!?()&%—";
+
+#[test]
+fn tinos_carries_the_serif_styles_the_interface_previews_select() {
+    let faces: Vec<&Font> = FONTS.iter().filter(|f| f.family == "Tinos").collect();
+    for style in ["Regular", "Bold", "Italic", "BoldItalic"] {
+        let face = faces
+            .iter()
+            .find(|f| f.style == style)
+            .unwrap_or_else(|| panic!("the manifest has no Tinos {style}"));
+        let data = bytes(face);
+        let font = FontRef::new(&data).unwrap_or_else(|_| panic!("{}: unreadable", face.file));
+        let charmap = font.charmap();
+        let missing: String = SERIF_PREVIEW
+            .chars()
+            .filter(|c| charmap.map(*c).is_none())
+            .collect();
+        assert!(
+            missing.is_empty(),
+            "Tinos {style} has no glyph for {missing:?}"
+        );
+    }
+}
+
 #[test]
 fn simplified_chinese_fonts_cover_chinese_text() {
     covers(

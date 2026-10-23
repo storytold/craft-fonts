@@ -18,3 +18,7 @@ upstream sources (checked by `craft-fonts-tests`, which verifies each SHA-256 in
 The OFL allows these fonts to be bundled, embedded and redistributed with software, provided the
 licence text travels with them and the fonts are not sold on their own. "Shippori Mincho",
 "BIZ UD" and "Noto" are the authors' names for their fonts; we use the files unmodified.
+| `fonts/tinos/Tinos-Regular.ttf` | Tinos Regular | The Tinos Project Authors (Steve Matteson) | [google/fonts@45e3d52](https://github.com/google/fonts/tree/45e3d5269e4a17d823f6d84470bc084dc5ae46f6/ofl/tinos) | OFL-1.1 (`fonts/tinos/OFL.txt`) |
+| `fonts/tinos/Tinos-Bold.ttf` | Tinos Bold | The Tinos Project Authors (Steve Matteson) | [google/fonts@45e3d52](https://github.com/google/fonts/tree/45e3d5269e4a17d823f6d84470bc084dc5ae46f6/ofl/tinos) | OFL-1.1 (`fonts/tinos/OFL.txt`) |
+| `fonts/tinos/Tinos-Italic.ttf` | Tinos Italic | The Tinos Project Authors (Steve Matteson) | [google/fonts@45e3d52](https://github.com/google/fonts/tree/45e3d5269e4a17d823f6d84470bc084dc5ae46f6/ofl/tinos) | OFL-1.1 (`fonts/tinos/OFL.txt`) |
+| `fonts/tinos/Tinos-BoldItalic.ttf` | Tinos Bold Italic | The Tinos Project Authors (Steve Matteson) | [google/fonts@45e3d52](https://github.com/google/fonts/tree/45e3d5269e4a17d823f6d84470bc084dc5ae46f6/ofl/tinos) | OFL-1.1 (`fonts/tinos/OFL.txt`) |
