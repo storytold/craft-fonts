@@ -217,6 +217,20 @@ fn thai_fonts_cover_thai_text() {
 }
 
 #[test]
+fn hebrew_fonts_cover_hebrew_text() {
+    covers(
+        "Hebr",
+        concat!(
+            "אבגדהוזחטיכלמנסעפצקרשת",
+            "ךםןףץ",
+            "־׳״₪",
+            "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789",
+            ".,:;?!()[]\"'-",
+        ),
+    );
+}
+
+#[test]
 fn georgian_fonts_cover_georgian_text() {
     covers(
         "Geor",
