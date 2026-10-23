@@ -31,6 +31,7 @@ This library is meant to have the following:
 
 | Family | Styles | For | Licence |
 |---|---|---|---|
+| Nanum Gothic | Regular, Bold | Korean UI and document text (sans) | OFL-1.1 |
 | BIZ UDPGothic | Regular, Bold | Japanese UI text (sans) | OFL-1.1 |
 | Shippori Mincho | Regular | Japanese document text (serif) | OFL-1.1 |
 | BIZ UDMincho | Regular | Japanese document text (serif) | OFL-1.1 |

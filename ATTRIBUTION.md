@@ -18,3 +18,12 @@ upstream sources (checked by `craft-fonts-tests`, which verifies each SHA-256 in
 The OFL allows these fonts to be bundled, embedded and redistributed with software, provided the
 licence text travels with them and the fonts are not sold on their own. "Shippori Mincho",
 "BIZ UD" and "Noto" are the authors' names for their fonts; we use the files unmodified.
+
+## Nanum Gothic
+
+Unmodified Regular and Bold fonts, designed by Sandoll Communications and copyright 2010 NHN Corporation. Source: [google/fonts, pinned at 47d54ca1ebb14fd864695f1d39dc734f39017c33](https://github.com/google/fonts/tree/47d54ca1ebb14fd864695f1d39dc734f39017c33/ofl/nanumgothic). Licensed under SIL Open Font License 1.1, reproduced in fonts/nanum-gothic/OFL.txt. Added 2026-10-21 for Korean UI and document coverage. No modifications.
+
+| File | SHA-256 |
+|---|---|
+| fonts/nanum-gothic/NanumGothic-Regular.ttf | 76f45ef4a6bcff344c837c95a7dcc26e017e38b5846d5ae0cdcb5b86be2e2d31 |
+| fonts/nanum-gothic/NanumGothic-Bold.ttf | f96298f9fb18e364d2370f4c3ce948ac67a2b61af992d7234bc15c42b033c674 |
