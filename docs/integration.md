@@ -1,8 +1,8 @@
 # Using craft-fonts in a Crafting App
 
 craft-fonts is a **fully optional** source of fonts. An app must build, test and run without it;
-with it, the app embeds the fonts listed in `fonts/manifest.txt` and uses them (today: Japanese
-UI and document fallback).
+with it, the app embeds the fonts listed in `fonts/manifest.txt` and uses them as fallbacks for
+scripts, emoji and symbols its own fonts lack, and as CJK interface faces (below).
 
 ## Why not a Cargo dependency
 
@@ -72,6 +72,7 @@ fn craft_fonts(dir: &std::path::Path) -> Result<String, String> {
         let [family, style, file, scripts, ..] = f.as_slice() else {
             return Err(format!("malformed manifest line: {line}"));
         };
+        let role = f.get(8).copied().filter(|r| !r.is_empty());
         if wasm && !WEB_FONTS.contains(&(*family, *style)) {
             continue;
         }
@@ -80,7 +81,7 @@ fn craft_fonts(dir: &std::path::Path) -> Result<String, String> {
         let scripts: Vec<String> = scripts.split(',').map(|s| format!("{:?}", s.trim())).collect();
         let _ = writeln!(
             out,
-            "    CraftFont {{ family: {family:?}, style: {style:?}, scripts: &[{}], bytes: include_bytes!({:?}) }},",
+            "    CraftFont {{ family: {family:?}, style: {style:?}, scripts: &[{}], role: {role:?}, bytes: include_bytes!({:?}) }},",
             scripts.join(", "),
             path.display().to_string(),
         );
@@ -98,6 +99,8 @@ pub struct CraftFont {
     pub style: &'static str,
     /// ISO 15924 scripts the font is for, e.g. `"Jpan"`.
     pub scripts: &'static [&'static str],
+    /// `Some("ui")` for a CJK interface face (manifest field 9), `None` otherwise.
+    pub role: Option<&'static str>,
     pub bytes: &'static [u8],
 }
 
@@ -109,18 +112,48 @@ app was built without craft-fonts. Code that uses it must work when it is empty.
 
 ## Using the fonts
 
-- **UI (egui):** add each `Jpan` font as a fallback at the end of every font family, after the
-  app's own fonts and before system-font discovery, so Japanese text renders the same everywhere
-  the app was built with craft-fonts.
-- **Document text engines:** register them as fallback faces for Japanese, after the document's
-  requested font and the app's bundled fonts.
+- **UI (egui):** add the fonts as fallbacks at the end of every font family, after the app's own
+  fonts and before system-font discovery, so text renders the same everywhere the app was built
+  with craft-fonts. For CJK, use the interface faces (below), cut to the app's catalogs.
+- **Document text engines:** register the full faces (no `role`) as fallback faces for their
+  scripts, after the document's requested font and the app's bundled fonts.
 - **Web (wasm32):** the recipe embeds only `BIZ UDPGothic Regular` (~4.5 MB); all four fonts are
   ~24 MB, over typical per-file hosting limits. If the app's web build has a size check, measure
   with `CRAFT_FONTS_DIR` set and shrink `WEB_FONTS` (even to empty) if it fails.
-- Prefer `BIZ UDPGothic` for UI text and `Shippori Mincho` / `BIZ UDMincho` for serif document
-  text.
+- Prefer the interface faces for CJK interface text, and `Shippori Mincho` / `BIZ UDMincho` for
+  serif Japanese document text.
 - Tests that assert on these fonts' glyphs must skip (not fail) when `CRAFT_FONTS` is empty, and
   CI should run them with `CRAFT_FONTS_DIR` set so they are exercised.
+
+## Interface faces (`role` = `ui`)
+
+A manifest line may have a 9th field, `role`. `ui` marks the **interface face** of a CJK script:
+a full Regular face with TrueType outlines, which an app cuts to the characters of its own
+translation catalogs when it builds. Every other line has no 9th field; parsers that read only the
+first eight ignore it.
+
+| Family | Scripts | UI language | Size in the repo |
+|---|---|---|---|
+| Noto Sans SC UI | `Hans` | zh-Hans, zh-CN, zh-SG | 10.2 MB |
+| Noto Sans TC UI | `Hant` | zh-Hant, zh-TW | 6.9 MB |
+| Noto Sans HK UI | `Hant-HK` | zh-HK, zh-MO | 6.9 MB |
+| Noto Sans KR UI | `Kore` | ko | 5.9 MB |
+| BIZ UDPGothic | `Jpan`, `Latn` | ja | 4.7 MB |
+
+- **Interface text:** embed the `ui` faces through craft-libs' `craft-fonts-build`, which subsets
+  each one to the characters of the app's catalogs: about 4 to 5 MB per app for all five. Don't
+  embed them whole. Put the face for the UI language first among the CJK faces, so each region
+  gets its own Han forms. Latin comes from Noto Sans.
+- **Text outside the catalogs** (what users type, file names, font names) can use characters the
+  subset lacks. Fall back to the system's CJK fonts for those at run time.
+- **Document text** needs full CJK faces, which the interface faces don't replace. `Noto Sans CJK
+  SC`, `Shippori Mincho` and `BIZ UDMincho` are the ones shipped so far.
+
+The four Noto faces come from the noto-cjk regional Regulars, with their CFF outlines converted to
+TrueType quadratics because the build-time subsetter cuts TrueType faces correctly and CFF faces
+not. `tools/ui-sources` regenerates them and their manifest lines. `craft-fonts-tests` checks that
+each interface face is TrueType, covers its script's basic characters (kana; the first 3,500 Han of
+GB 2312 or Big5 level 1; the 2,350 KS X 1001 Hangul syllables) and keeps `vert` and `locl`.
 
 ## Releases and licences
 
@@ -139,14 +172,16 @@ env:
   CRAFT_FONTS_REQUIRED: "1"
 ```
 
-Packages built with craft-fonts must include each embedded font's licence file (copy
-`$CRAFT_FONTS_DIR/fonts/*/OFL.txt` into the package's licences, named after the family) and the
+Packages built with craft-fonts must include each embedded font's licence file (the manifest's
+licence file field; copy it into the package's licences, named after the family) and the
 app's `NOTICE` must say that builds made with `CRAFT_FONTS_DIR` embed the fonts listed in
 craft-fonts' `ATTRIBUTION.md`.
 
 ## Adding a font
 
-1. Put the file and its licence under `fonts/<family>/`, from a pinned upstream commit.
+1. Put the file and its licence under `fonts/<family>/`, from a pinned upstream commit. (Converted
+   interface faces are the exception: add them to `FACES` in `tools/ui-sources`, which writes the
+   file and its manifest line.)
 2. Add a manifest line (with its SHA-256) and an `ATTRIBUTION.md` row.
 3. `cargo test --workspace`: `craft-fonts-tests` checks the checksum, licence, family name and,
    for Japanese fonts, coverage and vertical-text support. Add assertions for any new script.

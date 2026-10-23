@@ -2,7 +2,9 @@
 
 Every font in `fonts/`, with its source and licence. The files are byte-identical to the pinned
 upstream sources (checked by `craft-fonts-tests`, which verifies each SHA-256 in
-`fonts/manifest.txt`).
+`fonts/manifest.txt`), except the interface faces in `fonts/ui/`: `tools/ui-sources` converts the
+pinned sources listed here from CFF to TrueType outlines, keeping every glyph and layout feature,
+and adds " UI" to the family name. The noto-cjk licence reserves no font names.
 
 | File | Family / style | Author | Source (pinned) | Licence |
 |---|---|---|---|---|
@@ -14,7 +16,20 @@ upstream sources (checked by `craft-fonts-tests`, which verifies each SHA-256 in
 | `fonts/noto-sans-arabic/NotoSansArabic.ttf` | Noto Sans Arabic (variable) | The Noto Project Authors | [google/fonts@7085eb8](https://github.com/google/fonts/tree/7085eb89a950e85db5b166b7a58d414544b4140c/ofl/notosansarabic) | OFL-1.1 (`fonts/noto-sans-arabic/OFL.txt`) |
 | `fonts/noto-sans-thai/NotoSansThai.ttf` | Noto Sans Thai (variable) | The Noto Project Authors | [google/fonts@8b0a1d0](https://github.com/google/fonts/tree/8b0a1d0f5983c89bc2b93f1b5fb55f9e252744b5/ofl/notosansthai) | OFL-1.1 (`fonts/noto-sans-thai/OFL.txt`) |
 | `fonts/noto-sans-georgian/NotoSansGeorgian.ttf` | Noto Sans Georgian (variable) | The Noto Project Authors | [google/fonts@8b0a1d0](https://github.com/google/fonts/tree/8b0a1d0f5983c89bc2b93f1b5fb55f9e252744b5/ofl/notosansgeorgian) | OFL-1.1 (`fonts/noto-sans-georgian/OFL.txt`) |
+| `fonts/noto-sans-armenian/NotoSansArmenian.ttf` | Noto Sans Armenian (variable) | The Noto Project Authors | [google/fonts@47d54ca](https://github.com/google/fonts/tree/47d54ca1ebb14fd864695f1d39dc734f39017c33/ofl/notosansarmenian) | OFL-1.1 (`fonts/noto-sans-armenian/OFL.txt`) |
+| `fonts/noto-sans-ethiopic/NotoSansEthiopic.ttf` | Noto Sans Ethiopic (variable) | The Noto Project Authors | [google/fonts@47d54ca](https://github.com/google/fonts/tree/47d54ca1ebb14fd864695f1d39dc734f39017c33/ofl/notosansethiopic) | OFL-1.1 (`fonts/noto-sans-ethiopic/OFL.txt`) |
+| `fonts/noto-sans/NotoSans.ttf` | Noto Sans (variable) | The Noto Project Authors | [google/fonts@47d54ca](https://github.com/google/fonts/tree/47d54ca1ebb14fd864695f1d39dc734f39017c33/ofl/notosans) | OFL-1.1 (`fonts/noto-sans/OFL.txt`) |
+| `fonts/noto-color-emoji/Noto-COLRv1.ttf` | Noto Color Emoji (COLRv1) | Google | [googlefonts/noto-emoji@e20cbc2](https://github.com/googlefonts/noto-emoji/tree/e20cbc2bbec1926686be9f9bee7d1d2cfa1fea0e/2D/fonts) (release v2026-09-24-unicode18_0) | OFL-1.1 (`fonts/noto-color-emoji/OFL.txt`) |
+| `fonts/noto-emoji/NotoEmoji.ttf` | Noto Emoji (variable) | Google | [google/fonts@47d54ca](https://github.com/google/fonts/tree/47d54ca1ebb14fd864695f1d39dc734f39017c33/ofl/notoemoji) | OFL-1.1 (`fonts/noto-emoji/OFL.txt`) |
+| `fonts/noto-sans-symbols/NotoSansSymbols.ttf` | Noto Sans Symbols (variable) | The Noto Project Authors | [google/fonts@47d54ca](https://github.com/google/fonts/tree/47d54ca1ebb14fd864695f1d39dc734f39017c33/ofl/notosanssymbols) | OFL-1.1 (`fonts/noto-sans-symbols/OFL.txt`) |
+| `fonts/noto-sans-symbols-2/NotoSansSymbols2-Regular.ttf` | Noto Sans Symbols 2 Regular | The Noto Project Authors | [google/fonts@47d54ca](https://github.com/google/fonts/tree/47d54ca1ebb14fd864695f1d39dc734f39017c33/ofl/notosanssymbols2) | OFL-1.1 (`fonts/noto-sans-symbols-2/OFL.txt`) |
+| `fonts/noto-sans-math/NotoSansMath-Regular.ttf` | Noto Sans Math Regular | The Noto Project Authors | [google/fonts@47d54ca](https://github.com/google/fonts/tree/47d54ca1ebb14fd864695f1d39dc734f39017c33/ofl/notosansmath) | OFL-1.1 (`fonts/noto-sans-math/OFL.txt`) |
+| `fonts/ui/NotoSansSCUI-Regular.ttf` | Noto Sans SC UI Regular (interface face) | The Noto Project Authors (Adobe, Google) | converted from [notofonts/noto-cjk@f8d1575](https://github.com/notofonts/noto-cjk/tree/f8d157532fbfaeda587e826d4cd5b21a49186f7c/Sans/SubsetOTF/SC) `NotoSansSC-Regular.otf` | OFL-1.1 (`fonts/ui/OFL.txt`) |
+| `fonts/ui/NotoSansTCUI-Regular.ttf` | Noto Sans TC UI Regular (interface face) | The Noto Project Authors (Adobe, Google) | converted from [notofonts/noto-cjk@f8d1575](https://github.com/notofonts/noto-cjk/tree/f8d157532fbfaeda587e826d4cd5b21a49186f7c/Sans/SubsetOTF/TC) `NotoSansTC-Regular.otf` | OFL-1.1 (`fonts/ui/OFL.txt`) |
+| `fonts/ui/NotoSansHKUI-Regular.ttf` | Noto Sans HK UI Regular (interface face) | The Noto Project Authors (Adobe, Google) | converted from [notofonts/noto-cjk@f8d1575](https://github.com/notofonts/noto-cjk/tree/f8d157532fbfaeda587e826d4cd5b21a49186f7c/Sans/SubsetOTF/HK) `NotoSansHK-Regular.otf` | OFL-1.1 (`fonts/ui/OFL.txt`) |
+| `fonts/ui/NotoSansKRUI-Regular.ttf` | Noto Sans KR UI Regular (interface face) | The Noto Project Authors (Adobe, Google) | converted from [notofonts/noto-cjk@f8d1575](https://github.com/notofonts/noto-cjk/tree/f8d157532fbfaeda587e826d4cd5b21a49186f7c/Sans/SubsetOTF/KR) `NotoSansKR-Regular.otf` | OFL-1.1 (`fonts/ui/OFL.txt`) |
 
 The OFL allows these fonts to be bundled, embedded and redistributed with software, provided the
 licence text travels with them and the fonts are not sold on their own. "Shippori Mincho",
-"BIZ UD" and "Noto" are the authors' names for their fonts; we use the files unmodified.
+"BIZ UD" and "Noto" are the authors' names for their fonts; we use the files unmodified, apart from the
+renamed interface faces.

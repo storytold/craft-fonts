@@ -21,12 +21,15 @@ pub struct Entry {
     pub sha256: String,
     /// Where the file came from (a pinned upstream URL).
     pub source: String,
+    /// The optional 9th field: `ui` marks the interface face for a CJK script, which an app
+    /// embeds after its build cuts it to the characters of the app's translation catalogs.
+    pub role: Option<String>,
 }
 
 /// Why a manifest line could not be read.
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub enum ManifestError {
-    /// The line does not have the 8 `" | "`-separated fields.
+    /// The line does not have the 8 `" | "`-separated fields (9 with a role).
     FieldCount { line: usize, found: usize },
     /// A field is empty.
     EmptyField { line: usize, field: &'static str },
@@ -39,7 +42,7 @@ impl std::fmt::Display for ManifestError {
         match self {
             Self::FieldCount { line, found } => write!(
                 f,
-                "manifest line {line}: expected 8 fields separated by \" | \", found {found}"
+                "manifest line {line}: expected 8 or 9 fields separated by \" | \", found {found}"
             ),
             Self::EmptyField { line, field } => {
                 write!(f, "manifest line {line}: the {field} field is empty")
@@ -75,6 +78,11 @@ pub fn parse_manifest(text: &str) -> Result<Vec<Entry>, ManifestError> {
             continue;
         }
         let fields: Vec<&str> = trimmed.split(" | ").map(str::trim).collect();
+        let (base, role) = match fields.split_at_checked(8) {
+            Some((base, [])) => (base, None),
+            Some((base, [role])) => (base, Some(*role)),
+            _ => (fields.as_slice(), None),
+        };
         let [
             family,
             style,
@@ -84,7 +92,7 @@ pub fn parse_manifest(text: &str) -> Result<Vec<Entry>, ManifestError> {
             licence_file,
             sha256,
             source,
-        ] = fields.as_slice()
+        ] = base
         else {
             return Err(ManifestError::FieldCount {
                 line,
@@ -125,6 +133,7 @@ pub fn parse_manifest(text: &str) -> Result<Vec<Entry>, ManifestError> {
             licence_file: (*licence_file).to_string(),
             sha256: (*sha256).to_string(),
             source: (*source).to_string(),
+            role: role.filter(|r| !r.is_empty()).map(str::to_string),
         });
     }
     Ok(out)

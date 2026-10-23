@@ -24,7 +24,7 @@ fn main() {
         let scripts: Vec<String> = e.scripts.iter().map(|s| format!("{s:?}")).collect();
         let _ = writeln!(
             src,
-            "    Font {{ family: {:?}, style: {:?}, file: {:?}, scripts: &[{}], licence: {:?}, licence_file: {:?}, sha256: {:?}, source: {:?} }},",
+            "    Font {{ family: {:?}, style: {:?}, file: {:?}, scripts: &[{}], licence: {:?}, licence_file: {:?}, sha256: {:?}, source: {:?}, role: {:?} }},",
             e.family,
             e.style,
             e.file,
@@ -32,7 +32,8 @@ fn main() {
             e.licence,
             e.licence_file,
             e.sha256,
-            e.source
+            e.source,
+            e.role
         );
     }
     src.push_str("];\n");

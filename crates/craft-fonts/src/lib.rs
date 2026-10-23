@@ -44,9 +44,15 @@ pub struct Font {
     pub sha256: &'static str,
     /// Pinned upstream source.
     pub source: &'static str,
+    /// `Some("ui")` for an interface face (see [`Entry::role`]).
+    pub role: Option<&'static str>,
 }
 
 include!(concat!(env!("OUT_DIR"), "/manifest.rs"));
+
+/// The role value of the interface faces: the CJK source faces an app embeds for its interface,
+/// after its build cuts them to the characters of its translation catalogs.
+pub const ROLE_UI: &str = "ui";
 
 /// The fonts meant for an ISO 15924 script (e.g. `"Jpan"`), in manifest order.
 pub fn for_script(script: &str) -> impl Iterator<Item = &'static Font> + '_ {
@@ -151,6 +157,24 @@ mod tests {
             Err(ManifestError::BadSha256 { line: 1 })
         );
         assert_eq!(parse_manifest("# comment\n\n"), Ok(Vec::new()));
+    }
+
+    #[test]
+    fn the_ninth_field_is_the_role() {
+        let line = format!("A | B | f | Hans | OFL-1.1 | l | {} | s", "0".repeat(64));
+        let roles = |text: &str| -> Vec<Option<String>> {
+            parse_manifest(text)
+                .unwrap()
+                .into_iter()
+                .map(|e| e.role)
+                .collect()
+        };
+        assert_eq!(roles(&line), vec![None]);
+        assert_eq!(roles(&format!("{line} | ui")), vec![Some("ui".to_string())]);
+        assert_eq!(
+            parse_manifest(&format!("{line} | ui | x")),
+            Err(ManifestError::FieldCount { line: 1, found: 10 })
+        );
     }
 
     #[test]

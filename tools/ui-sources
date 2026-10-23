@@ -1,0 +1,197 @@
+#!/usr/bin/env -S uv run --script
+# /// script
+# requires-python = ">=3.10"
+# dependencies = ["fonttools==4.67.0"]
+# ///
+"""Write the CJK interface source faces in fonts/ui/ and update their manifest lines.
+
+    tools/ui-sources [--cache DIR]
+
+Downloads the pinned noto-cjk sources into DIR (default $CRAFT_FONTS_SRC or
+~/.cache/craft-fonts-src) and checks their SHA-256. Each source is a CFF OpenType face; this
+converts its outlines to TrueType (glyf) quadratics with cu2qu, because the apps' build-time
+subsetter cuts glyf faces correctly and CFF ones not. Each face is renamed to "<family> UI".
+The output is the same bytes on every run.
+"""
+
+import argparse
+import hashlib
+import os
+import sys
+import urllib.request
+from pathlib import Path
+
+from fontTools.pens.cu2quPen import Cu2QuPen
+from fontTools.pens.ttGlyphPen import TTGlyphPen
+from fontTools.ttLib import TTFont, newTable
+
+ROOT = Path(__file__).resolve().parent.parent
+UI = ROOT / "fonts" / "ui"
+MANIFEST = ROOT / "fonts" / "manifest.txt"
+LICENCE = "fonts/ui/OFL.txt"
+
+NOTO_CJK = "f8d157532fbfaeda587e826d4cd5b21a49186f7c"
+NOTO_RAW = f"https://raw.githubusercontent.com/notofonts/noto-cjk/{NOTO_CJK}/Sans/SubsetOTF"
+NOTO_TREE = f"https://github.com/notofonts/noto-cjk/tree/{NOTO_CJK}/Sans/SubsetOTF"
+
+# Largest distance between a cubic and its quadratic approximation, in font units (of 1000).
+MAX_ERR = 1.0
+
+# (family, output file, scripts, noto-cjk region, sha256 of the upstream Regular)
+FACES = [
+    (
+        "Noto Sans SC UI",
+        "NotoSansSCUI-Regular.ttf",
+        "Hans",
+        "SC",
+        "faa6c9df652116dde789d351359f3d7e5d2285a2b2a1f04a2d7244df706d5ea9",
+    ),
+    (
+        "Noto Sans TC UI",
+        "NotoSansTCUI-Regular.ttf",
+        "Hant",
+        "TC",
+        "5bab0cb3c1cf89dde07c4a95a4054b195afbcfe784d69d75c340780712237537",
+    ),
+    (
+        "Noto Sans HK UI",
+        "NotoSansHKUI-Regular.ttf",
+        "Hant-HK",
+        "HK",
+        "8a43afea92bb58dfd9027bd7ac6f5b0b2662e2ffb3e7c1edc02c62b2b21924f1",
+    ),
+    (
+        "Noto Sans KR UI",
+        "NotoSansKRUI-Regular.ttf",
+        "Kore",
+        "KR",
+        "69975a0ac8472717870aefeab0a4d52739308d90856b9955313b2ad5e0148d68",
+    ),
+]
+
+
+def sha256(path: Path) -> str:
+    return hashlib.sha256(path.read_bytes()).hexdigest()
+
+
+def fetch(region: str, digest: str, cache: Path) -> Path:
+    """The upstream Regular of `region`, downloaded into `cache`, after checking its SHA-256."""
+    name = f"NotoSans{region}-Regular.otf"
+    path = cache / NOTO_CJK / region / name
+    if not path.is_file() or sha256(path) != digest:
+        path.parent.mkdir(parents=True, exist_ok=True)
+        src = f"{NOTO_RAW}/{region}/{name}"
+        print(f"downloading {src}")
+        tmp = path.with_suffix(".part")
+        with urllib.request.urlopen(src) as r, open(tmp, "wb") as f:
+            while chunk := r.read(1 << 20):
+                f.write(chunk)
+        tmp.replace(path)
+    if sha256(path) != digest:
+        sys.exit(f"ui-sources: {path} has SHA-256 {sha256(path)}, expected {digest}")
+    return path
+
+
+def to_glyf(font: TTFont) -> None:
+    """Replace the CFF outlines with TrueType quadratics (fonttools' Snippets/otf2ttf.py)."""
+    glyph_order = font.getGlyphOrder()
+    glyph_set = font.getGlyphSet()
+    glyphs = {}
+    for name in glyph_order:
+        pen = TTGlyphPen(glyph_set)
+        glyph_set[name].draw(Cu2QuPen(pen, MAX_ERR, reverse_direction=True))
+        glyphs[name] = pen.glyph()
+    font["loca"] = newTable("loca")
+    font["glyf"] = glyf = newTable("glyf")
+    glyf.glyphOrder = glyph_order
+    glyf.glyphs = glyphs
+    # VORG is CFF-only (glyf faces take the vertical origin from vmtx and the bounding box), and
+    # the DSIG signature no longer matches the changed face.
+    for tag in ("CFF ", "VORG", "DSIG"):
+        if tag in font:
+            del font[tag]
+    glyf.compile(font)
+    font["maxp"] = maxp = newTable("maxp")
+    maxp.tableVersion = 0x00010000
+    for attr in (
+        "maxStorage",
+        "maxFunctionDefs",
+        "maxInstructionDefs",
+        "maxStackElements",
+        "maxSizeOfInstructions",
+        "maxComponentElements",
+        "maxTwilightPoints",
+    ):
+        setattr(maxp, attr, 0)
+    maxp.maxZones = 1
+    maxp.recalc(font)
+    post = font["post"]
+    post.formatType = 2.0
+    post.extraNames = []
+    post.mapping = {}
+    post.glyphOrder = glyph_order
+    font.sfntVersion = "\000\001\000\000"
+
+
+def rename(font: TTFont, family: str) -> None:
+    """Rename the face to `family` in the name table."""
+    name = font["name"]
+    old_ps = name.getDebugName(6)
+    old_ps_family = old_ps.split("-")[0]
+    new_ps_family = family.replace(" ", "")
+    # Localized family names get the same suffix in their own language.
+    suffix = family.rsplit(" ", 1)[1]
+    families: dict[tuple[int, int, int], str] = {}
+    for rec in name.names:
+        if rec.nameID in (1, 16):
+            key = (rec.platformID, rec.platEncID, rec.langID)
+            families[key] = rec.toUnicode()
+    for rec in name.names:
+        key = (rec.platformID, rec.platEncID, rec.langID)
+        text = rec.toUnicode().replace(old_ps_family, new_ps_family)
+        old = families.get(key)
+        if old and old in text and f"{old} {suffix}" not in text:
+            text = text.replace(old, f"{old} {suffix}")
+        if rec.nameID == 3 and new_ps_family not in text:
+            text = f"{text};{new_ps_family}"
+        rec.string = text
+
+
+def convert(src: Path, out: Path, family: str) -> None:
+    font = TTFont(str(src), recalcTimestamp=False)
+    if font.sfntVersion != "OTTO":
+        sys.exit(f"ui-sources: {src} is not a CFF face")
+    to_glyf(font)
+    rename(font, family)
+    font.save(str(out))
+
+
+def manifest_line(family, file, scripts, source, digest) -> str:
+    fields = [family, "Regular", file, scripts, "OFL-1.1", LICENCE, digest, source, "ui"]
+    return " | ".join(fields)
+
+
+def main() -> int:
+    parser = argparse.ArgumentParser(description=__doc__.strip().splitlines()[0])
+    default = os.environ.get("CRAFT_FONTS_SRC") or Path.home() / ".cache" / "craft-fonts-src"
+    parser.add_argument("--cache", type=Path, default=Path(default))
+    args = parser.parse_args()
+
+    lines = MANIFEST.read_text(encoding="utf-8").splitlines()
+    for family, filename, scripts, region, digest in FACES:
+        out = UI / filename
+        convert(fetch(region, digest, args.cache), out, family)
+        file = out.relative_to(ROOT).as_posix()
+        line = manifest_line(family, file, scripts, f"{NOTO_TREE}/{region}", sha256(out))
+        at = [i for i, l in enumerate(lines) if f" | {file} | " in l]
+        if at:
+            lines[at[0]] = line
+        else:
+            lines.append(line)
+        print(f"{file}: {out.stat().st_size} bytes")
+    MANIFEST.write_text("\n".join(lines) + "\n", encoding="utf-8")
+    return 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())

@@ -21,10 +21,12 @@ This library is meant to have the following:
 | Path | What |
 |---|---|
 | `fonts/` | The font files, one directory per family, each with its licence. |
-| `fonts/manifest.txt` | Machine-readable list of every font: family, style, file, scripts, licence, SHA-256, pinned source. |
+| `fonts/ui/` | CJK interface faces in TrueType outlines, which apps cut to their own catalogs at build time (see below). |
+| `fonts/manifest.txt` | Machine-readable list of every font: family, style, file, scripts, licence, SHA-256, pinned source, and `ui` for the interface faces. |
+| `tools/` | `ui-sources`, which regenerates `fonts/ui/` (Python, run with `uv`). |
 | `ATTRIBUTION.md` | Authors, pinned sources and licences. |
 | `crates/craft-fonts` | Rust: the manifest as a static table, finding a checkout (`CRAFT_FONTS_DIR`), loading it, and an `embed` feature that compiles the fonts in. |
-| `crates/craft-fonts-tests` | Tests asserted on these fonts: checksums, licences, family names, Japanese coverage and outlines, vertical-text (`vert`/`vrt2`) support. |
+| `crates/craft-fonts-tests` | Tests asserted on these fonts: checksums, licences, family names, Japanese coverage and outlines, vertical-text (`vert`/`vrt2`) support, and that each interface face is TrueType, covers its script's basic characters and keeps `vert` and `locl`. |
 | `docs/integration.md` | How an app uses craft-fonts as a fully optional build input. |
 
 ### Fonts
@@ -38,6 +40,45 @@ This library is meant to have the following:
 | Noto Sans Arabic | Regular (variable: wdth, wght) | Arabic UI and document text (sans) | OFL-1.1 |
 | Noto Sans Thai | Regular (variable: wdth, wght) | Thai UI and document text (sans) | OFL-1.1 |
 | Noto Sans Georgian | Regular (variable: wdth, wght) | Georgian UI and document text (sans) | OFL-1.1 |
+| Noto Sans Armenian | Regular (variable: wdth, wght) | Armenian UI and document text (sans) | OFL-1.1 |
+| Noto Sans Ethiopic | Regular (variable: wdth, wght) | Ethiopic (Amharic, Tigrinya) UI and document text (sans) | OFL-1.1 |
+| Noto Sans | Regular (variable: wdth, wght) | Latin, Cyrillic and Greek fallback (Vietnamese, Central European, Turkish, Ukrainian, Serbian, Kazakh, Greek) and Devanagari (sans) | OFL-1.1 |
+| Noto Color Emoji | Regular (COLRv1 colour vector glyphs) | Colour emoji | OFL-1.1 |
+| Noto Emoji | Regular (variable: wght) | Monochrome emoji, the last emoji fallback | OFL-1.1 |
+| Noto Sans Symbols | Regular (variable: wght) | Key and UI symbols (⌃ ⌄ ⎋, arrows), with Symbols 2 and Math | OFL-1.1 |
+| Noto Sans Symbols 2 | Regular | Key and UI symbols (⇧ ⌥ ⌘ ⌫ ⌦ ⏏ …) | OFL-1.1 |
+| Noto Sans Math | Regular | Math symbols; the return, tab and page key arrows (↩ ↵ ⇥ ⇤ ⇞ ⇟) | OFL-1.1 |
+
+### Interface faces
+
+Each CJK script has one interface face, marked `ui` in the manifest. Apps embed it for interface
+text through craft-fonts-build, which cuts it to the characters of the app's translation catalogs
+at build time: about 4 to 5 MB per app for all five. Text outside the catalogs (what users type,
+file names, font names) falls back to the system's CJK fonts. Latin comes from Noto Sans.
+
+| Family | For | File | Source |
+|---|---|---|---|
+| Noto Sans SC UI | Simplified Chinese (`Hans`) | `fonts/ui/NotoSansSCUI-Regular.ttf`, 10.2 MB | Noto Sans SC Regular (`SubsetOTF`) |
+| Noto Sans TC UI | Traditional Chinese, Taiwan forms (`Hant`) | `fonts/ui/NotoSansTCUI-Regular.ttf`, 6.9 MB | Noto Sans TC Regular (`SubsetOTF`) |
+| Noto Sans HK UI | Traditional Chinese, Hong Kong forms (`Hant-HK`) | `fonts/ui/NotoSansHKUI-Regular.ttf`, 6.9 MB | Noto Sans HK Regular (`SubsetOTF`) |
+| Noto Sans KR UI | Korean (`Kore`) | `fonts/ui/NotoSansKRUI-Regular.ttf`, 5.9 MB | Noto Sans KR Regular (`SubsetOTF`) |
+| BIZ UDPGothic | Japanese (`Jpan`) | `fonts/biz-ud-pgothic/BIZUDPGothic-Regular.ttf` | the Regular above, unchanged |
+
+The same Han character is drawn differently in mainland China, Taiwan, Hong Kong, Japan and Korea,
+so each region has its own face; pick it from the UI language (zh-CN/SG: SC, zh-TW: TC, zh-HK/MO:
+HK, ja: BIZ UDPGothic, ko: KR).
+
+The four Noto faces are the noto-cjk regional Regulars with their CFF outlines converted to
+TrueType quadratics (cu2qu, within 1 font unit), because the build-time subsetter cuts TrueType
+faces correctly and CFF faces not. They keep every glyph and layout feature (vertical forms,
+`locl`) and are renamed "<family> UI". To regenerate them and their manifest lines:
+
+```sh
+tools/ui-sources   # downloads the pinned sources to ~/.cache/craft-fonts-src; same bytes on every run
+```
+
+The interface faces are for interface text only. Full CJK faces for document text are a separate
+matter; `Noto Sans CJK SC`, `Shippori Mincho` and `BIZ UDMincho` above are the ones shipped so far.
 
 ## How the apps use it
 
