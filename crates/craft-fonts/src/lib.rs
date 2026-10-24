@@ -3,7 +3,9 @@
 //! The fonts live in this repository's `fonts/` directory and are listed in `fonts/manifest.txt`.
 //! This crate exposes that manifest ([`FONTS`]), finds a craft-fonts checkout at run time
 //! ([`dir_from_env`]), loads fonts from one ([`load`]), and with the `embed` feature compiles them
-//! into the binary ([`embedded`]).
+//! into the binary ([`embedded`]). `fonts/simplified-chinese-manifest.txt` is a separate opt-in
+//! native-only manifest; it is not part of [`FONTS`] or the `embed` payload, and consumers or
+//! tests parse it with [`parse_manifest`].
 //!
 //! The apps do **not** depend on this crate: Cargo resolves even optional git dependencies, so a
 //! dependency would make craft-fonts required for every build. Apps read `fonts/manifest.txt`

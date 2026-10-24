@@ -9,7 +9,7 @@ rust-version.workspace = true
 publish = false
 
 [features]
-# Compile every font in the manifest into the binary (about 24 MB).
+# Compile every font in the manifest into the binary (about 43.8 MiB).
 embed = []
 
 [lints]
