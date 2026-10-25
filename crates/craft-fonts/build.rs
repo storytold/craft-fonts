@@ -1,5 +1,5 @@
-//! Turns `fonts/manifest.txt` and `fonts/latin-manifest.txt` into static tables (and, with the
-//! `embed` / `embed-latin` features, the font bytes).
+//! Turns `fonts/manifest.txt`, `fonts/latin-manifest.txt` and `fonts/hebrew-manifest.txt` into
+//! static tables (and, with the `embed` / `embed-latin` / `embed-hebrew` features, the font bytes).
 
 #[path = "src/parse.rs"]
 #[allow(dead_code)]
@@ -26,6 +26,14 @@ fn main() {
         "LATIN_FONTS",
         "LATIN_EMBEDDED",
         std::env::var_os("CARGO_FEATURE_EMBED_LATIN").is_some(),
+        &mut src,
+    );
+    table(
+        &root,
+        "fonts/hebrew-manifest.txt",
+        "HEBREW_FONTS",
+        "HEBREW_EMBEDDED",
+        std::env::var_os("CARGO_FEATURE_EMBED_HEBREW").is_some(),
         &mut src,
     );
     let out = PathBuf::from(std::env::var_os("OUT_DIR").unwrap_or_default()).join("manifest.rs");

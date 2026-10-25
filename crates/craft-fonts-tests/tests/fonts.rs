@@ -1,6 +1,8 @@
 //! Assertions on the font files themselves.
 
-use craft_fonts::{Entry, FONTS, Font, LATIN_FONTS, for_script, parse_manifest};
+use craft_fonts::{
+    Entry, FONTS, Font, HEBREW_FONTS, HEBREW_MANIFEST, LATIN_FONTS, for_script, parse_manifest,
+};
 use sha2::{Digest, Sha256};
 use skrifa::attribute::{Style, Weight};
 use skrifa::instance::{LocationRef, Size};
@@ -14,9 +16,9 @@ fn bytes(f: &Font) -> Vec<u8> {
         .unwrap_or_else(|e| panic!("{}: {e}", f.file))
 }
 
-/// Every font in both the default and opt-in Latin manifests.
+/// Every font in the default, opt-in Latin, and opt-in Hebrew manifests.
 fn all() -> impl Iterator<Item = &'static Font> {
-    FONTS.iter().chain(LATIN_FONTS)
+    FONTS.iter().chain(LATIN_FONTS).chain(HEBREW_FONTS)
 }
 
 #[test]
@@ -1650,5 +1652,129 @@ fn all_latin_licences_match_the_reviewed_upstream_catalog() {
         let digest = Sha256::digest(&data);
         let hex: String = digest.iter().map(|b| format!("{b:02x}")).collect();
         assert_eq!(hex, hash, "{path}: complete upstream licence changed");
+    }
+}
+
+const HEBREW_FACE_COUNT: usize = 56;
+const HEBREW_FAMILY_COUNT: usize = 29;
+
+#[test]
+fn hebrew_opt_in_manifest_holds_the_reviewed_catalog() {
+    let entries = optional_entries(HEBREW_MANIFEST);
+    assert_eq!(
+        entries.len(),
+        HEBREW_FACE_COUNT,
+        "{HEBREW_MANIFEST} must list exactly the {HEBREW_FACE_COUNT} reviewed Hebrew faces"
+    );
+    assert_eq!(
+        HEBREW_FONTS.len(),
+        HEBREW_FACE_COUNT,
+        "the static HEBREW_FONTS table must match the manifest"
+    );
+    for (e, f) in entries.iter().zip(HEBREW_FONTS) {
+        assert_eq!(
+            (e.family.as_str(), e.style.as_str(), e.file.as_str()),
+            (f.family, f.style, f.file),
+            "{HEBREW_MANIFEST}: static table order"
+        );
+        assert_eq!(
+            f.scripts,
+            ["Hebr", "Latn"],
+            "{}: scripts must be Hebr,Latn",
+            f.file
+        );
+        assert_eq!(f.licence, "OFL-1.1", "{}: licence", f.file);
+        assert!(
+            !f.source.is_empty() && f.source.starts_with("https://"),
+            "{}: pinned source",
+            f.file
+        );
+        assert_eq!(
+            std::path::Path::new(f.file).parent(),
+            std::path::Path::new(f.licence_file).parent(),
+            "the licence must sit next to the font it covers"
+        );
+        assert!(
+            FONTS.iter().all(|g| g.file != f.file),
+            "{}: an opt-in Hebrew face must not appear in the default FONTS table",
+            f.file
+        );
+    }
+
+    let mut families: Vec<&str> = entries.iter().map(|e| e.family.as_str()).collect();
+    families.sort_unstable();
+    families.dedup();
+    assert_eq!(
+        families.len(),
+        HEBREW_FAMILY_COUNT,
+        "{HEBREW_MANIFEST}: families {families:?}"
+    );
+}
+
+#[test]
+fn hebrew_opt_in_fonts_cover_bilingual_hebrew_and_latin_text() {
+    const BILINGUAL_SAMPLE: &str = concat!(
+        "אבגדהוזחטיךכלםמןנסעףפץצקרשת",
+        "שלום עולם עברית",
+        "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789",
+    );
+    assert_eq!(HEBREW_FONTS.len(), HEBREW_FACE_COUNT);
+    for f in HEBREW_FONTS {
+        let data = bytes(f);
+        let font = FontRef::new(&data).unwrap_or_else(|e| panic!("{}: {e}", f.file));
+        let charmap = font.charmap();
+        let missing: String = BILINGUAL_SAMPLE
+            .chars()
+            .filter(|c| !c.is_whitespace() && charmap.map(*c).is_none())
+            .collect();
+        assert!(
+            missing.is_empty(),
+            "{} {} has no glyph for {missing:?}",
+            f.family,
+            f.style
+        );
+        for c in ['א', 'ב', 'ש', 'ם', 'ת', 'A', 'g', '4'] {
+            assert_glyph_outline(&font, f.file, c);
+        }
+    }
+}
+
+#[test]
+fn hebrew_variable_styles_are_variable_fonts() {
+    for f in HEBREW_FONTS {
+        let data = bytes(f);
+        let font = FontRef::new(&data).unwrap_or_else(|e| panic!("{}: {e}", f.file));
+        let axes = font.axes();
+        let tags: Vec<String> = axes.iter().map(|a| a.tag().to_string()).collect();
+        if f.style.ends_with("Variable") {
+            let weight = axes
+                .iter()
+                .find(|a| a.tag() == "wght")
+                .unwrap_or_else(|| panic!("{}: style {:?} but axes {tags:?}", f.file, f.style));
+            assert!(
+                weight.min_value() <= 400.0 && 400.0 <= weight.max_value(),
+                "{}: wght axis {:?}..{:?} does not include Regular 400",
+                f.file,
+                weight.min_value(),
+                weight.max_value()
+            );
+        } else {
+            assert!(
+                axes.is_empty(),
+                "{}: style {:?} but it is variable ({tags:?})",
+                f.file,
+                f.style
+            );
+        }
+        let os2 = font
+            .os2()
+            .unwrap_or_else(|e| panic!("{}: OS/2: {e}", f.file));
+        assert_eq!(
+            os2.fs_selection().contains(SelectionFlags::ITALIC),
+            f.style.contains("Italic"),
+            "{}: style {:?} disagrees with the OS/2 italic bit",
+            f.file,
+            f.style
+        );
     }
 }

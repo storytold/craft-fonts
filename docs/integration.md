@@ -184,6 +184,25 @@ const MANIFESTS: &[(&str, &[(&str, &str)])] = &[
   (`load_latin`, feature `embed-latin`). The default `FONTS` table and `embed` feature remain
   exactly `fonts/manifest.txt`.
 
+## Optional: the Hebrew presentation and document fonts (`fonts/hebrew-manifest.txt`)
+
+`fonts/hebrew-manifest.txt` is an **opt-in manifest** in the same eight-field format as
+`fonts/manifest.txt`. While `Noto Sans Hebrew` Regular remains in `fonts/manifest.txt` so every
+consumer gets a baseline Hebrew UI fallback, `fonts/hebrew-manifest.txt` lists 29 families and 56
+faces (~12.9 MiB, 13,565,048 bytes) covering Hebrew and bilingual Hebrew/Latin UI, document,
+presentation, traditional Rashi commentary, handwriting and monospace code typography.
+
+- **Scripts.** Every face in `fonts/hebrew-manifest.txt` is tagged `Hebr,Latn` and verified by
+  `craft-fonts-tests` to contain drawn outlines for bilingual Hebrew and Latin text (`שלום עולם
+  Hello 42`).
+- **Styles.** Both static faces (`Regular`, `Bold`, `Medium`, `Light`, `SemiBold`, `Thin`,
+  `ExtraLight`, `Text`, `Italic`, `SemiBold Italic`, `Bold Italic`) and variable fonts (`Variable`,
+  `Italic Variable`) are included. As with the Latin manifest, variable fonts are verified to carry
+  a `wght` axis spanning a range that includes 400.
+- **Rust API.** From Rust tools that depend on `craft-fonts`, the catalog is exposed as
+  `craft_fonts::HEBREW_MANIFEST`, `craft_fonts::HEBREW_FONTS`, `craft_fonts::load_hebrew`, and the
+  `embed-hebrew` Cargo feature.
+
 ## Optional native-only manifest
 
 `fonts/simplified-chinese-manifest.txt` uses the same eight-field format and parser, but it is a
