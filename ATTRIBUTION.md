@@ -8,6 +8,7 @@ native-only Simplified Chinese face).
 
 | File | Family / style | Author | Source (pinned) | Licence |
 |---|---|---|---|---|
+| `fonts/archivo/Archivo[wdth,wght].ttf` | Archivo SemiBold (variable) | The Archivo Project Authors (Omnibus-Type) | [google/fonts@6c70c82](https://github.com/google/fonts/tree/6c70c829f09ea345d3590406693220ea35c6553f/ofl/archivo) | OFL-1.1 (`fonts/archivo/OFL.txt`) |
 | `fonts/shippori-mincho/ShipporiMincho-Regular.ttf` | Shippori Mincho Regular | The Shippori Mincho Project Authors (FONTDASU) | [google/fonts@9710da1](https://github.com/google/fonts/tree/9710da1eacb3be272583c3224dcb70f9da6eadbb/ofl/shipporimincho) | OFL-1.1 (`fonts/shippori-mincho/OFL.txt`) |
 | `fonts/biz-ud-pgothic/BIZUDPGothic-Regular.ttf` | BIZ UDPGothic Regular | The BIZ UDGothic Project Authors (Morisawa Inc.) | [googlefonts/morisawa-biz-ud-gothic@18934af](https://github.com/googlefonts/morisawa-biz-ud-gothic/tree/18934af56b9c003ca58c54bffbf226848cb11032) | OFL-1.1 (`fonts/biz-ud-pgothic/OFL.txt`) |
 | `fonts/biz-ud-pgothic/BIZUDPGothic-Bold.ttf` | BIZ UDPGothic Bold | The BIZ UDGothic Project Authors (Morisawa Inc.) | [googlefonts/morisawa-biz-ud-gothic@18934af](https://github.com/googlefonts/morisawa-biz-ud-gothic/tree/18934af56b9c003ca58c54bffbf226848cb11032) | OFL-1.1 (`fonts/biz-ud-pgothic/OFL.txt`) |
