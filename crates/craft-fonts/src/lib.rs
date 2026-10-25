@@ -58,14 +58,18 @@ pub const MANIFEST: &str = "fonts/manifest.txt";
 /// The opt-in Latin presentation-font manifest (same format), relative to a checkout.
 pub const LATIN_MANIFEST: &str = "fonts/latin-manifest.txt";
 
+/// The opt-in Hebrew presentation and document-font manifest (same format), relative to a checkout.
+pub const HEBREW_MANIFEST: &str = "fonts/hebrew-manifest.txt";
+
 /// The fonts in [`FONTS`] meant for an ISO 15924 script (e.g. `"Jpan"`), in manifest order.
 pub fn for_script(script: &str) -> impl Iterator<Item = &'static Font> + '_ {
     FONTS.iter().filter(move |f| f.scripts.contains(&script))
 }
 
-/// The compiled-in bytes of a font from [`FONTS`] (`embed` feature) or [`LATIN_FONTS`]
-/// (`embed-latin` feature). `None` for any other value, or when its feature is off.
-#[cfg(any(feature = "embed", feature = "embed-latin"))]
+/// The compiled-in bytes of a font from [`FONTS`] (`embed` feature), [`LATIN_FONTS`]
+/// (`embed-latin` feature), or [`HEBREW_FONTS`] (`embed-hebrew` feature). `None` for any other
+/// value, or when its feature is off.
+#[cfg(any(feature = "embed", feature = "embed-latin", feature = "embed-hebrew"))]
 pub fn embedded(font: &Font) -> Option<&'static [u8]> {
     #[cfg(feature = "embed")]
     if let Some(i) = FONTS.iter().position(|f| f == font) {
@@ -74,6 +78,10 @@ pub fn embedded(font: &Font) -> Option<&'static [u8]> {
     #[cfg(feature = "embed-latin")]
     if let Some(i) = LATIN_FONTS.iter().position(|f| f == font) {
         return LATIN_EMBEDDED.get(i).copied();
+    }
+    #[cfg(feature = "embed-hebrew")]
+    if let Some(i) = HEBREW_FONTS.iter().position(|f| f == font) {
+        return HEBREW_EMBEDDED.get(i).copied();
     }
     None
 }
@@ -118,6 +126,12 @@ pub fn load(dir: &Path) -> Result<Vec<(Entry, Vec<u8>)>, LoadError> {
 /// Read the Latin presentation-font manifest of the checkout at `dir` and every font it lists.
 pub fn load_latin(dir: &Path) -> Result<Vec<(Entry, Vec<u8>)>, LoadError> {
     load_manifest(dir, LATIN_MANIFEST)
+}
+
+/// Read the Hebrew presentation and document-font manifest of the checkout at `dir` and every
+/// font it lists.
+pub fn load_hebrew(dir: &Path) -> Result<Vec<(Entry, Vec<u8>)>, LoadError> {
+    load_manifest(dir, HEBREW_MANIFEST)
 }
 
 /// Read the manifest at `rel` (e.g. [`MANIFEST`]) in the checkout at `dir` and every font it lists.
@@ -177,6 +191,24 @@ mod tests {
     }
 
     #[test]
+    fn the_hebrew_manifest_parses_into_its_own_table() {
+        assert_table_matches(HEBREW_MANIFEST, HEBREW_FONTS);
+        assert!(!HEBREW_FONTS.is_empty());
+        for f in HEBREW_FONTS {
+            assert!(
+                FONTS.iter().all(|g| g.file != f.file),
+                "{} is in both default and Hebrew manifests",
+                f.file
+            );
+            assert!(
+                LATIN_FONTS.iter().all(|g| g.file != f.file),
+                "{} is in both Latin and Hebrew manifests",
+                f.file
+            );
+        }
+    }
+
+    #[test]
     fn malformed_lines_are_errors_not_panics() {
         assert_eq!(
             parse_manifest("a | b"),
@@ -209,7 +241,7 @@ mod tests {
         ));
     }
 
-    #[cfg(any(feature = "embed", feature = "embed-latin"))]
+    #[cfg(any(feature = "embed", feature = "embed-latin", feature = "embed-hebrew"))]
     #[test]
     fn embedded_bytes_match_the_files() {
         let root = Path::new(env!("CARGO_MANIFEST_DIR")).join("../..");
@@ -221,7 +253,11 @@ mod tests {
         let latin = LATIN_FONTS;
         #[cfg(not(feature = "embed-latin"))]
         let latin: &[Font] = &[];
-        for f in main.iter().chain(latin) {
+        #[cfg(feature = "embed-hebrew")]
+        let hebrew = HEBREW_FONTS;
+        #[cfg(not(feature = "embed-hebrew"))]
+        let hebrew: &[Font] = &[];
+        for f in main.iter().chain(latin).chain(hebrew) {
             assert_eq!(
                 embedded(f).unwrap(),
                 std::fs::read(root.join(f.file)).unwrap().as_slice(),
