@@ -1652,3 +1652,217 @@ fn all_latin_licences_match_the_reviewed_upstream_catalog() {
         assert_eq!(hex, hash, "{path}: complete upstream licence changed");
     }
 }
+
+/// The opt-in Thai document manifest. Noto Sans Thai in `fonts/manifest.txt` is the loopless UI
+/// fallback; Sarabun is the looped Thai face for document and PDF text. Consumers opt in by
+/// reading this file; it is not part of craft-fonts' `FONTS`/embed payload.
+const THAI_MANIFEST: &str = "fonts/thai-manifest.txt";
+const SARABUN_LICENCE_FILE: &str = "fonts/sarabun/OFL.txt";
+const SARABUN_SOURCE: &str =
+    "https://github.com/google/fonts/tree/88058c714073e72bb1b32baffc2d4ce9bc73944c/ofl/sarabun";
+/// (style, file, sha256, OS/2 weight, italic) for each reviewed Sarabun face, in manifest order.
+const SARABUN_FACES: &[(&str, &str, &str, u16, bool)] = &[
+    (
+        "Regular",
+        "fonts/sarabun/Sarabun-Regular.ttf",
+        "226d4f368fbc0457990ddef2692679badfd2c1a4e89e5ac4d43c10ba7743b2f1",
+        400,
+        false,
+    ),
+    (
+        "Italic",
+        "fonts/sarabun/Sarabun-Italic.ttf",
+        "595a968e97a8b8179a6bde2d74d4f91b11475dcfb6cf270037d76d8ed71160ea",
+        400,
+        true,
+    ),
+    (
+        "Bold",
+        "fonts/sarabun/Sarabun-Bold.ttf",
+        "d38308ca27d067b9a1b79006337c1f9a66c29aa016d96a9d88d3801da7fa83b9",
+        700,
+        false,
+    ),
+    (
+        "Bold Italic",
+        "fonts/sarabun/Sarabun-BoldItalic.ttf",
+        "5ef1b930f9a3afed5ec83374b5617cad3a89d91a8fc5e372dc028c2aa2950f8d",
+        700,
+        true,
+    ),
+];
+/// A Thai document sample: an official-letter heading and body words with tone marks and
+/// above/below vowels.
+const THAI_DOCUMENT_SAMPLE: &str = "หนังสือราชการ ที่ ศธ ๐๕๐๖/๒๕๖๙ เรื่อง ขออนุญาตใช้แบบอักษร";
+
+fn sarabun_entries() -> Vec<Entry> {
+    let entries = optional_entries(THAI_MANIFEST);
+    assert_eq!(
+        entries.len(),
+        SARABUN_FACES.len(),
+        "{THAI_MANIFEST} must hold exactly the reviewed Sarabun faces"
+    );
+    entries
+}
+
+#[test]
+fn thai_document_rows_are_exact_and_not_in_the_default_or_latin_tables() {
+    for (e, &(style, file, sha256, _, _)) in sarabun_entries().iter().zip(SARABUN_FACES) {
+        assert_eq!(e.family, "Sarabun", "{file}: family");
+        assert_eq!(e.style, style, "{file}: style");
+        assert_eq!(e.file, file, "{THAI_MANIFEST}: row order");
+        assert_eq!(
+            e.scripts.iter().map(String::as_str).collect::<Vec<_>>(),
+            ["Thai", "Latn"],
+            "{file}: Sarabun sets Thai document text with its own Latin"
+        );
+        assert_eq!(e.licence, "OFL-1.1", "{file}: licence");
+        assert_eq!(e.licence_file, SARABUN_LICENCE_FILE, "{file}: licence file");
+        assert_eq!(e.sha256, sha256, "{file}: sha256");
+        assert_eq!(e.source, SARABUN_SOURCE, "{file}: source");
+    }
+    assert!(
+        !FONTS
+            .iter()
+            .chain(LATIN_FONTS)
+            .any(|f| f.family == "Sarabun"),
+        "the opt-in Sarabun faces must not be in the FONTS or LATIN_FONTS tables"
+    );
+    for manifest in ["fonts/manifest.txt", LATIN_MANIFEST] {
+        let text = std::fs::read_to_string(craft_fonts_tests::repo_root().join(manifest)).unwrap();
+        assert!(
+            !text.contains("Sarabun") && !text.contains("thai-manifest"),
+            "{manifest} must not list the opt-in Thai document faces"
+        );
+    }
+}
+
+#[test]
+fn thai_document_faces_match_their_hashes_and_licence() {
+    for e in sarabun_entries() {
+        let digest = Sha256::digest(bytes_from_entry(&e));
+        let hex: String = digest.iter().map(|b| format!("{b:02x}")).collect();
+        assert_eq!(
+            hex, e.sha256,
+            "{}: the file changed; update the opt-in manifest only after checking the new upstream source",
+            e.file
+        );
+        assert_eq!(
+            std::path::Path::new(&e.file).parent(),
+            std::path::Path::new(&e.licence_file).parent(),
+            "the licence must sit next to the font it covers"
+        );
+    }
+    let licence =
+        std::fs::read_to_string(craft_fonts_tests::repo_root().join(SARABUN_LICENCE_FILE))
+            .unwrap_or_else(|e| panic!("{SARABUN_LICENCE_FILE}: {e}"));
+    assert!(licence.contains("SIL OPEN FONT LICENSE Version 1.1"));
+    assert!(licence.contains("Copyright 2018 The Sarabun Project Authors"));
+}
+
+#[test]
+fn thai_document_faces_are_static_with_the_manifest_style() {
+    for (e, &(_, _, _, weight, italic)) in sarabun_entries().iter().zip(SARABUN_FACES) {
+        let data = bytes_from_entry(e);
+        assert_eq!(
+            &data[..4],
+            &[0x00, 0x01, 0x00, 0x00],
+            "{}: expected a single TrueType sfnt, not a collection",
+            e.file
+        );
+        let font = FontRef::new(&data).unwrap_or_else(|err| panic!("{}: {err}", e.file));
+        for (name, table) in [
+            ("fvar", font.fvar().map(|_| ())),
+            ("avar", font.avar().map(|_| ())),
+            ("STAT", font.stat().map(|_| ())),
+        ] {
+            assert!(
+                matches!(table, Err(ReadError::TableIsMissing(_))),
+                "{}: expected no {name} table; each Sarabun file is one static face",
+                e.file
+            );
+        }
+
+        let name =
+            |id| -> Vec<String> { font.localized_strings(id).map(|s| s.to_string()).collect() };
+        assert!(
+            name(StringId::FAMILY_NAME).contains(&e.family),
+            "{}: family names {:?}",
+            e.file,
+            name(StringId::FAMILY_NAME)
+        );
+        assert!(
+            name(StringId::SUBFAMILY_NAME).contains(&e.style),
+            "{}: style names {:?}",
+            e.file,
+            name(StringId::SUBFAMILY_NAME)
+        );
+        assert!(
+            name(StringId::VERSION_STRING)
+                .iter()
+                .any(|v| v.contains("Version 1.000")),
+            "{}: expected Version 1.000",
+            e.file
+        );
+
+        let os2 = font
+            .os2()
+            .unwrap_or_else(|err| panic!("{}: OS/2: {err}", e.file));
+        assert_eq!(os2.us_weight_class(), weight, "{}: OS/2 weight", e.file);
+        assert_eq!(os2.us_width_class(), 5, "{}: OS/2 width", e.file);
+        let selection = os2.fs_selection();
+        assert_eq!(
+            selection.contains(SelectionFlags::ITALIC),
+            italic,
+            "{}: fsSelection italic bit",
+            e.file
+        );
+        assert_eq!(
+            selection.contains(SelectionFlags::BOLD),
+            weight == 700,
+            "{}: fsSelection bold bit",
+            e.file
+        );
+        let attributes = font.attributes();
+        assert_eq!(
+            attributes.weight,
+            Weight::new(f32::from(weight)),
+            "{}: weight",
+            e.file
+        );
+        assert_eq!(
+            attributes.style == Style::Italic,
+            italic,
+            "{}: style",
+            e.file
+        );
+    }
+}
+
+/// Every assigned code point of the Thai block (U+0E01..=U+0E3A, U+0E3F..=U+0E5B), the Latin
+/// presentation sample and a Thai document sample map to drawn outlines in every face. This is
+/// coverage, not proof of mark positioning; consumers check shaping in their own apps.
+#[test]
+fn thai_document_faces_draw_the_thai_block_latin_and_document_sample() {
+    let thai_block: Vec<char> = ('\u{0e01}'..='\u{0e3a}')
+        .chain('\u{0e3f}'..='\u{0e5b}')
+        .collect();
+    assert_eq!(
+        thai_block.len(),
+        87,
+        "the Thai block has 87 assigned code points"
+    );
+    for e in sarabun_entries() {
+        let data = bytes_from_entry(&e);
+        let font = FontRef::new(&data).unwrap_or_else(|err| panic!("{}: {err}", e.file));
+        for c in thai_block
+            .iter()
+            .copied()
+            .chain(THAI_DOCUMENT_SAMPLE.chars())
+            .chain(LATIN.chars())
+            .filter(|c| !c.is_whitespace())
+        {
+            assert_glyph_outline(&font, &e.file, c);
+        }
+    }
+}

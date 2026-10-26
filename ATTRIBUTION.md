@@ -3,8 +3,9 @@
 Every font in `fonts/`, with its source and licence. The files are byte-identical to the pinned
 upstream sources (checked by `craft-fonts-tests`, which verifies each SHA-256 in the manifest that
 lists it: `fonts/manifest.txt` for the default embedded set, `fonts/latin-manifest.txt` for the
-opt-in Latin presentation faces, and `fonts/simplified-chinese-manifest.txt` for the opt-in
-native-only Simplified Chinese face).
+opt-in Latin presentation faces, `fonts/simplified-chinese-manifest.txt` for the opt-in
+native-only Simplified Chinese face, and `fonts/thai-manifest.txt` for the opt-in Thai document
+faces).
 
 | File | Family / style | Author | Source (pinned) | Licence |
 |---|---|---|---|---|
@@ -106,3 +107,21 @@ for provenance and reuse, but consumers that must not embed Adobe fonts filter t
 (8 of the 51 faces, 2,594,420 bytes) and keep the remaining 43. DeckCraft already applies that
 filter; FigCraft adds it in its own build. Filtering is a consumer obligation and does not change
 the manifest or these pinned hashes.
+
+## Thai document fonts (`fonts/thai-manifest.txt`)
+
+Opt-in looped Thai faces for document and PDF text, with their own Latin. Noto Sans Thai in the
+default manifest stays the loopless UI fallback. Four static faces, 366,220 bytes in all; the
+files are byte-identical to google/fonts, and `OFL.txt` is the upstream licence text.
+
+| File | Family / style | Author | Source (pinned) | Licence |
+|---|---|---|---|---|
+| `fonts/sarabun/Sarabun-Regular.ttf` | Sarabun Regular | The Sarabun Project Authors (Cadson Demak; designer Suppakit Chalermlarp) | [google/fonts@88058c7](https://github.com/google/fonts/tree/88058c714073e72bb1b32baffc2d4ce9bc73944c/ofl/sarabun) | OFL-1.1 (`fonts/sarabun/OFL.txt`) |
+| `fonts/sarabun/Sarabun-Italic.ttf` | Sarabun Italic | The Sarabun Project Authors (Cadson Demak; designer Suppakit Chalermlarp) | [google/fonts@88058c7](https://github.com/google/fonts/tree/88058c714073e72bb1b32baffc2d4ce9bc73944c/ofl/sarabun) | OFL-1.1 (`fonts/sarabun/OFL.txt`) |
+| `fonts/sarabun/Sarabun-Bold.ttf` | Sarabun Bold | The Sarabun Project Authors (Cadson Demak; designer Suppakit Chalermlarp) | [google/fonts@88058c7](https://github.com/google/fonts/tree/88058c714073e72bb1b32baffc2d4ce9bc73944c/ofl/sarabun) | OFL-1.1 (`fonts/sarabun/OFL.txt`) |
+| `fonts/sarabun/Sarabun-BoldItalic.ttf` | Sarabun Bold Italic | The Sarabun Project Authors (Cadson Demak; designer Suppakit Chalermlarp) | [google/fonts@88058c7](https://github.com/google/fonts/tree/88058c714073e72bb1b32baffc2d4ce9bc73944c/ofl/sarabun) | OFL-1.1 (`fonts/sarabun/OFL.txt`) |
+
+"Sarabun" is the authors' name for the font; its OFL declares no Reserved Font Name, and we use
+the files unmodified. Google Fonts lists Sarabun as Sans Serif (a classification of its Latin
+design). It is not TH Sarabun New / TH SarabunPSK, which are separate fonts with their own
+licence; do not describe Sarabun as metric-compatible with them.

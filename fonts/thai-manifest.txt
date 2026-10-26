@@ -1,0 +1,10 @@
+# Opt-in Thai document fonts. Same 8-field format as fonts/manifest.txt:
+#   family | style | file (relative to the repo root) | scripts (ISO 15924, comma-separated) | licence | licence file | sha256 | source
+# Apps read this file separately from fonts/manifest.txt. It is not part of craft-fonts' default
+# FONTS table or embed payload. Noto Sans Thai (default manifest) is the loopless UI fallback;
+# Sarabun is the looped Thai face for document and PDF text, with Latin, italics and bold.
+# Google Fonts lists Sarabun as SANS_SERIF because of its Latin design, so do not call it serif.
+Sarabun | Regular | fonts/sarabun/Sarabun-Regular.ttf | Thai,Latn | OFL-1.1 | fonts/sarabun/OFL.txt | 226d4f368fbc0457990ddef2692679badfd2c1a4e89e5ac4d43c10ba7743b2f1 | https://github.com/google/fonts/tree/88058c714073e72bb1b32baffc2d4ce9bc73944c/ofl/sarabun
+Sarabun | Italic | fonts/sarabun/Sarabun-Italic.ttf | Thai,Latn | OFL-1.1 | fonts/sarabun/OFL.txt | 595a968e97a8b8179a6bde2d74d4f91b11475dcfb6cf270037d76d8ed71160ea | https://github.com/google/fonts/tree/88058c714073e72bb1b32baffc2d4ce9bc73944c/ofl/sarabun
+Sarabun | Bold | fonts/sarabun/Sarabun-Bold.ttf | Thai,Latn | OFL-1.1 | fonts/sarabun/OFL.txt | d38308ca27d067b9a1b79006337c1f9a66c29aa016d96a9d88d3801da7fa83b9 | https://github.com/google/fonts/tree/88058c714073e72bb1b32baffc2d4ce9bc73944c/ofl/sarabun
+Sarabun | Bold Italic | fonts/sarabun/Sarabun-BoldItalic.ttf | Thai,Latn | OFL-1.1 | fonts/sarabun/OFL.txt | 5ef1b930f9a3afed5ec83374b5617cad3a89d91a8fc5e372dc028c2aa2950f8d | https://github.com/google/fonts/tree/88058c714073e72bb1b32baffc2d4ce9bc73944c/ofl/sarabun

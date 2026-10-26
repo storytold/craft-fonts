@@ -4,7 +4,8 @@ craft-fonts is a **fully optional** source of fonts. An app must build, test and
 with it, the app embeds the fonts listed in `fonts/manifest.txt` and uses them (today: Japanese,
 Korean, Hebrew and UI-symbol fallback). A native consumer may additionally opt in to
 `fonts/simplified-chinese-manifest.txt` for the LXGW WenKai Lite Simplified Chinese fallback; that
-manifest is never part of the default set or a wasm build.
+manifest is never part of the default set or a wasm build. A consumer that sets Thai documents
+may opt in to `fonts/thai-manifest.txt` for Sarabun (see below).
 
 ## Why not a Cargo dependency
 
@@ -213,6 +214,27 @@ The central tests in `crates/craft-fonts-tests/tests/fonts.rs` parse the optiona
 one static weight-400 face without `fvar`/`avar`/`STAT`, outlines for `简体中文演示文稿` and
 `简`, the 24 MiB ceiling, and that the face is absent from `FONTS`/`fonts/manifest.txt`.
 
+## Optional Thai document manifest
+
+`fonts/thai-manifest.txt` lists Sarabun Regular, Italic, Bold and Bold Italic (static faces,
+366,220 bytes in all, scripts `Thai,Latn`). It is the looped Thai face for document and PDF text;
+Noto Sans Thai in the default manifest stays the loopless UI fallback.
+
+- **Opt in explicitly.** Read it like the other optional manifests: a missing file is
+  compatible, and a malformed file follows the same `CRAFT_FONTS_REQUIRED` rules. It never
+  discards the main manifest's fonts.
+- **Not in `FONTS`/embed.** It appears in neither `FONTS` nor `LATIN_FONTS`; apps supply their
+  own static initializer from the parsed file.
+- **Document font, not fallback.** Offer `Sarabun` as a selectable document family (with its
+  bold and italic faces), rather than placing it ahead of Noto Sans Thai in UI fallback.
+- **Web.** No wasm allowlist includes Sarabun yet. A web consumer that wants it lists the exact
+  faces in its allowlist and measures the raw and compressed size first.
+
+The central tests verify the exact rows, SHA-256s, adjacent licence, one static face per file
+with the manifest's weight and italic bits, and drawn outlines for the whole Thai block, the
+Latin sample and a Thai document sample. They do not check Thai mark positioning; that needs
+app-level shaping checks.
+
 ## Using the fonts
 
 - **UI (egui):** append permitted craft faces at the end of each interface font family, after
@@ -284,8 +306,8 @@ craft-fonts' `ATTRIBUTION.md`.
 1. Put the file and its licence under `fonts/<family>/`, from a pinned upstream commit.
 2. Add a manifest line (with its SHA-256) and an `ATTRIBUTION.md` row. A Latin presentation face
    belongs in `fonts/latin-manifest.txt`; a face that only some native consumers should embed
-   belongs in `fonts/simplified-chinese-manifest.txt`; neither belongs in the default
-   `fonts/manifest.txt`.
+   belongs in `fonts/simplified-chinese-manifest.txt`; a Thai document face belongs in
+   `fonts/thai-manifest.txt`; none of them belongs in the default `fonts/manifest.txt`.
 3. `cargo test --workspace`: `craft-fonts-tests` checks the checksum, licence, family and style
    names, and, for Japanese fonts, coverage and vertical-text support. Add exact ISO 15924
    script assertions for any new face. Coverage tests may claim only glyphs the face really

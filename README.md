@@ -24,9 +24,10 @@ This library is meant to have the following:
 | `fonts/manifest.txt` | Machine-readable list of the default fonts: family, style, file, scripts, licence, SHA-256, pinned source. |
 | `fonts/latin-manifest.txt` | Opt-in Latin presentation catalog, same eight-field format: 16 families and 51 faces (about 19.5 MiB). Not in the default `FONTS` or `embed` payload. |
 | `fonts/simplified-chinese-manifest.txt` | Opt-in native-only Simplified Chinese row, same eight-field format. Not in `FONTS` or the embed payload. |
+| `fonts/thai-manifest.txt` | Opt-in Thai document faces (Sarabun, 4 faces, about 358 KiB), same eight-field format. Not in `FONTS` or the embed payload. |
 | `ATTRIBUTION.md` | Authors, pinned sources and licences. |
 | `crates/craft-fonts` | Rust: the default and opt-in Latin manifests as static tables, finding a checkout (`CRAFT_FONTS_DIR`), loading them, and `embed` / `embed-latin` features that compile the fonts in. |
-| `crates/craft-fonts-tests` | Tests asserted on these fonts: checksums, licences, family/style names, Inter/Latin provenance and faces, Japanese/Korean/Hebrew/Devanagari/symbol coverage and outlines, static-face metadata and vertical-text (`vert`/`vrt2`) support. |
+| `crates/craft-fonts-tests` | Tests asserted on these fonts: checksums, licences, family/style names, Inter/Latin provenance and faces, Japanese/Korean/Hebrew/Devanagari/Thai/symbol coverage and outlines, static-face metadata and vertical-text (`vert`/`vrt2`) support. |
 | `docs/integration.md` | How an app uses craft-fonts as a fully optional build input. |
 
 ### Fonts
@@ -46,6 +47,15 @@ This library is meant to have the following:
 | Noto Sans Hebrew | Regular (static) | Hebrew UI and document text | OFL-1.1 |
 | Noto Sans Devanagari | Regular (static) | Devanagari UI and document text | OFL-1.1 |
 | LXGW WenKai Lite | Regular (static) | Native-only opt-in Simplified Chinese fallback (Kai) | OFL-1.1 |
+
+### Thai document fonts (`fonts/thai-manifest.txt`, opt-in)
+
+Not part of the default `FONTS` table or `embed` payload. Noto Sans Thai (default manifest) is the
+loopless Thai UI fallback; Sarabun is the looped Thai face for document and PDF text.
+
+| Family | Styles | For | Licence |
+|---|---|---|---|
+| Sarabun | Regular, Italic, Bold, Bold Italic (static) | Thai document and PDF text (looped Thai, with Latin) | OFL-1.1 |
 
 ### Latin presentation fonts (`fonts/latin-manifest.txt`, opt-in)
 
@@ -94,7 +104,8 @@ See [`docs/integration.md`](docs/integration.md).
 **Font assets for the Crafting Apps belong here**, not in the app repos: add the file, its licence,
 a manifest line and an attribution row, and the tests check it. Put a Latin presentation face in
 `fonts/latin-manifest.txt` and a face that only some native consumers should embed in
-`fonts/simplified-chinese-manifest.txt`; neither belongs in the default `fonts/manifest.txt`.
+`fonts/simplified-chinese-manifest.txt`, and a Thai document face in `fonts/thai-manifest.txt`;
+none of them belongs in the default `fonts/manifest.txt`.
 
 ## Develop
 
