@@ -45,6 +45,7 @@ This library is meant to have the following:
 | Noto Sans Symbols 2 | Regular | UI symbols (`✕`, `◀`, `✓`) | OFL-1.1 |
 | Noto Sans Hebrew | Regular (static) | Hebrew UI and document text | OFL-1.1 |
 | Noto Sans Devanagari | Regular (static) | Devanagari UI and document text | OFL-1.1 |
+| Scheherazade New | Regular, Medium, SemiBold, Bold | Arabic naskh text | OFL-1.1 |
 | LXGW WenKai Lite | Regular (static) | Native-only opt-in Simplified Chinese fallback (Kai) | OFL-1.1 |
 
 ### Latin presentation fonts (`fonts/latin-manifest.txt`, opt-in)

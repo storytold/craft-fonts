@@ -343,6 +343,65 @@ fn thai_fonts_cover_thai_text() {
 }
 
 #[test]
+fn every_arabic_font_joins_letters() {
+    // Arabic letters take initial, medial and final forms, and lam-alef needs `rlig`.
+    // A font without these GSUB features draws every letter isolated.
+    let arab: Vec<&Font> = for_script("Arab").collect();
+    for style in ["Regular", "Medium", "SemiBold", "Bold"] {
+        assert!(
+            arab.iter()
+                .any(|f| f.family == "Scheherazade New" && f.style == style),
+            "Scheherazade New {style} is not in the manifest"
+        );
+    }
+    let first = arab
+        .first()
+        .unwrap_or_else(|| panic!("the manifest lists no Arabic font"));
+    assert_eq!(
+        (first.family, first.style),
+        ("Noto Sans Arabic", "Regular"),
+        "keep Noto Sans Arabic as the first Arab line; later faces are chosen by name"
+    );
+    for f in arab {
+        let data = bytes(f);
+        let font = FontRef::new(&data).unwrap_or_else(|e| panic!("{}: {e}", f.file));
+        let gsub = font
+            .gsub()
+            .unwrap_or_else(|e| panic!("{}: no GSUB: {e}", f.file));
+        let features = gsub
+            .feature_list()
+            .unwrap_or_else(|e| panic!("{}: GSUB features: {e}", f.file));
+        let tags: Vec<String> = features
+            .feature_records()
+            .iter()
+            .map(|r| r.feature_tag().to_string())
+            .collect();
+        for needed in ["init", "medi", "fina", "rlig"] {
+            assert!(
+                tags.iter().any(|t| t == needed),
+                "{} {}: no {needed} GSUB feature (has {tags:?})",
+                f.family,
+                f.style
+            );
+        }
+    }
+}
+
+#[test]
+fn licence_notices_do_not_name_adobe_or_microsoft() {
+    for f in FONTS {
+        let text = std::fs::read_to_string(craft_fonts_tests::repo_root().join(f.licence_file))
+            .unwrap_or_else(|e| panic!("{}: {e}", f.licence_file));
+        let lower = text.to_ascii_lowercase();
+        assert!(
+            !lower.contains("adobe") && !lower.contains("microsoft"),
+            "{} names Adobe or Microsoft",
+            f.licence_file
+        );
+    }
+}
+
+#[test]
 fn georgian_fonts_cover_georgian_text() {
     covers(
         "Geor",
