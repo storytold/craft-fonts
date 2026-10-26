@@ -40,7 +40,8 @@ This library is meant to have the following:
 | Noto Sans Arabic | Regular (variable: wdth, wght) | Arabic UI and document text (sans) | OFL-1.1 |
 | Noto Sans Thai | Regular (variable: wdth, wght) | Thai UI and document text (sans) | OFL-1.1 |
 | Noto Sans Georgian | Regular (variable: wdth, wght) | Georgian UI and document text (sans) | OFL-1.1 |
-| NanumGothic | Regular | Korean UI and document text | OFL-1.1 |
+| NanumGothic | Regular, Bold | Korean UI and document text (sans) | OFL-1.1 |
+| NanumMyeongjo | Regular, Bold | Korean document text (serif) | OFL-1.1 |
 | Noto Sans Symbols | Regular (variable: wght) | UI key/modifier symbols (`⌃`, arrows) | OFL-1.1 |
 | Noto Sans Symbols 2 | Regular | UI symbols (`✕`, `◀`, `✓`) | OFL-1.1 |
 | Noto Sans Hebrew | Regular (static) | Hebrew UI and document text | OFL-1.1 |

@@ -17,6 +17,9 @@ native-only Simplified Chinese face).
 | `fonts/noto-sans-thai/NotoSansThai.ttf` | Noto Sans Thai (variable) | The Noto Project Authors | [google/fonts@8b0a1d0](https://github.com/google/fonts/tree/8b0a1d0f5983c89bc2b93f1b5fb55f9e252744b5/ofl/notosansthai) | OFL-1.1 (`fonts/noto-sans-thai/OFL.txt`) |
 | `fonts/noto-sans-georgian/NotoSansGeorgian.ttf` | Noto Sans Georgian (variable) | The Noto Project Authors | [google/fonts@8b0a1d0](https://github.com/google/fonts/tree/8b0a1d0f5983c89bc2b93f1b5fb55f9e252744b5/ofl/notosansgeorgian) | OFL-1.1 (`fonts/noto-sans-georgian/OFL.txt`) |
 | `fonts/nanum-gothic/NanumGothic-Regular.ttf` | NanumGothic Regular | NHN Corporation; Sandoll Communications | [google/fonts@bd8f81d](https://github.com/google/fonts/tree/bd8f81ddb5c74d5c8897b36ad88b440266245103/ofl/nanumgothic) | OFL-1.1 (`fonts/nanum-gothic/OFL.txt`) |
+| `fonts/nanum-gothic/NanumGothic-Bold.ttf` | NanumGothic Bold | NHN Corporation; Sandoll Communications | [google/fonts@bd8f81d](https://github.com/google/fonts/tree/bd8f81ddb5c74d5c8897b36ad88b440266245103/ofl/nanumgothic) | OFL-1.1 (`fonts/nanum-gothic/OFL.txt`) |
+| `fonts/nanum-myeongjo/NanumMyeongjo-Regular.ttf` | NanumMyeongjo Regular | NHN Corporation; FONTRIX | [google/fonts@bd8f81d](https://github.com/google/fonts/tree/bd8f81ddb5c74d5c8897b36ad88b440266245103/ofl/nanummyeongjo) | OFL-1.1 (`fonts/nanum-myeongjo/OFL.txt`) |
+| `fonts/nanum-myeongjo/NanumMyeongjo-Bold.ttf` | NanumMyeongjo Bold | NHN Corporation; FONTRIX | [google/fonts@bd8f81d](https://github.com/google/fonts/tree/bd8f81ddb5c74d5c8897b36ad88b440266245103/ofl/nanummyeongjo) | OFL-1.1 (`fonts/nanum-myeongjo/OFL.txt`) |
 | `fonts/noto-sans-symbols/NotoSansSymbols.ttf` | Noto Sans Symbols Regular | The Noto Project Authors | [google/fonts@47d54ca](https://github.com/google/fonts/tree/47d54ca1ebb14fd864695f1d39dc734f39017c33/ofl/notosanssymbols) | OFL-1.1 (`fonts/noto-sans-symbols/OFL.txt`) |
 | `fonts/noto-sans-symbols-2/NotoSansSymbols2-Regular.ttf` | Noto Sans Symbols 2 Regular | The Noto Project Authors | [google/fonts@47d54ca](https://github.com/google/fonts/tree/47d54ca1ebb14fd864695f1d39dc734f39017c33/ofl/notosanssymbols2) | OFL-1.1 (`fonts/noto-sans-symbols-2/OFL.txt`) |
 | `fonts/noto-sans-hebrew/NotoSansHebrew-Regular.ttf` | Noto Sans Hebrew Regular | The Noto Project Authors | [notofonts/hebrew NotoSansHebrew-v3.001](https://github.com/notofonts/hebrew/releases/tag/NotoSansHebrew-v3.001) | OFL-1.1 (`fonts/noto-sans-hebrew/OFL.txt`) |
@@ -25,9 +28,13 @@ native-only Simplified Chinese face).
 
 The OFL allows these fonts to be bundled, embedded and redistributed with software, provided the
 licence text travels with them and the fonts are not sold on their own. "Shippori Mincho",
-"BIZ UD", "Noto" and "LXGW WenKai Lite" are the authors' names for their fonts; we use the files
-unmodified. LXGW WenKai Lite's upstream OFL reserves the names 霞鹜, 霞鶩, 落霞孤鹜, 落霞孤鶩 and
+"BIZ UD", "Noto", "Nanum" and "LXGW WenKai Lite" are the authors' names for their fonts; we use the
+files unmodified. LXGW WenKai Lite's upstream OFL reserves the names 霞鹜, 霞鶩, 落霞孤鹜, 落霞孤鶩 and
 LXGW; the bundled release member and Klee-One copyright notice stay byte-identical to upstream.
+
+`fonts/nanum-myeongjo/OFL.txt` is NHN's licence text as published with NanumGothic (same copyright
+holder and reserved names): the copy beside NanumMyeongjo upstream is the same licence re-wrapped,
+with its dashes lost to an encoding error.
 
 The Symbols variable font keeps its upstream bytes; only its filename changes from
 `NotoSansSymbols[wght].ttf` to `NotoSansSymbols.ttf`.
