@@ -1652,3 +1652,21 @@ fn all_latin_licences_match_the_reviewed_upstream_catalog() {
         assert_eq!(hex, hash, "{path}: complete upstream licence changed");
     }
 }
+#[test]
+fn biz_ud_gothic_has_fixed_half_and_full_width_advances() {
+    let faces: Vec<_> = FONTS.iter().filter(|f| f.family == "BIZ UDGothic").collect();
+    assert_eq!(faces.len(), 2, "regular and bold faces must be present");
+    for f in faces {
+        let data = bytes(f);
+        let font = FontRef::new(&data).unwrap();
+        let em = f32::from(font.head().unwrap().units_per_em());
+        let metrics = font.glyph_metrics(Size::unscaled(), LocationRef::default());
+        for (chars, expected) in [("0123456789- /", em / 2.0), ("日本語（）、　", em)] {
+            for ch in chars.chars() {
+                let glyph = font.charmap().map(ch).unwrap();
+                let advance = metrics.advance_width(glyph).unwrap();
+                assert_eq!(advance, expected, "{}: {ch}", f.file);
+            }
+        }
+    }
+}
