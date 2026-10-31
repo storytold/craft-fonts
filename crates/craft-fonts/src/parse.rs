@@ -67,6 +67,12 @@ const FIELDS: [&str; 8] = [
 ];
 
 /// Parse the whole manifest. Blank lines and `#` comments are skipped; line numbers are 1-based.
+///
+/// # Errors
+///
+/// Returns `ManifestError::FieldCount` when a line does not contain exactly eight fields,
+/// `ManifestError::EmptyField` when a required field is empty, and
+/// `ManifestError::BadSha256` when the digest is not 64 lower-case hexadecimal digits.
 pub fn parse_manifest(text: &str) -> Result<Vec<Entry>, ManifestError> {
     let mut out = Vec::new();
     for (i, raw) in text.lines().enumerate() {
