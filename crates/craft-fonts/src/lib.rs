@@ -66,6 +66,7 @@ pub fn for_script(script: &str) -> impl Iterator<Item = &'static Font> + '_ {
 /// The compiled-in bytes of a font from [`FONTS`] (`embed` feature) or [`LATIN_FONTS`]
 /// (`embed-latin` feature). `None` for any other value, or when its feature is off.
 #[cfg(any(feature = "embed", feature = "embed-latin"))]
+#[must_use]
 pub fn embedded(font: &Font) -> Option<&'static [u8]> {
     #[cfg(feature = "embed")]
     if let Some(i) = FONTS.iter().position(|f| f == font) {
@@ -82,6 +83,7 @@ pub fn embedded(font: &Font) -> Option<&'static [u8]> {
 pub const DIR_ENV: &str = "CRAFT_FONTS_DIR";
 
 /// The craft-fonts checkout named by `CRAFT_FONTS_DIR`, if it is set and holds a manifest.
+#[must_use]
 pub fn dir_from_env() -> Option<PathBuf> {
     let dir = PathBuf::from(std::env::var_os(DIR_ENV)?);
     dir.join(MANIFEST).is_file().then_some(dir)
@@ -111,16 +113,31 @@ impl std::fmt::Display for LoadError {
 impl std::error::Error for LoadError {}
 
 /// Read the main manifest of the checkout at `dir` and every font it lists, in manifest order.
+///
+/// # Errors
+///
+/// Returns `LoadError::Manifest` when the manifest is malformed and `LoadError::Io` when the
+/// manifest or a listed font file cannot be read.
 pub fn load(dir: &Path) -> Result<Vec<(Entry, Vec<u8>)>, LoadError> {
     load_manifest(dir, MANIFEST)
 }
 
 /// Read the Latin presentation-font manifest of the checkout at `dir` and every font it lists.
+///
+/// # Errors
+///
+/// Returns `LoadError::Manifest` when the manifest is malformed and `LoadError::Io` when the
+/// manifest or a listed font file cannot be read.
 pub fn load_latin(dir: &Path) -> Result<Vec<(Entry, Vec<u8>)>, LoadError> {
     load_manifest(dir, LATIN_MANIFEST)
 }
 
 /// Read the manifest at `rel` (e.g. [`MANIFEST`]) in the checkout at `dir` and every font it lists.
+///
+/// # Errors
+///
+/// Returns `LoadError::Manifest` when the manifest is malformed and `LoadError::Io` when the
+/// manifest or a listed font file cannot be read.
 pub fn load_manifest(dir: &Path, rel: &str) -> Result<Vec<(Entry, Vec<u8>)>, LoadError> {
     let manifest = dir.join(rel);
     let text = std::fs::read_to_string(&manifest).map_err(|error| LoadError::Io {

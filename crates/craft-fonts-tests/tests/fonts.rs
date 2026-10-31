@@ -14,6 +14,17 @@ fn bytes(f: &Font) -> Vec<u8> {
         .unwrap_or_else(|e| panic!("{}: {e}", f.file))
 }
 
+fn hex_digest(digest: &[u8]) -> String {
+    use std::fmt::Write as _;
+
+    digest
+        .iter()
+        .fold(String::with_capacity(digest.len() * 2), |mut hex, byte| {
+            let _ = write!(hex, "{byte:02x}");
+            hex
+        })
+}
+
 /// Every font in both the default and opt-in Latin manifests.
 fn all() -> impl Iterator<Item = &'static Font> {
     FONTS.iter().chain(LATIN_FONTS)
@@ -23,7 +34,7 @@ fn all() -> impl Iterator<Item = &'static Font> {
 fn every_file_matches_its_manifest_checksum() {
     for f in all() {
         let digest = Sha256::digest(bytes(f));
-        let hex: String = digest.iter().map(|b| format!("{b:02x}")).collect();
+        let hex = hex_digest(&digest);
         assert_eq!(
             hex, f.sha256,
             "{}: the file changed; update the manifest only after checking the new upstream source",
@@ -354,7 +365,7 @@ fn georgian_fonts_cover_georgian_text() {
     );
 }
 
-/// Korean interface labels used by the GridCraft UI, not a single sample character.
+/// Korean interface labels used by the `GridCraft` UI, not a single sample character.
 const KOREAN_UI: &str = concat!(
     "데이터 한글 파일 편집 보기 삽입 서식 저장 열기 닫기 인쇄 취소 확인 ",
     "가나다라마바사아자차카타파하",
@@ -367,7 +378,7 @@ fn korean_fonts_cover_korean_ui_text() {
 }
 
 /// The Korean `Hang` face really covers all modern Hangul syllables and the 51 compatibility
-/// Jamo. These exact counts come from the pinned NanumGothic cmap, not from a sample string.
+/// Jamo. These exact counts come from the pinned `NanumGothic` cmap, not from a sample string.
 #[test]
 fn korean_fonts_cover_every_modern_syllable_and_compatibility_jamo() {
     let syllables = '\u{ac00}'..='\u{d7a3}';
@@ -592,7 +603,7 @@ fn devanagari_file_and_licence_match_hashes_and_sizes() {
         f.file
     );
     let digest = Sha256::digest(&data);
-    let hex: String = digest.iter().map(|b| format!("{b:02x}")).collect();
+    let hex = hex_digest(&digest);
     assert_eq!(hex, DEVANAGARI_SHA256, "{}: font SHA-256", f.file);
 
     let licence = std::fs::read(craft_fonts_tests::repo_root().join(f.licence_file))
@@ -604,7 +615,7 @@ fn devanagari_file_and_licence_match_hashes_and_sizes() {
         f.licence_file
     );
     let digest = Sha256::digest(&licence);
-    let hex: String = digest.iter().map(|b| format!("{b:02x}")).collect();
+    let hex = hex_digest(&digest);
     assert_eq!(
         hex, DEVANAGARI_LICENCE_SHA256,
         "{}: licence SHA-256",
@@ -678,9 +689,11 @@ fn devanagari_face_is_a_single_static_regular_face() {
 /// The observed failing sequence `फ़ा` (U+092B U+093C U+093E), the Hindi Camera Raw sample
 /// and the individual letter/mark pieces must all map to drawn outlines. This is glyph
 /// coverage, not proof of Devanagari shaping, conjunct formation or mark positioning; the
-/// PhotoCraft Camera Raw test exercises the real shaping path.
+/// `PhotoCraft` Camera Raw test exercises the real shaping path.
 #[test]
 fn devanagari_glyphs_and_hindi_sample_have_drawn_outlines() {
+    const HINDI_SAMPLE: &str = "हिन्दी भाषा क्षत्रिय श्री फ़ाइल फ़िल्टर";
+
     let f = face("Noto Sans Devanagari");
     let failing_sequence = "फ़ा";
     assert_eq!(
@@ -695,7 +708,6 @@ fn devanagari_glyphs_and_hindi_sample_have_drawn_outlines() {
         assert_face_glyph_outline(f, c);
     }
 
-    const HINDI_SAMPLE: &str = "हिन्दी भाषा क्षत्रिय श्री फ़ाइल फ़िल्टर";
     let data = bytes(f);
     let font = FontRef::new(&data).unwrap_or_else(|e| panic!("{}: {e}", f.file));
     assert!(
@@ -735,7 +747,7 @@ const LXGW_SOURCE: &str = "https://github.com/lxgw/LxgwWenKai-Lite/releases/tag/
 const LXGW_SHA256: &str = "f799a538a3355877e597a0ae04050e897932c9ae7689eb9227c2953c5dd549ea";
 /// The plan's hard ceiling for one added font file.
 const LXGW_MAX_BYTES: usize = 24 * 1024 * 1024;
-/// The DeckCraft UI sample whose missing `简` U+7B80 triggered this opt-in face.
+/// The `DeckCraft` UI sample whose missing `简` U+7B80 triggered this opt-in face.
 const DECK_CHINESE_SAMPLE: &str = "简体中文演示文稿";
 
 fn optional_entries(relative: &str) -> Vec<Entry> {
@@ -787,7 +799,7 @@ fn simplified_chinese_face_matches_its_hash_licence_and_size_ceiling() {
     let e = lxgw_entry();
     let data = bytes_from_entry(&e);
     let digest = Sha256::digest(&data);
-    let hex: String = digest.iter().map(|b| format!("{b:02x}")).collect();
+    let hex = hex_digest(&digest);
     assert_eq!(
         hex, e.sha256,
         "{}: the file changed; update the opt-in manifest only after checking the new upstream source",
@@ -933,7 +945,7 @@ fn bytes_from_entry(e: &Entry) -> Vec<u8> {
         .unwrap_or_else(|err| panic!("{}: {err}", e.file))
 }
 
-/// The opt-in Latin presentation catalog. FigCraft and DeckCraft read it from their own
+/// The opt-in Latin presentation catalog. `FigCraft` and `DeckCraft` read it from their own
 /// `build.rs`; consumers that read only `fonts/manifest.txt` must not receive these faces, and it
 /// is deliberately not part of the default `FONTS`/`embed` payload.
 const LATIN_MANIFEST: &str = "fonts/latin-manifest.txt";
@@ -1362,7 +1374,7 @@ fn latin_inter_files_and_their_upstream_licence_match_their_hashes() {
         );
         let data = bytes_from_entry(e);
         let digest = Sha256::digest(&data);
-        let hex: String = digest.iter().map(|b| format!("{b:02x}")).collect();
+        let hex = hex_digest(&digest);
         assert_eq!(
             hex, e.sha256,
             "{}: the file changed; update the opt-in manifest only after checking the pinned upstream source",
@@ -1374,7 +1386,7 @@ fn latin_inter_files_and_their_upstream_licence_match_their_hashes() {
         .unwrap_or_else(|e| panic!("{INTER_LICENCE_FILE}: {e}"));
     assert_eq!(licence.len(), 4_380, "{INTER_LICENCE_FILE}: size");
     let digest = Sha256::digest(&licence);
-    let hex: String = digest.iter().map(|b| format!("{b:02x}")).collect();
+    let hex = hex_digest(&digest);
     assert_eq!(hex, INTER_LICENCE_SHA256, "{INTER_LICENCE_FILE}: SHA-256");
     let text = String::from_utf8_lossy(&licence);
     assert!(
@@ -1648,7 +1660,7 @@ fn all_latin_licences_match_the_reviewed_upstream_catalog() {
         assert!(actual.contains(path), "missing licence {path}");
         let data = std::fs::read(craft_fonts_tests::repo_root().join(path)).unwrap();
         let digest = Sha256::digest(&data);
-        let hex: String = digest.iter().map(|b| format!("{b:02x}")).collect();
+        let hex = hex_digest(&digest);
         assert_eq!(hex, hash, "{path}: complete upstream licence changed");
     }
 }
