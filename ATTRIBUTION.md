@@ -27,9 +27,10 @@ native-only Simplified Chinese face).
 
 The OFL allows these fonts to be bundled, embedded and redistributed with software, provided the
 licence text travels with them and the fonts are not sold on their own. "Shippori Mincho",
-"BIZ UD", "Noto" and "LXGW WenKai Lite" are the authors' names for their fonts; we use the files
-unmodified. LXGW WenKai Lite's upstream OFL reserves the names 霞鹜, 霞鶩, 落霞孤鹜, 落霞孤鶩 and
-LXGW; the bundled release member and Klee-One copyright notice stay byte-identical to upstream.
+"BIZ UD", "Noto", "IBM Plex" and "LXGW WenKai Lite" are the authors' names for their fonts; we use
+the files unmodified. IBM Plex Sans Thai's upstream OFL reserves the name "Plex". LXGW WenKai
+Lite's upstream OFL reserves the names 霞鹜, 霞鶩, 落霞孤鹜, 落霞孤鶩 and LXGW; the bundled release
+member and Klee-One copyright notice stay byte-identical to upstream.
 
 The Symbols variable font keeps its upstream bytes; only its filename changes from
 `NotoSansSymbols[wght].ttf` to `NotoSansSymbols.ttf`.
