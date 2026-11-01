@@ -1,0 +1,7 @@
+# Opt-in native-only Simplified Chinese fonts. Same 8-field format as fonts/manifest.txt:
+#   family | style | file (relative to the repo root) | scripts (ISO 15924, comma-separated) | licence | licence file | sha256 | source
+# Apps read this file separately from fonts/manifest.txt, and native builds only. It is not part
+# of craft-fonts' default FONTS table or embed payload and must never be added to a wasm allowlist.
+# DeckCraft classifies Han characters as Hani, so the row carries Hani,Hans.
+# Pinned release: v1.530, commit b712c83d98acf977bacfb7fb010207802808bda9.
+LXGW WenKai Lite | Regular | fonts/lxgw-wenkai-lite/LXGWWenKaiLite-Regular.ttf | Hani,Hans | OFL-1.1 | fonts/lxgw-wenkai-lite/OFL.txt | f799a538a3355877e597a0ae04050e897932c9ae7689eb9227c2953c5dd549ea | https://github.com/lxgw/LxgwWenKai-Lite/releases/tag/v1.530
