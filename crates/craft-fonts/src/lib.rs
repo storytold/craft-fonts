@@ -66,7 +66,6 @@ pub fn for_script(script: &str) -> impl Iterator<Item = &'static Font> + '_ {
 /// The compiled-in bytes of a font from [`FONTS`] (`embed` feature) or [`LATIN_FONTS`]
 /// (`embed-latin` feature). `None` for any other value, or when its feature is off.
 #[cfg(any(feature = "embed", feature = "embed-latin"))]
-#[must_use]
 pub fn embedded(font: &Font) -> Option<&'static [u8]> {
     #[cfg(feature = "embed")]
     if let Some(i) = FONTS.iter().position(|f| f == font) {
@@ -83,7 +82,6 @@ pub fn embedded(font: &Font) -> Option<&'static [u8]> {
 pub const DIR_ENV: &str = "CRAFT_FONTS_DIR";
 
 /// The craft-fonts checkout named by `CRAFT_FONTS_DIR`, if it is set and holds a manifest.
-#[must_use]
 pub fn dir_from_env() -> Option<PathBuf> {
     let dir = PathBuf::from(std::env::var_os(DIR_ENV)?);
     dir.join(MANIFEST).is_file().then_some(dir)

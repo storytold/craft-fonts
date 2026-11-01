@@ -365,7 +365,7 @@ fn georgian_fonts_cover_georgian_text() {
     );
 }
 
-/// Korean interface labels used by the `GridCraft` UI, not a single sample character.
+/// Korean interface labels used by the GridCraft UI, not a single sample character.
 const KOREAN_UI: &str = concat!(
     "데이터 한글 파일 편집 보기 삽입 서식 저장 열기 닫기 인쇄 취소 확인 ",
     "가나다라마바사아자차카타파하",
@@ -747,7 +747,7 @@ const LXGW_SOURCE: &str = "https://github.com/lxgw/LxgwWenKai-Lite/releases/tag/
 const LXGW_SHA256: &str = "f799a538a3355877e597a0ae04050e897932c9ae7689eb9227c2953c5dd549ea";
 /// The plan's hard ceiling for one added font file.
 const LXGW_MAX_BYTES: usize = 24 * 1024 * 1024;
-/// The `DeckCraft` UI sample whose missing `简` U+7B80 triggered this opt-in face.
+/// The DeckCraft UI sample whose missing `简` U+7B80 triggered this opt-in face.
 const DECK_CHINESE_SAMPLE: &str = "简体中文演示文稿";
 
 fn optional_entries(relative: &str) -> Vec<Entry> {
@@ -945,7 +945,7 @@ fn bytes_from_entry(e: &Entry) -> Vec<u8> {
         .unwrap_or_else(|err| panic!("{}: {err}", e.file))
 }
 
-/// The opt-in Latin presentation catalog. `FigCraft` and `DeckCraft` read it from their own
+/// The opt-in Latin presentation catalog. FigCraft and DeckCraft read it from their own
 /// `build.rs`; consumers that read only `fonts/manifest.txt` must not receive these faces, and it
 /// is deliberately not part of the default `FONTS`/`embed` payload.
 const LATIN_MANIFEST: &str = "fonts/latin-manifest.txt";
