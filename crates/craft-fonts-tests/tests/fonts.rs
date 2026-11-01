@@ -1652,3 +1652,75 @@ fn all_latin_licences_match_the_reviewed_upstream_catalog() {
         assert_eq!(hex, hash, "{path}: complete upstream licence changed");
     }
 }
+
+/// The Myanmar face is the unhinted static Regular of the upstream release, appended so existing
+/// manifest rows and consumer `craft-font-N` indices do not move. It is the single `Mymr` face.
+const MYANMAR_FILE: &str = "fonts/noto-sans-myanmar/NotoSansMyanmar-Regular.ttf";
+const MYANMAR_LICENCE_FILE: &str = "fonts/noto-sans-myanmar/OFL.txt";
+const MYANMAR_SOURCE: &str =
+    "https://github.com/notofonts/myanmar/releases/tag/NotoSansMyanmar-v2.107";
+const MYANMAR_SHA256: &str = "f4be6ef43871516d8347c5217a2033991b8ecda2dd1200007c2fb431a66d64db";
+const MYANMAR_LICENCE_SHA256: &str =
+    "246a75859267af7da466823969d2e2b407ed8455ee5f74f4c8d63d8783be9b57";
+
+#[test]
+fn myanmar_row_is_exact_and_last() {
+    let f = face("Noto Sans Myanmar");
+    assert_eq!(for_script("Mymr").count(), 1, "exactly one Mymr face");
+    assert_eq!(f.style, "Regular");
+    assert_eq!(f.file, MYANMAR_FILE);
+    assert_eq!(f.scripts, ["Mymr"].as_slice());
+    assert_eq!(f.licence, "OFL-1.1");
+    assert_eq!(f.licence_file, MYANMAR_LICENCE_FILE);
+    assert_eq!(f.sha256, MYANMAR_SHA256);
+    assert_eq!(f.source, MYANMAR_SOURCE);
+    assert_eq!(
+        FONTS.last().map(|l| l.file),
+        Some(MYANMAR_FILE),
+        "appended: earlier indices stay"
+    );
+}
+
+#[test]
+fn myanmar_licence_matches_its_hash() {
+    let f = face("Noto Sans Myanmar");
+    let licence = std::fs::read(craft_fonts_tests::repo_root().join(f.licence_file))
+        .unwrap_or_else(|e| panic!("{}: {e}", f.licence_file));
+    let digest = Sha256::digest(&licence);
+    let hex: String = digest.iter().map(|b| format!("{b:02x}")).collect();
+    assert_eq!(
+        hex, MYANMAR_LICENCE_SHA256,
+        "{}: licence SHA-256",
+        f.licence_file
+    );
+    let text = String::from_utf8_lossy(&licence);
+    assert!(
+        text.contains("SIL OPEN FONT LICENSE Version 1.1"),
+        "{} is not the OFL 1.1 text",
+        f.licence_file
+    );
+}
+
+/// Myanmar has to be shaped: a medial ra (U+103C) and a vowel sign e (U+1031) are drawn before the
+/// consonant typed ahead of them, and a virama (U+1039) stacks the next consonant, so the file
+/// must keep the substitution and positioning tables that do it. This is table and glyph
+/// coverage, not proof of shaping; apps test their own shaping path.
+#[test]
+fn myanmar_keeps_its_shaping_tables_and_draws_a_sample() {
+    let f = face("Noto Sans Myanmar");
+    let data = bytes(f);
+    let font = FontRef::new(&data).unwrap_or_else(|e| panic!("{}: {e}", f.file));
+    assert!(font.gsub().is_ok(), "{}: no GSUB", f.file);
+    assert!(font.gpos().is_ok(), "{}: no GPOS", f.file);
+    assert!(
+        font.charmap().map('\u{1039}').is_some(),
+        "{}: no virama",
+        f.file
+    );
+    for c in "မြန်မာ ကျောင်း ကျေးဇူး"
+        .chars()
+        .filter(|c| !c.is_whitespace() && *c != '\u{1039}')
+    {
+        assert_face_glyph_outline(f, c);
+    }
+}
