@@ -2,9 +2,10 @@
 
 craft-fonts is a **fully optional** source of fonts. An app must build, test and run without it;
 with it, the app embeds the fonts listed in `fonts/manifest.txt` and uses them (today: Japanese,
-Korean, Hebrew and UI-symbol fallback). A native consumer may additionally opt in to
-`fonts/simplified-chinese-manifest.txt` for the LXGW WenKai Lite Simplified Chinese fallback; that
-manifest is never part of the default set or a wasm build.
+Chinese (Simplified and Traditional), Korean, Hebrew, Devanagari and UI-symbol fallback). A
+native consumer may additionally opt in to `fonts/simplified-chinese-manifest.txt` for the LXGW
+WenKai Lite Simplified Chinese fallback; that manifest is never part of the default set or a wasm
+build.
 
 ## Why not a Cargo dependency
 
@@ -224,8 +225,10 @@ one static weight-400 face without `fvar`/`avar`/`STAT`, outlines for `简体中
   proportional family and, where the consumer has one, the `CELL`/monospace family). Do not
   expand it into the nine named instances of the old variable fixture. A native consumer that
   opts in to the Simplified Chinese manifest adds `LXGW WenKai Lite` / `Regular` for `Hani,Hans`
-  after those existing families. Match the exact family/style spelling; in particular,
-  `NanumGothic` has no space. Verify the installed
+  after those existing families. A consumer that shows Traditional Chinese registers
+  `jf-openhuninn-2.1` / `Regular` for `Hant` (the manifest family carries the version suffix
+  because that is the font's own name-table string). Match the exact family/style spelling; in
+  particular, `NanumGothic` has no space. Verify the installed
   production set with `CRAFT_FONTS_REQUIRED=1` and strict glyph assertions for each advertised
   script and symbol. Hebrew coverage here means each codepoint has a drawn outline. The
   storytold egui fork uses HarfRust shaping and bidi layout, but font-only tests do not
@@ -238,7 +241,7 @@ one static weight-400 face without `fvar`/`avar`/`STAT`, outlines for `简体中
   document's requested font and the app's existing fallback faces. Preserve the app's asset
   exclusions, and do not treat a script tag as proof that every character in that script exists.
 - **Web (wasm32):** the recipe uses a fixed allowlist. Never embed the whole manifest: the
-  current faces together are roughly 43.8 MiB (45.9 MB), over typical per-file hosting limits.
+  current faces together are roughly 48.4 MiB (50.8 MB), over typical per-file hosting limits.
   Measure the raw bytes of each allowlisted font, plus raw and compressed wasm before and after,
   against the consumer's actual web gate. Do not call the result "within budget" without a named
   number and a real check. GridCraft's decision is documented in
