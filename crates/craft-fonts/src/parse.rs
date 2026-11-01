@@ -1,6 +1,7 @@
 //! The `fonts/manifest.txt` format, shared by `build.rs` and the library (`#[path]`-included by
-//! both, so it has no dependencies). Apps that read the manifest from their own `build.rs` can
-//! copy this file.
+//! both, so it has no dependencies). The same parser reads the opt-in `fonts/latin-manifest.txt`
+//! and `fonts/simplified-chinese-manifest.txt`. Apps that read a manifest from their own
+//! `build.rs` can copy this file.
 
 /// One line of the manifest.
 #[derive(Clone, Debug, PartialEq, Eq)]

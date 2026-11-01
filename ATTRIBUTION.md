@@ -1,8 +1,10 @@
 # Font attribution
 
 Every font in `fonts/`, with its source and licence. The files are byte-identical to the pinned
-upstream sources (checked by `craft-fonts-tests`, which verifies each SHA-256 in
-`fonts/manifest.txt`).
+upstream sources (checked by `craft-fonts-tests`, which verifies each SHA-256 in the manifest that
+lists it: `fonts/manifest.txt` for the default embedded set, `fonts/latin-manifest.txt` for the
+opt-in Latin presentation faces, and `fonts/simplified-chinese-manifest.txt` for the opt-in
+native-only Simplified Chinese face).
 
 | File | Family / style | Author | Source (pinned) | Licence |
 |---|---|---|---|---|
@@ -13,7 +15,95 @@ upstream sources (checked by `craft-fonts-tests`, which verifies each SHA-256 in
 | `fonts/noto-sans-cjk-sc/NotoSansCJKsc-Regular.otf` | Noto Sans CJK SC Regular | The Noto Project Authors (Adobe, Google) | [notofonts/noto-cjk@f8d1575](https://github.com/notofonts/noto-cjk/tree/f8d157532fbfaeda587e826d4cd5b21a49186f7c/Sans/OTF/SimplifiedChinese) | OFL-1.1 (`fonts/noto-sans-cjk-sc/OFL.txt`) |
 | `fonts/noto-sans-cjk-tc/NotoSansCJKtc-Regular.otf` | Noto Sans CJK TC Regular | The Noto Project Authors (Adobe, Google) | [notofonts/noto-cjk@f8d1575](https://github.com/notofonts/noto-cjk/tree/f8d157532fbfaeda587e826d4cd5b21a49186f7c/Sans/OTF/TraditionalChinese) | OFL-1.1 (`fonts/noto-sans-cjk-tc/OFL.txt`) |
 | `fonts/noto-sans-arabic/NotoSansArabic.ttf` | Noto Sans Arabic (variable) | The Noto Project Authors | [google/fonts@7085eb8](https://github.com/google/fonts/tree/7085eb89a950e85db5b166b7a58d414544b4140c/ofl/notosansarabic) | OFL-1.1 (`fonts/noto-sans-arabic/OFL.txt`) |
+| `fonts/noto-sans-thai/NotoSansThai.ttf` | Noto Sans Thai (variable) | The Noto Project Authors | [google/fonts@8b0a1d0](https://github.com/google/fonts/tree/8b0a1d0f5983c89bc2b93f1b5fb55f9e252744b5/ofl/notosansthai) | OFL-1.1 (`fonts/noto-sans-thai/OFL.txt`) |
+| `fonts/noto-sans-georgian/NotoSansGeorgian.ttf` | Noto Sans Georgian (variable) | The Noto Project Authors | [google/fonts@8b0a1d0](https://github.com/google/fonts/tree/8b0a1d0f5983c89bc2b93f1b5fb55f9e252744b5/ofl/notosansgeorgian) | OFL-1.1 (`fonts/noto-sans-georgian/OFL.txt`) |
+| `fonts/nanum-gothic/NanumGothic-Regular.ttf` | NanumGothic Regular | NHN Corporation; Sandoll Communications | [google/fonts@bd8f81d](https://github.com/google/fonts/tree/bd8f81ddb5c74d5c8897b36ad88b440266245103/ofl/nanumgothic) | OFL-1.1 (`fonts/nanum-gothic/OFL.txt`) |
+| `fonts/noto-sans-symbols/NotoSansSymbols.ttf` | Noto Sans Symbols Regular | The Noto Project Authors | [google/fonts@47d54ca](https://github.com/google/fonts/tree/47d54ca1ebb14fd864695f1d39dc734f39017c33/ofl/notosanssymbols) | OFL-1.1 (`fonts/noto-sans-symbols/OFL.txt`) |
+| `fonts/noto-sans-symbols-2/NotoSansSymbols2-Regular.ttf` | Noto Sans Symbols 2 Regular | The Noto Project Authors | [google/fonts@47d54ca](https://github.com/google/fonts/tree/47d54ca1ebb14fd864695f1d39dc734f39017c33/ofl/notosanssymbols2) | OFL-1.1 (`fonts/noto-sans-symbols-2/OFL.txt`) |
+| `fonts/noto-sans-hebrew/NotoSansHebrew-Regular.ttf` | Noto Sans Hebrew Regular | The Noto Project Authors | [notofonts/hebrew NotoSansHebrew-v3.001](https://github.com/notofonts/hebrew/releases/tag/NotoSansHebrew-v3.001) | OFL-1.1 (`fonts/noto-sans-hebrew/OFL.txt`) |
+| `fonts/noto-sans-devanagari/NotoSansDevanagari-Regular.ttf` | Noto Sans Devanagari Regular | The Noto Project Authors | [notofonts/devanagari NotoSansDevanagari-v2.007](https://github.com/notofonts/devanagari/releases/tag/NotoSansDevanagari-v2.007) | OFL-1.1 (`fonts/noto-sans-devanagari/OFL.txt`) |
+| `fonts/lxgw-wenkai-lite/LXGWWenKaiLite-Regular.ttf` | LXGW WenKai Lite Regular | LXGW / Luo Xia Gu Wu; derived from Fontworks Klee One | [lxgw/LxgwWenKai-Lite v1.530](https://github.com/lxgw/LxgwWenKai-Lite/releases/tag/v1.530) | OFL-1.1 (`fonts/lxgw-wenkai-lite/OFL.txt`) |
 
 The OFL allows these fonts to be bundled, embedded and redistributed with software, provided the
 licence text travels with them and the fonts are not sold on their own. "Shippori Mincho",
-"BIZ UD" and "Noto" are the authors' names for their fonts; we use the files unmodified.
+"BIZ UD", "Noto" and "LXGW WenKai Lite" are the authors' names for their fonts; we use the files
+unmodified. LXGW WenKai Lite's upstream OFL reserves the names 霞鹜, 霞鶩, 落霞孤鹜, 落霞孤鶩 and
+LXGW; the bundled release member and Klee-One copyright notice stay byte-identical to upstream.
+
+The Symbols variable font keeps its upstream bytes; only its filename changes from
+`NotoSansSymbols[wght].ttf` to `NotoSansSymbols.ttf`.
+
+## Latin presentation fonts (`fonts/latin-manifest.txt`)
+
+Opt-in fonts for UI, presentation and document apps (see `docs/integration.md`): 16 families and 51 faces, about 19.5 MiB (20,417,364 bytes of font files). All are OFL-1.1.
+Variable-font files are renamed without their `[axes]` suffix (e.g. `Montserrat[wght].ttf` is
+`Montserrat.ttf`); each licence file is the upstream licence text (upstream `LICENSE.txt`,
+`LICENSE` or `LICENSE.md` for Inter, Liberation and Source) saved as `OFL.txt`. Font files are
+byte-identical to upstream.
+
+| File | Family / style | Author | Source (pinned) | Licence |
+|---|---|---|---|---|
+| `fonts/inter/Inter-Regular.ttf` | Inter Regular | The Inter Project Authors (Rasmus Andersson) | [rsms/inter v4.1 release](https://github.com/rsms/inter/releases/download/v4.1/Inter-4.1.zip) (`extras/ttf/Inter-Regular.ttf`) | OFL-1.1 (`fonts/inter/OFL.txt`) |
+| `fonts/inter/Inter-Italic.ttf` | Inter Italic | The Inter Project Authors (Rasmus Andersson) | [rsms/inter v4.1 release](https://github.com/rsms/inter/releases/download/v4.1/Inter-4.1.zip) (`extras/ttf/Inter-Italic.ttf`) | OFL-1.1 (`fonts/inter/OFL.txt`) |
+| `fonts/inter/Inter-SemiBold.ttf` | Inter SemiBold | The Inter Project Authors (Rasmus Andersson) | [rsms/inter v4.1 release](https://github.com/rsms/inter/releases/download/v4.1/Inter-4.1.zip) (`extras/ttf/Inter-SemiBold.ttf`) | OFL-1.1 (`fonts/inter/OFL.txt`) |
+| `fonts/inter/Inter-Bold.ttf` | Inter Bold | The Inter Project Authors (Rasmus Andersson) | [rsms/inter v4.1 release](https://github.com/rsms/inter/releases/download/v4.1/Inter-4.1.zip) (`extras/ttf/Inter-Bold.ttf`) | OFL-1.1 (`fonts/inter/OFL.txt`) |
+| `fonts/carlito/Carlito-Regular.ttf` | Carlito Regular | The Carlito Project Authors (Łukasz Dziedzic) | [google/fonts@7085eb8](https://github.com/google/fonts/tree/7085eb89a950e85db5b166b7a58d414544b4140c/ofl/carlito) | OFL-1.1 (`fonts/carlito/OFL.txt`) |
+| `fonts/carlito/Carlito-Bold.ttf` | Carlito Bold | The Carlito Project Authors (Łukasz Dziedzic) | [google/fonts@7085eb8](https://github.com/google/fonts/tree/7085eb89a950e85db5b166b7a58d414544b4140c/ofl/carlito) | OFL-1.1 (`fonts/carlito/OFL.txt`) |
+| `fonts/carlito/Carlito-Italic.ttf` | Carlito Italic | The Carlito Project Authors (Łukasz Dziedzic) | [google/fonts@7085eb8](https://github.com/google/fonts/tree/7085eb89a950e85db5b166b7a58d414544b4140c/ofl/carlito) | OFL-1.1 (`fonts/carlito/OFL.txt`) |
+| `fonts/carlito/Carlito-BoldItalic.ttf` | Carlito Bold Italic | The Carlito Project Authors (Łukasz Dziedzic) | [google/fonts@7085eb8](https://github.com/google/fonts/tree/7085eb89a950e85db5b166b7a58d414544b4140c/ofl/carlito) | OFL-1.1 (`fonts/carlito/OFL.txt`) |
+| `fonts/caladea/Caladea-Regular.ttf` | Caladea Regular | The Caladea Project Authors (Huerta Tipográfica) | [google/fonts@7085eb8](https://github.com/google/fonts/tree/7085eb89a950e85db5b166b7a58d414544b4140c/ofl/caladea) | OFL-1.1 (`fonts/caladea/OFL.txt`) |
+| `fonts/caladea/Caladea-Bold.ttf` | Caladea Bold | The Caladea Project Authors (Huerta Tipográfica) | [google/fonts@7085eb8](https://github.com/google/fonts/tree/7085eb89a950e85db5b166b7a58d414544b4140c/ofl/caladea) | OFL-1.1 (`fonts/caladea/OFL.txt`) |
+| `fonts/caladea/Caladea-Italic.ttf` | Caladea Italic | The Caladea Project Authors (Huerta Tipográfica) | [google/fonts@7085eb8](https://github.com/google/fonts/tree/7085eb89a950e85db5b166b7a58d414544b4140c/ofl/caladea) | OFL-1.1 (`fonts/caladea/OFL.txt`) |
+| `fonts/caladea/Caladea-BoldItalic.ttf` | Caladea Bold Italic | The Caladea Project Authors (Huerta Tipográfica) | [google/fonts@7085eb8](https://github.com/google/fonts/tree/7085eb89a950e85db5b166b7a58d414544b4140c/ofl/caladea) | OFL-1.1 (`fonts/caladea/OFL.txt`) |
+| `fonts/liberation-sans/LiberationSans-Regular.ttf` | Liberation Sans Regular | Red Hat, Inc.; digitized data Google Corporation (Arimo) | [liberation-fonts 2.1.5 release](https://github.com/liberationfonts/liberation-fonts/files/7261482/liberation-fonts-ttf-2.1.5.tar.gz) (`liberation-fonts-ttf-2.1.5/LiberationSans-Regular.ttf`) | OFL-1.1 (`fonts/liberation-sans/OFL.txt`) |
+| `fonts/liberation-sans/LiberationSans-Bold.ttf` | Liberation Sans Bold | Red Hat, Inc.; digitized data Google Corporation (Arimo) | [liberation-fonts 2.1.5 release](https://github.com/liberationfonts/liberation-fonts/files/7261482/liberation-fonts-ttf-2.1.5.tar.gz) (`liberation-fonts-ttf-2.1.5/LiberationSans-Bold.ttf`) | OFL-1.1 (`fonts/liberation-sans/OFL.txt`) |
+| `fonts/liberation-sans/LiberationSans-Italic.ttf` | Liberation Sans Italic | Red Hat, Inc.; digitized data Google Corporation (Arimo) | [liberation-fonts 2.1.5 release](https://github.com/liberationfonts/liberation-fonts/files/7261482/liberation-fonts-ttf-2.1.5.tar.gz) (`liberation-fonts-ttf-2.1.5/LiberationSans-Italic.ttf`) | OFL-1.1 (`fonts/liberation-sans/OFL.txt`) |
+| `fonts/liberation-sans/LiberationSans-BoldItalic.ttf` | Liberation Sans Bold Italic | Red Hat, Inc.; digitized data Google Corporation (Arimo) | [liberation-fonts 2.1.5 release](https://github.com/liberationfonts/liberation-fonts/files/7261482/liberation-fonts-ttf-2.1.5.tar.gz) (`liberation-fonts-ttf-2.1.5/LiberationSans-BoldItalic.ttf`) | OFL-1.1 (`fonts/liberation-sans/OFL.txt`) |
+| `fonts/liberation-serif/LiberationSerif-Regular.ttf` | Liberation Serif Regular | Red Hat, Inc.; digitized data Google Corporation (Tinos) | [liberation-fonts 2.1.5 release](https://github.com/liberationfonts/liberation-fonts/files/7261482/liberation-fonts-ttf-2.1.5.tar.gz) (`liberation-fonts-ttf-2.1.5/LiberationSerif-Regular.ttf`) | OFL-1.1 (`fonts/liberation-serif/OFL.txt`) |
+| `fonts/liberation-serif/LiberationSerif-Bold.ttf` | Liberation Serif Bold | Red Hat, Inc.; digitized data Google Corporation (Tinos) | [liberation-fonts 2.1.5 release](https://github.com/liberationfonts/liberation-fonts/files/7261482/liberation-fonts-ttf-2.1.5.tar.gz) (`liberation-fonts-ttf-2.1.5/LiberationSerif-Bold.ttf`) | OFL-1.1 (`fonts/liberation-serif/OFL.txt`) |
+| `fonts/liberation-serif/LiberationSerif-Italic.ttf` | Liberation Serif Italic | Red Hat, Inc.; digitized data Google Corporation (Tinos) | [liberation-fonts 2.1.5 release](https://github.com/liberationfonts/liberation-fonts/files/7261482/liberation-fonts-ttf-2.1.5.tar.gz) (`liberation-fonts-ttf-2.1.5/LiberationSerif-Italic.ttf`) | OFL-1.1 (`fonts/liberation-serif/OFL.txt`) |
+| `fonts/liberation-serif/LiberationSerif-BoldItalic.ttf` | Liberation Serif Bold Italic | Red Hat, Inc.; digitized data Google Corporation (Tinos) | [liberation-fonts 2.1.5 release](https://github.com/liberationfonts/liberation-fonts/files/7261482/liberation-fonts-ttf-2.1.5.tar.gz) (`liberation-fonts-ttf-2.1.5/LiberationSerif-BoldItalic.ttf`) | OFL-1.1 (`fonts/liberation-serif/OFL.txt`) |
+| `fonts/liberation-mono/LiberationMono-Regular.ttf` | Liberation Mono Regular | Red Hat, Inc.; digitized data Google Corporation (Cousine) | [liberation-fonts 2.1.5 release](https://github.com/liberationfonts/liberation-fonts/files/7261482/liberation-fonts-ttf-2.1.5.tar.gz) (`liberation-fonts-ttf-2.1.5/LiberationMono-Regular.ttf`) | OFL-1.1 (`fonts/liberation-mono/OFL.txt`) |
+| `fonts/liberation-mono/LiberationMono-Bold.ttf` | Liberation Mono Bold | Red Hat, Inc.; digitized data Google Corporation (Cousine) | [liberation-fonts 2.1.5 release](https://github.com/liberationfonts/liberation-fonts/files/7261482/liberation-fonts-ttf-2.1.5.tar.gz) (`liberation-fonts-ttf-2.1.5/LiberationMono-Bold.ttf`) | OFL-1.1 (`fonts/liberation-mono/OFL.txt`) |
+| `fonts/liberation-mono/LiberationMono-Italic.ttf` | Liberation Mono Italic | Red Hat, Inc.; digitized data Google Corporation (Cousine) | [liberation-fonts 2.1.5 release](https://github.com/liberationfonts/liberation-fonts/files/7261482/liberation-fonts-ttf-2.1.5.tar.gz) (`liberation-fonts-ttf-2.1.5/LiberationMono-Italic.ttf`) | OFL-1.1 (`fonts/liberation-mono/OFL.txt`) |
+| `fonts/liberation-mono/LiberationMono-BoldItalic.ttf` | Liberation Mono Bold Italic | Red Hat, Inc.; digitized data Google Corporation (Cousine) | [liberation-fonts 2.1.5 release](https://github.com/liberationfonts/liberation-fonts/files/7261482/liberation-fonts-ttf-2.1.5.tar.gz) (`liberation-fonts-ttf-2.1.5/LiberationMono-BoldItalic.ttf`) | OFL-1.1 (`fonts/liberation-mono/OFL.txt`) |
+| `fonts/source-sans-3/SourceSans3-Regular.ttf` | Source Sans 3 Regular | Adobe | [adobe-fonts/source-sans 3.052R release](https://github.com/adobe-fonts/source-sans/releases/download/3.052R/TTF-source-sans-3.052R.zip) (`TTF/SourceSans3-Regular.ttf`) | OFL-1.1 (`fonts/source-sans-3/OFL.txt`) |
+| `fonts/source-sans-3/SourceSans3-It.ttf` | Source Sans 3 Italic | Adobe | [adobe-fonts/source-sans 3.052R release](https://github.com/adobe-fonts/source-sans/releases/download/3.052R/TTF-source-sans-3.052R.zip) (`TTF/SourceSans3-It.ttf`) | OFL-1.1 (`fonts/source-sans-3/OFL.txt`) |
+| `fonts/source-sans-3/SourceSans3-Semibold.ttf` | Source Sans 3 Semibold | Adobe | [adobe-fonts/source-sans 3.052R release](https://github.com/adobe-fonts/source-sans/releases/download/3.052R/TTF-source-sans-3.052R.zip) (`TTF/SourceSans3-Semibold.ttf`) | OFL-1.1 (`fonts/source-sans-3/OFL.txt`) |
+| `fonts/source-sans-3/SourceSans3-Bold.ttf` | Source Sans 3 Bold | Adobe | [adobe-fonts/source-sans 3.052R release](https://github.com/adobe-fonts/source-sans/releases/download/3.052R/TTF-source-sans-3.052R.zip) (`TTF/SourceSans3-Bold.ttf`) | OFL-1.1 (`fonts/source-sans-3/OFL.txt`) |
+| `fonts/source-serif-4/SourceSerif4-Regular.ttf` | Source Serif 4 Regular | Adobe | [adobe-fonts/source-serif 4.005R release](https://github.com/adobe-fonts/source-serif/releases/download/4.005R/source-serif-4.005_Desktop.zip) (`source-serif-4.005_Desktop/TTF/SourceSerif4-Regular.ttf`) | OFL-1.1 (`fonts/source-serif-4/OFL.txt`) |
+| `fonts/source-serif-4/SourceSerif4-It.ttf` | Source Serif 4 Italic | Adobe | [adobe-fonts/source-serif 4.005R release](https://github.com/adobe-fonts/source-serif/releases/download/4.005R/source-serif-4.005_Desktop.zip) (`source-serif-4.005_Desktop/TTF/SourceSerif4-It.ttf`) | OFL-1.1 (`fonts/source-serif-4/OFL.txt`) |
+| `fonts/source-serif-4/SourceSerif4-Semibold.ttf` | Source Serif 4 Semibold | Adobe | [adobe-fonts/source-serif 4.005R release](https://github.com/adobe-fonts/source-serif/releases/download/4.005R/source-serif-4.005_Desktop.zip) (`source-serif-4.005_Desktop/TTF/SourceSerif4-Semibold.ttf`) | OFL-1.1 (`fonts/source-serif-4/OFL.txt`) |
+| `fonts/source-serif-4/SourceSerif4-Bold.ttf` | Source Serif 4 Bold | Adobe | [adobe-fonts/source-serif 4.005R release](https://github.com/adobe-fonts/source-serif/releases/download/4.005R/source-serif-4.005_Desktop.zip) (`source-serif-4.005_Desktop/TTF/SourceSerif4-Bold.ttf`) | OFL-1.1 (`fonts/source-serif-4/OFL.txt`) |
+| `fonts/montserrat/Montserrat.ttf` | Montserrat (variable) | The Montserrat Project Authors (Julieta Ulanovsky) | [google/fonts@7085eb8](https://github.com/google/fonts/tree/7085eb89a950e85db5b166b7a58d414544b4140c/ofl/montserrat) | OFL-1.1 (`fonts/montserrat/OFL.txt`) |
+| `fonts/montserrat/Montserrat-Italic.ttf` | Montserrat Italic (variable) | The Montserrat Project Authors (Julieta Ulanovsky) | [google/fonts@7085eb8](https://github.com/google/fonts/tree/7085eb89a950e85db5b166b7a58d414544b4140c/ofl/montserrat) | OFL-1.1 (`fonts/montserrat/OFL.txt`) |
+| `fonts/lato/Lato-Regular.ttf` | Lato Regular | Łukasz Dziedzic (tyPoland) | [google/fonts@7085eb8](https://github.com/google/fonts/tree/7085eb89a950e85db5b166b7a58d414544b4140c/ofl/lato) | OFL-1.1 (`fonts/lato/OFL.txt`) |
+| `fonts/lato/Lato-Bold.ttf` | Lato Bold | Łukasz Dziedzic (tyPoland) | [google/fonts@7085eb8](https://github.com/google/fonts/tree/7085eb89a950e85db5b166b7a58d414544b4140c/ofl/lato) | OFL-1.1 (`fonts/lato/OFL.txt`) |
+| `fonts/lato/Lato-Italic.ttf` | Lato Italic | Łukasz Dziedzic (tyPoland) | [google/fonts@7085eb8](https://github.com/google/fonts/tree/7085eb89a950e85db5b166b7a58d414544b4140c/ofl/lato) | OFL-1.1 (`fonts/lato/OFL.txt`) |
+| `fonts/open-sans/OpenSans.ttf` | Open Sans (variable) | The Open Sans Project Authors | [google/fonts@7085eb8](https://github.com/google/fonts/tree/7085eb89a950e85db5b166b7a58d414544b4140c/ofl/opensans) | OFL-1.1 (`fonts/open-sans/OFL.txt`) |
+| `fonts/open-sans/OpenSans-Italic.ttf` | Open Sans Italic (variable) | The Open Sans Project Authors | [google/fonts@7085eb8](https://github.com/google/fonts/tree/7085eb89a950e85db5b166b7a58d414544b4140c/ofl/opensans) | OFL-1.1 (`fonts/open-sans/OFL.txt`) |
+| `fonts/roboto/Roboto.ttf` | Roboto (variable) | The Roboto Project Authors (Google) | [google/fonts@7085eb8](https://github.com/google/fonts/tree/7085eb89a950e85db5b166b7a58d414544b4140c/ofl/roboto) | OFL-1.1 (`fonts/roboto/OFL.txt`) |
+| `fonts/roboto/Roboto-Italic.ttf` | Roboto Italic (variable) | The Roboto Project Authors (Google) | [google/fonts@7085eb8](https://github.com/google/fonts/tree/7085eb89a950e85db5b166b7a58d414544b4140c/ofl/roboto) | OFL-1.1 (`fonts/roboto/OFL.txt`) |
+| `fonts/merriweather/Merriweather-Regular.ttf` | Merriweather Regular | The Merriweather Project Authors (Sorkin Type) | [SorkinType/Merriweather@4481226](https://github.com/SorkinType/Merriweather/tree/4481226b336843648b5b2ee64f75737f262ded15/fonts/ttf) | OFL-1.1 (`fonts/merriweather/OFL.txt`) |
+| `fonts/merriweather/Merriweather-Bold.ttf` | Merriweather Bold | The Merriweather Project Authors (Sorkin Type) | [SorkinType/Merriweather@4481226](https://github.com/SorkinType/Merriweather/tree/4481226b336843648b5b2ee64f75737f262ded15/fonts/ttf) | OFL-1.1 (`fonts/merriweather/OFL.txt`) |
+| `fonts/merriweather/Merriweather-Italic.ttf` | Merriweather Italic | The Merriweather Project Authors (Sorkin Type) | [SorkinType/Merriweather@4481226](https://github.com/SorkinType/Merriweather/tree/4481226b336843648b5b2ee64f75737f262ded15/fonts/ttf) | OFL-1.1 (`fonts/merriweather/OFL.txt`) |
+| `fonts/playfair-display/PlayfairDisplay.ttf` | Playfair Display (variable) | The Playfair Display Project Authors (Claus Eggers Sørensen) | [google/fonts@7085eb8](https://github.com/google/fonts/tree/7085eb89a950e85db5b166b7a58d414544b4140c/ofl/playfairdisplay) | OFL-1.1 (`fonts/playfair-display/OFL.txt`) |
+| `fonts/playfair-display/PlayfairDisplay-Italic.ttf` | Playfair Display Italic (variable) | The Playfair Display Project Authors (Claus Eggers Sørensen) | [google/fonts@7085eb8](https://github.com/google/fonts/tree/7085eb89a950e85db5b166b7a58d414544b4140c/ofl/playfairdisplay) | OFL-1.1 (`fonts/playfair-display/OFL.txt`) |
+| `fonts/poppins/Poppins-Regular.ttf` | Poppins Regular | The Poppins Project Authors (Indian Type Foundry) | [google/fonts@7085eb8](https://github.com/google/fonts/tree/7085eb89a950e85db5b166b7a58d414544b4140c/ofl/poppins) | OFL-1.1 (`fonts/poppins/OFL.txt`) |
+| `fonts/poppins/Poppins-Bold.ttf` | Poppins Bold | The Poppins Project Authors (Indian Type Foundry) | [google/fonts@7085eb8](https://github.com/google/fonts/tree/7085eb89a950e85db5b166b7a58d414544b4140c/ofl/poppins) | OFL-1.1 (`fonts/poppins/OFL.txt`) |
+| `fonts/poppins/Poppins-Italic.ttf` | Poppins Italic | The Poppins Project Authors (Indian Type Foundry) | [google/fonts@7085eb8](https://github.com/google/fonts/tree/7085eb89a950e85db5b166b7a58d414544b4140c/ofl/poppins) | OFL-1.1 (`fonts/poppins/OFL.txt`) |
+| `fonts/nunito-sans/NunitoSans.ttf` | Nunito Sans (variable) | The Nunito Sans Project Authors (Fonthausen) | [google/fonts@7085eb8](https://github.com/google/fonts/tree/7085eb89a950e85db5b166b7a58d414544b4140c/ofl/nunitosans) | OFL-1.1 (`fonts/nunito-sans/OFL.txt`) |
+| `fonts/nunito-sans/NunitoSans-Italic.ttf` | Nunito Sans Italic (variable) | The Nunito Sans Project Authors (Fonthausen) | [google/fonts@7085eb8](https://github.com/google/fonts/tree/7085eb89a950e85db5b166b7a58d414544b4140c/ofl/nunitosans) | OFL-1.1 (`fonts/nunito-sans/OFL.txt`) |
+
+"Inter", "Carlito", "Caladea", "Liberation", "Source", "Montserrat", "Lato", "Open Sans", "Roboto",
+"Merriweather", "Playfair Display", "Poppins" and "Nunito Sans" are the authors' names for their
+fonts (several are Reserved Font Names under the OFL); we use the files unmodified. Carlito,
+Caladea and Liberation are metric-compatible with Calibri, Cambria, Arial, Times New Roman and
+Courier New; those names are trademarks of their owners and are used only to describe
+compatibility.
+
+The eight **Adobe-authored** Source Sans 3 and Source Serif 4 faces remain in this central catalog
+for provenance and reuse, but consumers that must not embed Adobe fonts filter those two families
+(8 of the 51 faces, 2,594,420 bytes) and keep the remaining 43. DeckCraft already applies that
+filter; FigCraft adds it in its own build. Filtering is a consumer obligation and does not change
+the manifest or these pinned hashes.
