@@ -45,7 +45,14 @@ This library is meant to have the following:
 | Noto Sans Symbols 2 | Regular | UI symbols (`✕`, `◀`, `✓`) | OFL-1.1 |
 | Noto Sans Hebrew | Regular (static) | Hebrew UI and document text | OFL-1.1 |
 | Noto Sans Devanagari | Regular (static) | Devanagari UI and document text | OFL-1.1 |
+| Noto Sans Syriac | Regular (static) | Syriac document text (Estrangela) | OFL-1.1 |
+| Noto Sans Syriac Western | Regular (static) | Syriac document text (Western / Serto) | OFL-1.1 |
+| Noto Sans Syriac Eastern | Regular (static) | Syriac document text (Eastern) | OFL-1.1 |
 | LXGW WenKai Lite | Regular (static) | Native-only opt-in Simplified Chinese fallback (Kai) | OFL-1.1 |
+
+The three Syriac faces are unmodified `full/ttf` files from the pinned Noto releases, tagged
+`Syrc` in the default manifest. Each face has GSUB and GPOS. The Syriac Supplement
+(U+0860–U+086A) is not covered by these releases.
 
 ### Latin presentation fonts (`fonts/latin-manifest.txt`, opt-in)
 
