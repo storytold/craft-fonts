@@ -1554,6 +1554,12 @@ const VIETNAMESE_CALADEA_POPPINS_GAP: &str = concat!(
 #[test]
 fn latin_manifest_fonts_cover_vietnamese_glyphs() {
     assert_eq!(VIETNAMESE_NFC.chars().count(), 134);
+    let unique: std::collections::BTreeSet<char> = VIETNAMESE_NFC.chars().collect();
+    assert_eq!(
+        unique.len(),
+        VIETNAMESE_NFC.chars().count(),
+        "Vietnamese NFC corpus must not contain duplicate characters"
+    );
     assert_eq!(
         VIETNAMESE_NFC
             .chars()
