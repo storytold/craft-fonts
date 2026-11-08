@@ -21,6 +21,7 @@ native-only Simplified Chinese face).
 | `fonts/noto-sans-symbols-2/NotoSansSymbols2-Regular.ttf` | Noto Sans Symbols 2 Regular | The Noto Project Authors | [google/fonts@47d54ca](https://github.com/google/fonts/tree/47d54ca1ebb14fd864695f1d39dc734f39017c33/ofl/notosanssymbols2) | OFL-1.1 (`fonts/noto-sans-symbols-2/OFL.txt`) |
 | `fonts/noto-sans-hebrew/NotoSansHebrew-Regular.ttf` | Noto Sans Hebrew Regular | The Noto Project Authors | [notofonts/hebrew NotoSansHebrew-v3.001](https://github.com/notofonts/hebrew/releases/tag/NotoSansHebrew-v3.001) | OFL-1.1 (`fonts/noto-sans-hebrew/OFL.txt`) |
 | `fonts/noto-sans-devanagari/NotoSansDevanagari-Regular.ttf` | Noto Sans Devanagari Regular | The Noto Project Authors | [notofonts/devanagari NotoSansDevanagari-v2.007](https://github.com/notofonts/devanagari/releases/tag/NotoSansDevanagari-v2.007) | OFL-1.1 (`fonts/noto-sans-devanagari/OFL.txt`) |
+| `fonts/noto-sans-thaana/NotoSansThaana-Regular.ttf` | Noto Sans Thaana Regular | The Noto Project Authors | [notofonts/thaana NotoSansThaana-v3.001](https://github.com/notofonts/thaana/releases/tag/NotoSansThaana-v3.001) | OFL-1.1 (`fonts/noto-sans-thaana/OFL.txt`) |
 | `fonts/lxgw-wenkai-lite/LXGWWenKaiLite-Regular.ttf` | LXGW WenKai Lite Regular | LXGW / Luo Xia Gu Wu; derived from Fontworks Klee One | [lxgw/LxgwWenKai-Lite v1.530](https://github.com/lxgw/LxgwWenKai-Lite/releases/tag/v1.530) | OFL-1.1 (`fonts/lxgw-wenkai-lite/OFL.txt`) |
 
 The OFL allows these fonts to be bundled, embedded and redistributed with software, provided the
