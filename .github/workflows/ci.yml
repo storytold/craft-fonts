@@ -19,8 +19,9 @@ jobs:
         with:
           egress-policy: audit
       - uses: actions/checkout@v7
-      - uses: dtolnay/rust-toolchain@89b12181fb390509a0842a86cc55eeb8eb928c1d # stable
+      - uses: step-security/dtolnay-rust-toolchain@8dd607977d06adf4ed49b190381e74c17a9dd25f # v1.0.0
         with:
+          toolchain: stable
           components: rustfmt, clippy
       - name: fmt
         run: cargo fmt --all --check
