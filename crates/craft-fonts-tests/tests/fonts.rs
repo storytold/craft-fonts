@@ -1630,6 +1630,183 @@ fn latin_glyphs_have_outlines() {
     }
 }
 
+/// The 134 precomposed (NFC) Vietnamese letters: 67 lower-case and 67 upper-case. 90 of them sit
+/// in `U+1EA0..=U+1EF9`; the other 44 are the Latin-1 vowels and `Ă ă Đ đ Ĩ ĩ Ũ ũ Ơ ơ Ư ư`.
+///
+/// `fonts/latin-manifest.txt` is a Latin presentation catalog, not a Vietnamese promise: 44 of its
+/// 51 faces cover every letter here, while the four Caladea and three Poppins faces cover only 46
+/// (see `VIETNAMESE_CALADEA_POPPINS_GAP`). Keep that distinction explicit rather than claiming
+/// full-catalog coverage.
+const VIETNAMESE_NFC: &str = concat!(
+    "ÀÁÂÃÈÉÊÌÍÒÓÔÕÙÚÝ",
+    "àáâãèéêìíòóôõùúý",
+    "ĂăĐđĨĩŨũƠơƯư",
+    "ẠạẢảẤấẦầẨẩẪẫẬậẮắẰằẲẳẴẵẶặ",
+    "ẸẹẺẻẼẽẾếỀềỂểỄễỆệ",
+    "ỈỉỊị",
+    "ỌọỎỏỐốỒồỔổỖỗỘộỚớỜờỞởỠỡỢợ",
+    "ỤụỦủỨứỪừỬửỮữỰự",
+    "ỲỳỴỵỶỷỸỹ",
+);
+
+/// The 88 letters Caladea and Poppins lack: the four horn vowels `Ơ ơ Ư ư` and 84 of the 90
+/// `U+1EA0..=U+1EF9` letters (they carry only `Ẽ ẽ Ỳ ỳ Ỹ ỹ`). Those seven faces cannot set
+/// Vietnamese text without tofu; every other Latin face covers all of `VIETNAMESE_NFC`. The exact
+/// set is pinned so a replaced upstream file cannot silently change the documented gap.
+const VIETNAMESE_CALADEA_POPPINS_GAP: &str = concat!(
+    "ƠơƯư",
+    "ẠạẢảẤấẦầẨẩẪẫẬậẮắẰằẲẳẴẵẶặ",
+    "ẸẹẺẻẾếỀềỂểỄễỆệ",
+    "ỈỉỊị",
+    "ỌọỎỏỐốỒồỔổỖỗỘộỚớỜờỞởỠỡỢợ",
+    "ỤụỦủỨứỪừỬửỮữỰự",
+    "ỴỵỶỷ",
+);
+
+#[test]
+fn latin_manifest_fonts_cover_vietnamese_glyphs() {
+    assert_eq!(VIETNAMESE_NFC.chars().count(), 134);
+    let unique: std::collections::BTreeSet<char> = VIETNAMESE_NFC.chars().collect();
+    assert_eq!(
+        unique.len(),
+        VIETNAMESE_NFC.chars().count(),
+        "Vietnamese NFC corpus must not contain duplicate characters"
+    );
+    assert_eq!(
+        VIETNAMESE_NFC
+            .chars()
+            .filter(|c| ('\u{1EA0}'..='\u{1EF9}').contains(c))
+            .count(),
+        90,
+        "the Vietnamese block U+1EA0..=U+1EF9 holds 90 code points"
+    );
+    assert_eq!(
+        VIETNAMESE_NFC.chars().filter(|c| c.is_uppercase()).count(),
+        67,
+        "67 lower-case plus 67 upper-case letters"
+    );
+    assert_eq!(VIETNAMESE_CALADEA_POPPINS_GAP.chars().count(), 88);
+    for c in VIETNAMESE_CALADEA_POPPINS_GAP.chars() {
+        assert!(
+            VIETNAMESE_NFC.contains(c),
+            "the documented gap must be a subset of the Vietnamese letters"
+        );
+    }
+
+    assert_eq!(LATIN_FONTS.len(), LATIN_FACE_COUNT);
+    for f in LATIN_FONTS {
+        let data = bytes(f);
+        let font = FontRef::new(&data).unwrap_or_else(|e| panic!("{}: {e}", f.file));
+        let charmap = font.charmap();
+        let missing: String = VIETNAMESE_NFC
+            .chars()
+            .filter(|c| charmap.map(*c).is_none())
+            .collect();
+        if matches!(f.family, "Caladea" | "Poppins") {
+            assert_eq!(
+                missing, VIETNAMESE_CALADEA_POPPINS_GAP,
+                "{} {}: the documented Vietnamese gap changed; re-check the upstream file and \
+                 update the comment and PR text with the new coverage",
+                f.family, f.style
+            );
+        } else {
+            assert!(
+                missing.is_empty(),
+                "{} {} has no glyph for {missing:?}",
+                f.family,
+                f.style
+            );
+        }
+    }
+}
+
+/// A cmap entry is not coverage: every Vietnamese letter a face claims must draw an outline.
+#[test]
+fn latin_vietnamese_glyphs_have_outlines() {
+    for f in LATIN_FONTS {
+        let data = bytes(f);
+        let font = FontRef::new(&data).unwrap_or_else(|e| panic!("{}: {e}", f.file));
+        let charmap = font.charmap();
+        for c in VIETNAMESE_NFC.chars() {
+            // Caladea and Poppins lack most letters; the coverage test above documents those.
+            if charmap.map(c).is_some() {
+                assert_glyph_outline(&font, f.file, c);
+            }
+        }
+    }
+}
+
+/// The combining marks a decomposed (NFD) Vietnamese string uses: the five tone marks
+/// `U+0300 U+0301 U+0303 U+0309 U+0323` plus the three marks that decompose `Ă Â Ê Ô Ơ Ư`
+/// (`U+0302 U+0306 U+031B`). Precomposed NFC text, which is what the catalog promises, needs none
+/// of them, but imported, copy-pasted or legacy NFD text does. Only 34 of the 51 faces carry all
+/// eight; the exceptions are listed exactly below so NFD behaviour stays known.
+const VIETNAMESE_NFD_MARKS: [char; 8] = [
+    '\u{0300}', // combining grave accent
+    '\u{0301}', // combining acute accent
+    '\u{0302}', // combining circumflex accent
+    '\u{0303}', // combining tilde
+    '\u{0306}', // combining breve
+    '\u{0309}', // combining hook above
+    '\u{031B}', // combining horn
+    '\u{0323}', // combining dot below
+];
+
+/// The exact NFD marks each family omits; every unlisted family carries all eight. Carlito keeps
+/// only the horn, Caladea and Poppins are the least complete, and Open Sans, Roboto and Playfair
+/// Display drop the horn that `Ơ`/`Ư` need when text arrives decomposed.
+const VIETNAMESE_NFD_MARK_GAPS: &[(&str, &[char])] = &[
+    (
+        "Carlito",
+        &[
+            '\u{0300}', '\u{0301}', '\u{0302}', '\u{0303}', '\u{0306}', '\u{0309}', '\u{0323}',
+        ],
+    ),
+    ("Caladea", &['\u{0309}', '\u{031B}', '\u{0323}']),
+    ("Open Sans", &['\u{031B}']),
+    ("Roboto", &['\u{0302}', '\u{0306}', '\u{031B}']),
+    ("Playfair Display", &['\u{031B}']),
+    (
+        "Poppins",
+        &[
+            '\u{0300}', '\u{0301}', '\u{0302}', '\u{0303}', '\u{0306}', '\u{0309}', '\u{031B}',
+            '\u{0323}',
+        ],
+    ),
+];
+
+#[test]
+fn latin_vietnamese_nfd_marks_are_documented_per_family() {
+    assert_eq!(VIETNAMESE_NFD_MARKS.len(), 8);
+    for f in LATIN_FONTS {
+        let expected = VIETNAMESE_NFD_MARK_GAPS
+            .iter()
+            .find(|(family, _)| *family == f.family)
+            .map(|(_, marks)| *marks)
+            .unwrap_or(&[]);
+
+        let data = bytes(f);
+        let font = FontRef::new(&data).unwrap_or_else(|e| panic!("{}: {e}", f.file));
+        let charmap = font.charmap();
+        let missing: Vec<char> = VIETNAMESE_NFD_MARKS
+            .iter()
+            .copied()
+            .filter(|c| charmap.map(*c).is_none())
+            .collect();
+        assert_eq!(
+            missing, expected,
+            "{} {}: the documented NFD mark gap changed; re-check the upstream file",
+            f.family, f.style
+        );
+        for c in VIETNAMESE_NFD_MARKS
+            .iter()
+            .filter(|c| charmap.map(**c).is_some())
+        {
+            assert_glyph_outline(&font, f.file, *c);
+        }
+    }
+}
+
 #[test]
 fn latin_variable_styles_are_variable_fonts() {
     // A style named "... Variable" must be a variable font with a real weight range; any other
