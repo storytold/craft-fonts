@@ -111,16 +111,31 @@ impl std::fmt::Display for LoadError {
 impl std::error::Error for LoadError {}
 
 /// Read the main manifest of the checkout at `dir` and every font it lists, in manifest order.
+///
+/// # Errors
+///
+/// Returns `LoadError::Manifest` when the manifest is malformed and `LoadError::Io` when the
+/// manifest or a listed font file cannot be read.
 pub fn load(dir: &Path) -> Result<Vec<(Entry, Vec<u8>)>, LoadError> {
     load_manifest(dir, MANIFEST)
 }
 
 /// Read the Latin presentation-font manifest of the checkout at `dir` and every font it lists.
+///
+/// # Errors
+///
+/// Returns `LoadError::Manifest` when the manifest is malformed and `LoadError::Io` when the
+/// manifest or a listed font file cannot be read.
 pub fn load_latin(dir: &Path) -> Result<Vec<(Entry, Vec<u8>)>, LoadError> {
     load_manifest(dir, LATIN_MANIFEST)
 }
 
 /// Read the manifest at `rel` (e.g. [`MANIFEST`]) in the checkout at `dir` and every font it lists.
+///
+/// # Errors
+///
+/// Returns `LoadError::Manifest` when the manifest is malformed and `LoadError::Io` when the
+/// manifest or a listed font file cannot be read.
 pub fn load_manifest(dir: &Path, rel: &str) -> Result<Vec<(Entry, Vec<u8>)>, LoadError> {
     let manifest = dir.join(rel);
     let text = std::fs::read_to_string(&manifest).map_err(|error| LoadError::Io {
