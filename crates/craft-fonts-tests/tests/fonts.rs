@@ -121,11 +121,14 @@ fn every_font_is_the_style_the_manifest_says() {
 #[test]
 fn prerequisite_faces_have_the_documented_manifest_rows() {
     fn exact(family: &str, style: &str, file: &str, scripts: &[&str]) -> &'static Font {
-        let found: Vec<&'static Font> = FONTS.iter().filter(|f| f.family == family).collect();
+        let found: Vec<&'static Font> = FONTS
+            .iter()
+            .filter(|f| f.family == family && f.style == style)
+            .collect();
         assert_eq!(
             found.len(),
             1,
-            "manifest lists {} rows for {family}; expected exactly one",
+            "manifest lists {} rows for {family} {style}; expected exactly one",
             found.len()
         );
         let f = found[0];
@@ -142,6 +145,26 @@ fn prerequisite_faces_have_the_documented_manifest_rows() {
         "fonts/nanum-gothic/NanumGothic-Regular.ttf",
         &["Hang", "Kore"],
     );
+    // The other Korean faces: Gothic Bold, and Myeongjo for serif document text.
+    for (family, style, file) in [
+        (
+            "NanumGothic",
+            "Bold",
+            "fonts/nanum-gothic/NanumGothic-Bold.ttf",
+        ),
+        (
+            "NanumMyeongjo",
+            "Regular",
+            "fonts/nanum-myeongjo/NanumMyeongjo-Regular.ttf",
+        ),
+        (
+            "NanumMyeongjo",
+            "Bold",
+            "fonts/nanum-myeongjo/NanumMyeongjo-Bold.ttf",
+        ),
+    ] {
+        exact(family, style, file, &["Hang", "Kore"]);
+    }
     exact(
         "Noto Sans Symbols",
         "Regular",
