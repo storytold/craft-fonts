@@ -1,6 +1,6 @@
 [package]
 name = "craft-fonts-tests"
-description = "Assertions on the fonts themselves: checksums, licences, names, script coverage and vertical-text support."
+description = "Assertions on the fonts themselves: checksums, licences, names, static-face metadata, script coverage and vertical-text support."
 version.workspace = true
 edition.workspace = true
 license.workspace = true
