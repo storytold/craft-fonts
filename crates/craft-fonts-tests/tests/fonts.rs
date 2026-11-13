@@ -343,6 +343,118 @@ fn thai_fonts_cover_thai_text() {
 }
 
 #[test]
+fn bengali_fonts_cover_bengali_text() {
+    // Bengali: letters, vowel signs and virama, digits, danda.
+    covers(
+        "Beng",
+        concat!(
+            "ঀঅআইঈউঊঋঌএঐওঔকখগঘঙচছজঝঞটঠডঢণতথদধনপফবভমযরলশষসহঽৎড়ঢ়য়ৠৡৰৱ",
+            "ঁংঃ়ািীুূৃৄেৈোৌ্ৗৢৣ৾",
+            "০১২৩৪৫৬৭৮৯",
+            "।॥",
+        ),
+    );
+}
+
+#[test]
+fn gurmukhi_fonts_cover_gurmukhi_text() {
+    // Gurmukhi (Punjabi): letters, vowel signs and virama, digits, danda.
+    covers(
+        "Guru",
+        concat!(
+            "ਅਆਇਈਉਊਏਐਓਔਕਖਗਘਙਚਛਜਝਞਟਠਡਢਣਤਥਦਧਨਪਫਬਭਮਯਰਲਲ਼ਵਸ਼ਸਹਖ਼ਗ਼ਜ਼ੜਫ਼ੲੳੴ",
+            "ਁਂਃ਼ਾਿੀੁੂੇੈੋੌ੍ੑੰੱੵ",
+            "੦੧੨੩੪੫੬੭੮੯",
+            "।॥",
+        ),
+    );
+}
+
+#[test]
+fn gujarati_fonts_cover_gujarati_text() {
+    // Gujarati: letters, vowel signs and virama, digits, danda.
+    covers(
+        "Gujr",
+        concat!(
+            "અઆઇઈઉઊઋઌઍએઐઑઓઔકખગઘઙચછજઝઞટઠડઢણતથદધનપફબભમયરલળવશષસહઽૐૠૡૹ",
+            "ઁંઃ઼ાિીુૂૃૄૅેૈૉોૌ્ૢૣૺૻૼ૽૾૿",
+            "૦૧૨૩૪૫૬૭૮૯",
+            "।॥",
+        ),
+    );
+}
+
+#[test]
+fn oriya_fonts_cover_oriya_text() {
+    // Odia: letters, vowel signs and virama, digits, danda.
+    covers(
+        "Orya",
+        concat!(
+            "ଅଆଇଈଉଊଋଌଏଐଓଔକଖଗଘଙଚଛଜଝଞଟଠଡଢଣତଥଦଧନପଫବଭମଯରଲଳଵଶଷସହଽଡ଼ଢ଼ୟୠୡୱ",
+            "ଁଂଃ଼ାିୀୁୂୃୄେୈୋୌ୍୕ୖୗୢୣ",
+            "୦୧୨୩୪୫୬୭୮୯",
+            "।॥",
+        ),
+    );
+}
+
+#[test]
+fn tamil_fonts_cover_tamil_text() {
+    // Tamil: letters, vowel signs and virama, digits, danda.
+    covers(
+        "Taml",
+        concat!(
+            "ஃஅஆஇஈஉஊஎஏஐஒஓஔகஙசஜஞடணதநனபமயரறலளழவஶஷஸஹௐ",
+            "ஂாிீுூெேைொோௌ்ௗ",
+            "௦௧௨௩௪௫௬௭௮௯",
+            "।॥",
+        ),
+    );
+}
+
+#[test]
+fn telugu_fonts_cover_telugu_text() {
+    // Telugu: letters, vowel signs and virama, digits, danda.
+    covers(
+        "Telu",
+        concat!(
+            "అఆఇఈఉఊఋఌఎఏఐఒఓఔకఖగఘఙచఛజఝఞటఠడఢణతథదధనపఫబభమయరఱలళఴవశషసహఽౘౙౚౠౡ",
+            "ఀఁంఃఄాిీుూృౄెేైొోౌ్ౕౖౢౣ",
+            "౦౧౨౩౪౫౬౭౮౯",
+            "।॥",
+        ),
+    );
+}
+
+#[test]
+fn kannada_fonts_cover_kannada_text() {
+    // Kannada: letters, vowel signs and virama, digits, danda.
+    covers(
+        "Knda",
+        concat!(
+            "ಀಅಆಇಈಉಊಋಌಎಏಐಒಓಔಕಖಗಘಙಚಛಜಝಞಟಠಡಢಣತಥದಧನಪಫಬಭಮಯರಱಲಳವಶಷಸಹಽೞೠೡೱೲ",
+            "ಁಂಃ಼ಾಿೀುೂೃೄೆೇೈೊೋೌ್ೕೖೢೣ",
+            "೦೧೨೩೪೫೬೭೮೯",
+            "।॥",
+        ),
+    );
+}
+
+#[test]
+fn malayalam_fonts_cover_malayalam_text() {
+    // Malayalam: letters, vowel signs and virama, digits, danda.
+    covers(
+        "Mlym",
+        concat!(
+            "അആഇഈഉഊഋഌഎഏഐഒഓഔകഖഗഘങചഛജഝഞടഠഡഢണതഥദധനഩപഫബഭമയരറലളഴവശഷസഹഺഽൎൔൕൖൠൡൺൻർൽൾൿ",
+            "ഀഁംഃ഻഼ാിീുൂൃൄെേൈൊോൌ്ൗൢൣ",
+            "൦൧൨൩൪൫൬൭൮൯",
+            "।॥",
+        ),
+    );
+}
+
+#[test]
 fn georgian_fonts_cover_georgian_text() {
     covers(
         "Geor",
@@ -725,7 +837,7 @@ fn devanagari_full_block_maps_to_drawn_outlines() {
     }
 }
 
-/// The Thaana face is the verified upstream static Regular release, appended after Devanagari so
+/// The Thaana face is the verified upstream static Regular release, appended after existing faces so
 /// existing manifest rows and consumer `craft-font-N` indices do not move. It is the single `Thaa`
 /// face in the default manifest; the optional Chinese manifest stays independent. The variable
 /// build is deliberately not used: consumers that embed a page font reject it as a variable font.
@@ -752,6 +864,19 @@ fn thaana_row_is_exact_and_independent_of_the_optional_chinese_manifest() {
     assert_eq!(f.licence_file, THAANA_LICENCE_FILE);
     assert_eq!(f.sha256, THAANA_SHA256);
     assert_eq!(f.source, THAANA_SOURCE);
+
+    // Malayalam was the last default face on the main branch this contribution was synced with.
+    // Keep the new face after it so the existing consumer `craft-font-N` indices do not move.
+    // Future additions can still follow Thaana; this does not require it to stay last forever.
+    let existing_last = FONTS
+        .iter()
+        .position(|f| f.file == "fonts/noto-sans-malayalam/NotoSansMalayalam.ttf")
+        .unwrap();
+    let thaana = FONTS.iter().position(|f| f.file == THAANA_FILE).unwrap();
+    assert!(
+        existing_last < thaana,
+        "append Thaana after existing default faces to preserve consumer font indices"
+    );
 
     let optional = optional_entries(SIMPLIFIED_CHINESE_MANIFEST);
     assert!(

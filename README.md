@@ -26,7 +26,7 @@ This library is meant to have the following:
 | `fonts/simplified-chinese-manifest.txt` | Opt-in native-only Simplified Chinese row, same eight-field format. Not in `FONTS` or the embed payload. |
 | `ATTRIBUTION.md` | Authors, pinned sources and licences. |
 | `crates/craft-fonts` | Rust: the default and opt-in Latin manifests as static tables, finding a checkout (`CRAFT_FONTS_DIR`), loading them, and `embed` / `embed-latin` features that compile the fonts in. |
-| `crates/craft-fonts-tests` | Tests asserted on these fonts: checksums, licences, family/style names, Inter/Latin provenance and faces, Japanese/Korean/Hebrew/Devanagari/symbol coverage and outlines, static-face metadata and vertical-text (`vert`/`vrt2`) support. |
+| `crates/craft-fonts-tests` | Tests asserted on these fonts: checksums, licences, family/style names, Inter/Latin provenance and faces, Japanese/Korean/Hebrew/Devanagari/symbol coverage and outlines, codepoint coverage of the other Indian scripts, static-face metadata and vertical-text (`vert`/`vrt2`) support. |
 | `docs/integration.md` | How an app uses craft-fonts as a fully optional build input. |
 
 ### Fonts
@@ -45,6 +45,14 @@ This library is meant to have the following:
 | Noto Sans Symbols 2 | Regular | UI symbols (`✕`, `◀`, `✓`) | OFL-1.1 |
 | Noto Sans Hebrew | Regular (static) | Hebrew UI and document text | OFL-1.1 |
 | Noto Sans Devanagari | Regular (static) | Devanagari UI and document text | OFL-1.1 |
+| Noto Sans Bengali | Regular (variable: wdth, wght) | Bengali UI and document text (sans) | OFL-1.1 |
+| Noto Sans Gurmukhi | Regular (variable: wdth, wght) | Punjabi UI and document text (sans) | OFL-1.1 |
+| Noto Sans Gujarati | Regular (variable: wdth, wght) | Gujarati UI and document text (sans) | OFL-1.1 |
+| Noto Sans Oriya | Regular (variable: wdth, wght) | Odia UI and document text (sans) | OFL-1.1 |
+| Noto Sans Tamil | Regular (variable: wdth, wght) | Tamil UI and document text (sans) | OFL-1.1 |
+| Noto Sans Telugu | Regular (variable: wdth, wght) | Telugu UI and document text (sans) | OFL-1.1 |
+| Noto Sans Kannada | Regular (variable: wdth, wght) | Kannada UI and document text (sans) | OFL-1.1 |
+| Noto Sans Malayalam | Regular (variable: wdth, wght) | Malayalam UI and document text (sans) | OFL-1.1 |
 | LXGW WenKai Lite | Regular (static) | Native-only opt-in Simplified Chinese fallback (Kai) | OFL-1.1 |
 
 ### Latin presentation fonts (`fonts/latin-manifest.txt`, opt-in)
