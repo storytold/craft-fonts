@@ -5,9 +5,10 @@
 //! `fonts/latin-manifest.txt` (opt-in Latin presentation fonts). This crate exposes them
 //! ([`FONTS`], [`LATIN_FONTS`]), finds a craft-fonts checkout at run time ([`dir_from_env`]), loads
 //! fonts from one ([`load`], [`load_latin`]), and with the `embed` / `embed-latin` features
-//! compiles them into the binary ([`embedded`]). `fonts/simplified-chinese-manifest.txt` is a
-//! separate opt-in native-only manifest; it is not part of [`FONTS`], [`LATIN_FONTS`] or either
-//! embed payload, and consumers or tests parse it with [`parse_manifest`].
+//! compiles them into the binary ([`embedded`]). `fonts/monospace-manifest.txt` (opt-in monospace
+//! faces) and `fonts/simplified-chinese-manifest.txt` (an opt-in native-only manifest) are separate:
+//! neither is part of [`FONTS`], [`LATIN_FONTS`] or either embed payload, and consumers or tests
+//! parse them with [`parse_manifest`].
 //!
 //! The apps do **not** depend on this crate: Cargo resolves even optional git dependencies, so a
 //! dependency would make craft-fonts required for every build. Apps read `fonts/manifest.txt`
