@@ -343,6 +343,16 @@ fn thai_fonts_cover_thai_text() {
 }
 
 #[test]
+fn lao_fonts_cover_lao_text() {
+    covers(
+        "Laoo",
+        concat!(
+            "ກຂຄງຈຊຍດຕຖທນບປຜຝພຟມຢຣລວສຫອຮໝໜ",
+            "ະັາຳິີຶືຸູົຼຽ",
+            "ເແໂໃໄໆ",
+            "່້໊໋໌ໍ",
+            "໐໑໒໓໔໕໖໗໘໙",
+            "ຯ",
 fn bengali_fonts_cover_bengali_text() {
     // Bengali: letters, vowel signs and virama, digits, danda.
     covers(
