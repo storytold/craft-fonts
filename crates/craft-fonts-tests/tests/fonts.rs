@@ -1764,3 +1764,213 @@ fn all_latin_licences_match_the_reviewed_upstream_catalog() {
         assert_eq!(hex, hash, "{path}: complete upstream licence changed");
     }
 }
+
+const MONOSPACE_MANIFEST: &str = "fonts/monospace-manifest.txt";
+const DROID_FILE: &str = "fonts/droid-sans-mono/DroidSansMono.ttf";
+const DROID_LICENCE_FILE: &str = "fonts/droid-sans-mono/LICENSE.txt";
+/// The AOSP commit the font and its `data/fonts/NOTICE` were taken from.
+const DROID_COMMIT: &str = "82ef167fca52593c4c4df78691db0e8253067c6f";
+const DROID_SHA256: &str = "db19a1fdaba41cc4a2fec0330e5c15e71c6dd68a3ef074f4f28268828b45c862";
+/// SHA-256 of the AOSP `data/fonts/NOTICE` at that commit: `LICENSE.txt` is a byte-for-byte copy.
+const DROID_LICENCE_SHA256: &str =
+    "38751245389e1e23f73e6f5384b5cbe7fa972cc4410c5adc9c04b082a0b9561a";
+
+fn droid_entry() -> Entry {
+    let entries = optional_entries(MONOSPACE_MANIFEST);
+    assert_eq!(
+        entries.len(),
+        1,
+        "{MONOSPACE_MANIFEST} must hold exactly the one reviewed Droid Sans Mono row"
+    );
+    entries.into_iter().next().unwrap()
+}
+
+/// Droid Sans Mono is the monospace face with a plain zero (no slash, no dot) for counters and
+/// readouts. It is Apache-2.0, not OFL, so it is opt-in: an app that embeds the default manifest
+/// must not get it, because its packaging ships `OFL.txt` files and would miss this licence.
+#[test]
+fn monospace_opt_in_row_is_exact_and_not_in_the_default_or_latin_manifest() {
+    let e = droid_entry();
+    assert_eq!(e.family, "Droid Sans Mono");
+    assert_eq!(e.style, "Regular");
+    assert_eq!(e.file, DROID_FILE);
+    assert_eq!(
+        e.scripts.iter().map(String::as_str).collect::<Vec<_>>(),
+        ["Latn"]
+    );
+    assert_eq!(e.licence, "Apache-2.0");
+    assert_eq!(e.licence_file, DROID_LICENCE_FILE);
+    assert_eq!(e.sha256, DROID_SHA256);
+    assert!(
+        e.source.contains(DROID_COMMIT),
+        "{}: the source must pin the AOSP commit, found {:?}",
+        e.file,
+        e.source
+    );
+
+    assert!(
+        !all().any(|f| f.family == e.family.as_str()),
+        "the opt-in monospace face must not be in the default or Latin tables or embed payloads"
+    );
+    for manifest in ["fonts/manifest.txt", "fonts/latin-manifest.txt"] {
+        let text = std::fs::read_to_string(craft_fonts_tests::repo_root().join(manifest)).unwrap();
+        assert!(
+            !text.contains("Droid") && !text.contains("monospace-manifest"),
+            "{manifest} must not list the opt-in monospace face"
+        );
+    }
+}
+
+#[test]
+fn droid_sans_mono_matches_its_hash_and_ships_its_apache_licence() {
+    let e = droid_entry();
+    let hex = |data: &[u8]| -> String {
+        Sha256::digest(data)
+            .iter()
+            .map(|b| format!("{b:02x}"))
+            .collect()
+    };
+    assert_eq!(
+        hex(&bytes_from_entry(&e)),
+        e.sha256,
+        "{}: the file changed; update the manifest only after checking the new upstream source",
+        e.file
+    );
+    assert_eq!(
+        std::path::Path::new(&e.file).parent(),
+        std::path::Path::new(&e.licence_file).parent(),
+        "the licence must sit next to the font it covers"
+    );
+    let licence = std::fs::read(craft_fonts_tests::repo_root().join(&e.licence_file))
+        .unwrap_or_else(|err| panic!("{}: {err}", e.licence_file));
+    assert_eq!(
+        hex(&licence),
+        DROID_LICENCE_SHA256,
+        "{}: not the AOSP data/fonts/NOTICE the font was released with",
+        e.licence_file
+    );
+    let licence = String::from_utf8(licence).unwrap();
+    for needle in [
+        "Copyright (c) 2005-2008, The Android Open Source Project",
+        "Apache License",
+        "Version 2.0, January 2004",
+    ] {
+        assert!(
+            licence.contains(needle),
+            "{}: missing {needle:?}",
+            e.licence_file
+        );
+    }
+}
+
+/// The face, read from its file.
+fn droid_data() -> Vec<u8> {
+    bytes_from_entry(&droid_entry())
+}
+
+#[test]
+fn droid_sans_mono_is_a_static_regular_face() {
+    let data = droid_data();
+    assert_eq!(&data[..4], &[0x00, 0x01, 0x00, 0x00]);
+    let font = FontRef::new(&data).unwrap_or_else(|e| panic!("{DROID_FILE}: {e}"));
+    let names: Vec<String> = [StringId::TYPOGRAPHIC_FAMILY_NAME, StringId::FAMILY_NAME]
+        .into_iter()
+        .flat_map(|id| {
+            font.localized_strings(id)
+                .map(|s| s.to_string())
+                .collect::<Vec<_>>()
+        })
+        .collect();
+    assert!(
+        names.iter().any(|n| n == "Droid Sans Mono"),
+        "{DROID_FILE}: names {names:?}"
+    );
+    for (name, table) in [
+        ("fvar", font.fvar().map(|_| ())),
+        ("avar", font.avar().map(|_| ())),
+        ("STAT", font.stat().map(|_| ())),
+    ] {
+        assert!(
+            matches!(table, Err(ReadError::TableIsMissing(_))),
+            "{DROID_FILE}: expected no {name} table; Droid Sans Mono must stay a single static face"
+        );
+    }
+    let attributes = font.attributes();
+    assert_eq!(attributes.weight, Weight::NORMAL, "{DROID_FILE}: weight");
+    assert_eq!(attributes.style, Style::Normal, "{DROID_FILE}: style");
+}
+
+/// What a counter or readout draws: digits, the separators of times and decimals, signs, units.
+const READOUT: &str = "0123456789:.,-+/% dB";
+
+#[test]
+fn droid_sans_mono_draws_readouts_with_one_advance_width() {
+    let data = droid_data();
+    let font = FontRef::new(&data).unwrap_or_else(|e| panic!("{DROID_FILE}: {e}"));
+    for c in READOUT.chars().filter(|c| *c != ' ') {
+        assert_glyph_outline(&font, DROID_FILE, c);
+    }
+    let metrics = font.glyph_metrics(Size::unscaled(), LocationRef::default());
+    let advance = |c: char| {
+        let gid = font
+            .charmap()
+            .map(c)
+            .unwrap_or_else(|| panic!("{DROID_FILE}: no glyph for {c:?}"));
+        metrics
+            .advance_width(gid)
+            .unwrap_or_else(|| panic!("{DROID_FILE}: no advance for {c:?}"))
+    };
+    let zero = advance('0');
+    for c in READOUT.chars() {
+        assert_eq!(
+            advance(c),
+            zero,
+            "{DROID_FILE}: {c:?} is not the width of '0'"
+        );
+    }
+}
+
+/// Counts the closed contours of a glyph: a plain `0` has two (outer shape and counter); a
+/// dotted or slashed one has a third for the dot or the slash.
+struct ContourCount(usize);
+
+impl OutlinePen for ContourCount {
+    fn move_to(&mut self, _: f32, _: f32) {}
+    fn line_to(&mut self, _: f32, _: f32) {}
+    fn quad_to(&mut self, _: f32, _: f32, _: f32, _: f32) {}
+    fn curve_to(&mut self, _: f32, _: f32, _: f32, _: f32, _: f32, _: f32) {}
+    fn close(&mut self) {
+        self.0 += 1;
+    }
+}
+
+#[test]
+fn droid_sans_mono_zero_is_plain_not_slashed_or_dotted() {
+    let data = droid_data();
+    let font = FontRef::new(&data).unwrap_or_else(|e| panic!("{DROID_FILE}: {e}"));
+    let contours = |c: char| {
+        let gid = font
+            .charmap()
+            .map(c)
+            .unwrap_or_else(|| panic!("{DROID_FILE}: no glyph for {c:?}"));
+        let glyph = font
+            .outline_glyphs()
+            .get(gid)
+            .unwrap_or_else(|| panic!("{DROID_FILE}: no outline for {c:?}"));
+        let mut pen = ContourCount(0);
+        glyph
+            .draw(
+                DrawSettings::unhinted(Size::new(64.0), LocationRef::default()),
+                &mut pen,
+            )
+            .unwrap_or_else(|e| panic!("{DROID_FILE}: drawing {c:?}: {e}"));
+        pen.0
+    };
+    // The capital O is the reference: a ring. Liberation Mono's zero has a third contour (a dot).
+    assert_eq!(contours('O'), 2, "{DROID_FILE}: the capital O is a ring");
+    assert_eq!(
+        contours('0'),
+        2,
+        "{DROID_FILE}: the zero must be a plain ring, no slash, no dot"
+    );
+}
