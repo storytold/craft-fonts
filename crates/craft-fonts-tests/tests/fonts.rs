@@ -837,6 +837,191 @@ fn devanagari_full_block_maps_to_drawn_outlines() {
     }
 }
 
+/// The Thaana face is the verified upstream static Regular release, appended after existing faces so
+/// existing manifest rows and consumer `craft-font-N` indices do not move. It is the single `Thaa`
+/// face in the default manifest; the optional Chinese manifest stays independent. The variable
+/// build is deliberately not used: consumers that embed a page font reject it as a variable font.
+const THAANA_FILE: &str = "fonts/noto-sans-thaana/NotoSansThaana-Regular.ttf";
+const THAANA_LICENCE_FILE: &str = "fonts/noto-sans-thaana/OFL.txt";
+const THAANA_SOURCE: &str =
+    "https://github.com/notofonts/thaana/releases/tag/NotoSansThaana-v3.001";
+const THAANA_SHA256: &str = "7543935bdcef770c9d3dd54222651b29040e5ec82f3bc58542392b2c7a9cbd3c";
+const THAANA_LICENCE_SHA256: &str =
+    "5de6fbfe9ca25509fd60e47be3fab3cc236abe20bc1b123a5c2bd12f067fd13c";
+
+#[test]
+fn thaana_row_is_exact_and_independent_of_the_optional_chinese_manifest() {
+    let f = face("Noto Sans Thaana");
+    assert_eq!(
+        for_script("Thaa").count(),
+        1,
+        "the default manifest must list exactly one Thaa face"
+    );
+    assert_eq!(f.style, "Regular");
+    assert_eq!(f.file, THAANA_FILE);
+    assert_eq!(f.scripts, ["Thaa"].as_slice());
+    assert_eq!(f.licence, "OFL-1.1");
+    assert_eq!(f.licence_file, THAANA_LICENCE_FILE);
+    assert_eq!(f.sha256, THAANA_SHA256);
+    assert_eq!(f.source, THAANA_SOURCE);
+
+    // Malayalam was the last default face on the main branch this contribution was synced with.
+    // Keep the new face after it so the existing consumer `craft-font-N` indices do not move.
+    // Future additions can still follow Thaana; this does not require it to stay last forever.
+    let existing_last = FONTS
+        .iter()
+        .position(|f| f.file == "fonts/noto-sans-malayalam/NotoSansMalayalam.ttf")
+        .unwrap();
+    let thaana = FONTS.iter().position(|f| f.file == THAANA_FILE).unwrap();
+    assert!(
+        existing_last < thaana,
+        "append Thaana after existing default faces to preserve consumer font indices"
+    );
+
+    let optional = optional_entries(SIMPLIFIED_CHINESE_MANIFEST);
+    assert!(
+        !optional
+            .iter()
+            .any(|e| e.family == "Noto Sans Thaana" || e.file == THAANA_FILE),
+        "the opt-in Chinese manifest must not gain the default Thaana face"
+    );
+}
+
+#[test]
+fn thaana_file_and_licence_match_hashes_and_sizes() {
+    let f = face("Noto Sans Thaana");
+    let data = bytes(f);
+    assert_eq!(
+        data.len(),
+        27_308,
+        "{}: the pinned Thaana font is 27,308 bytes",
+        f.file
+    );
+    let digest = Sha256::digest(&data);
+    let hex: String = digest.iter().map(|b| format!("{b:02x}")).collect();
+    assert_eq!(hex, THAANA_SHA256, "{}: font SHA-256", f.file);
+
+    let licence = std::fs::read(craft_fonts_tests::repo_root().join(f.licence_file))
+        .unwrap_or_else(|e| panic!("{}: {e}", f.licence_file));
+    assert_eq!(
+        licence.len(),
+        4_382,
+        "{}: the archive-root OFL text is 4,382 bytes",
+        f.licence_file
+    );
+    let digest = Sha256::digest(&licence);
+    let hex: String = digest.iter().map(|b| format!("{b:02x}")).collect();
+    assert_eq!(
+        hex, THAANA_LICENCE_SHA256,
+        "{}: licence SHA-256",
+        f.licence_file
+    );
+    let text = String::from_utf8_lossy(&licence);
+    assert!(
+        text.contains("SIL OPEN FONT LICENSE Version 1.1"),
+        "{} is not the OFL 1.1 text",
+        f.licence_file
+    );
+}
+
+#[test]
+fn thaana_face_is_a_single_static_regular_face() {
+    let f = face("Noto Sans Thaana");
+    let data = bytes(f);
+    // A TrueType sfnt, not a TrueType Collection: one face in the file.
+    assert_eq!(&data[..4], &[0x00, 0x01, 0x00, 0x00]);
+    let font = FontRef::new(&data).unwrap_or_else(|e| panic!("{}: {e}", f.file));
+    for (name, table) in [
+        ("fvar", font.fvar().map(|_| ())),
+        ("avar", font.avar().map(|_| ())),
+        ("STAT", font.stat().map(|_| ())),
+    ] {
+        assert!(
+            matches!(table, Err(ReadError::TableIsMissing(_))),
+            "{}: expected no {name} table; the Thaana file must stay a single static face",
+            f.file
+        );
+    }
+
+    let versions: Vec<String> = font
+        .localized_strings(StringId::VERSION_STRING)
+        .map(|s| s.to_string())
+        .collect();
+    assert!(
+        versions.iter().any(|v| v.contains("Version 3.001")),
+        "{}: expected Version 3.001, found {versions:?}",
+        f.file
+    );
+
+    let os2 = font
+        .os2()
+        .unwrap_or_else(|e| panic!("{}: OS/2: {e}", f.file));
+    assert_eq!(os2.us_weight_class(), 400, "{}: OS/2 weight", f.file);
+    assert_eq!(os2.us_width_class(), 5, "{}: OS/2 width", f.file);
+    // Embeddable without restriction, so consumers may subset it into a document.
+    assert_eq!(os2.fs_type(), 0, "{}: OS/2 fsType", f.file);
+    let selection = os2.fs_selection();
+    assert!(
+        selection.contains(SelectionFlags::REGULAR),
+        "{}: fsSelection lacks REGULAR",
+        f.file
+    );
+    for flag in [
+        SelectionFlags::ITALIC,
+        SelectionFlags::BOLD,
+        SelectionFlags::OBLIQUE,
+    ] {
+        assert!(
+            !selection.contains(flag),
+            "{}: fsSelection unexpectedly contains {flag:?}",
+            f.file
+        );
+    }
+
+    let attributes = font.attributes();
+    assert_eq!(attributes.weight, Weight::NORMAL, "{}: weight", f.file);
+    assert_eq!(attributes.style, Style::Normal, "{}: style", f.file);
+}
+
+/// The Dhivehi sample and the reported failing letter `ދ` U+078B must map to drawn outlines.
+/// This is glyph coverage, not proof of Thaana shaping, right-to-left reordering or fili
+/// positioning; a consumer's rendering path has to exercise that.
+#[test]
+fn thaana_glyphs_and_dhivehi_sample_have_drawn_outlines() {
+    let f = face("Noto Sans Thaana");
+    assert_face_glyph_outline(f, '\u{078b}');
+
+    const DHIVEHI_SAMPLE: &str = "ދިވެހި ބަސް";
+    let data = bytes(f);
+    let font = FontRef::new(&data).unwrap_or_else(|e| panic!("{}: {e}", f.file));
+    assert!(
+        font.charmap().map(' ').is_some(),
+        "{}: no space glyph in the Dhivehi sample",
+        f.file
+    );
+    for c in DHIVEHI_SAMPLE.chars() {
+        if c.is_whitespace() {
+            continue;
+        }
+        assert_face_glyph_outline(f, c);
+    }
+}
+
+/// Every code point in the Thaana block `U+0780..=U+07B1` maps to a glyph that draws something in
+/// the pinned file, including the fili `U+07A6..=U+07B0`. Again this is coverage, not
+/// shaping/positioning.
+#[test]
+fn thaana_full_block_maps_to_drawn_outlines() {
+    let f = face("Noto Sans Thaana");
+    let block = '\u{0780}'..='\u{07b1}';
+    assert_eq!(block.clone().count(), 50);
+    let data = bytes(f);
+    let font = FontRef::new(&data).unwrap_or_else(|e| panic!("{}: {e}", f.file));
+    for c in block {
+        assert_glyph_outline(&font, f.file, c);
+    }
+}
+
 /// The opt-in Simplified Chinese manifest. It is deliberately separate from
 /// `fonts/manifest.txt`: consumers that do not opt in (including every wasm build) must not
 /// embed this face, and it is not part of craft-fonts' `FONTS`/embed payload.
