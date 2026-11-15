@@ -330,6 +330,20 @@ fn arabic_fonts_cover_arabic_text() {
 }
 
 #[test]
+fn telugu_fonts_cover_telugu_text() {
+    // Telugu: letters, vowel signs and virama, digits, danda.
+    covers(
+        "Telu",
+        concat!(
+            "అఆఇఈఉఊఋఌఎఏఐఒఓఔకఖగఘఙచఛజఝఞటఠడఢణతథదధనపఫబభమయరఱలళఴవశషసహఽౘౙౚౠౡ",
+            "ఀఁంఃఄాిీుూృౄెేైొోౌ్ౕౖౢౣ",
+            "౦౧౨౩౪౫౬౭౮౯",
+            "।॥",
+        ),
+    );
+}
+
+#[test]
 fn thai_fonts_cover_thai_text() {
     covers(
         "Thai",
@@ -407,20 +421,6 @@ fn tamil_fonts_cover_tamil_text() {
             "ஃஅஆஇஈஉஊஎஏஐஒஓஔகஙசஜஞடணதநனபமயரறலளழவஶஷஸஹௐ",
             "ஂாிீுூெேைொோௌ்ௗ",
             "௦௧௨௩௪௫௬௭௮௯",
-            "।॥",
-        ),
-    );
-}
-
-#[test]
-fn telugu_fonts_cover_telugu_text() {
-    // Telugu: letters, vowel signs and virama, digits, danda.
-    covers(
-        "Telu",
-        concat!(
-            "అఆఇఈఉఊఋఌఎఏఐఒఓఔకఖగఘఙచఛజఝఞటఠడఢణతథదధనపఫబభమయరఱలళఴవశషసహఽౘౙౚౠౡ",
-            "ఀఁంఃఄాిీుూృౄెేైొోౌ్ౕౖౢౣ",
-            "౦౧౨౩౪౫౬౭౮౯",
             "।॥",
         ),
     );
