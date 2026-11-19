@@ -110,7 +110,7 @@ and OFL-1.1.
 | Frank Ruhl Libre | Variable | Classic Hebrew book and newspaper serif | OFL-1.1 |
 | David Libre | Regular, Medium, Bold | Classic Hebrew book and document serif | OFL-1.1 |
 | Miriam Libre | Variable | Classic Hebrew monolinear sans / slab | OFL-1.1 |
-| IBM Plex Sans Hebrew | Thin, ExtraLight, Light, Regular, Text, Medium, SemiBold, Bold | Corporate UI and technical document sans | OFL-1.1 |
+| IBM Plex Sans Hebrew | Thin, ExtraLight, Light, Regular, Medium, SemiBold, Bold | Corporate UI and technical document sans | OFL-1.1 |
 | Secular One | Regular | Display and heading sans | OFL-1.1 |
 | Varela Round | Regular | Rounded UI and presentation sans | OFL-1.1 |
 | Suez One | Regular | Display and heading serif | OFL-1.1 |
@@ -119,16 +119,18 @@ and OFL-1.1.
 | Amatic SC | Regular, Bold | Hand-drawn condensed display | OFL-1.1 |
 | Bellefair | Regular | Classic high-contrast display serif | OFL-1.1 |
 | Gveret Levin | Regular | Everyday Israeli cursive handwriting | OFL-1.1 |
-| Solitreo | Regular | Sephardic cursive script | OFL-1.1 |
+| Solitreo | Regular | Sephardic cursive script (unpointed only; lacks `U+05B8`) | OFL-1.1 |
 | Playpen Sans Hebrew | Variable | Casual handwriting and educational text | OFL-1.1 |
 | Handjet | Variable | Pixel and grid display | OFL-1.1 |
-| Lunasima | Regular, Bold | Unmodulated document sans | OFL-1.1 |
+| Lunasima | Regular, Bold | Unmodulated document sans (unpointed only; no GPOS, lacks `U+05BA`) | OFL-1.1 |
 | Bona Nova | Regular, Bold, Italic | Traditional book serif | OFL-1.1 |
 | Bona Nova SC | Regular, Bold, Italic | Small-caps book serif | OFL-1.1 |
-| Cardo | Regular, Bold, Italic | Classical and biblical scholarship serif | OFL-1.1 |
+| Cardo | Regular, Bold, Italic | Classical and biblical scholarship serif (pointed/cantillation in Regular; Bold/Italic unpointed) | OFL-1.1 |
 | Libertinus Serif | Regular, SemiBold, Bold, Italic, SemiBold Italic, Bold Italic | Academic and technical publishing serif | OFL-1.1 |
-| Cascadia Code | Variable | Monospace code with programming ligatures | OFL-1.1 |
-| Cascadia Mono | Variable | Monospace code and terminal text | OFL-1.1 |
+| Cascadia Code | Variable | Monospace code with programming ligatures (unpointed Hebrew; lacks `U+05B0–05B6`, `U+05BB`) | OFL-1.1 |
+| Cascadia Mono | Variable | Monospace code and terminal text (unpointed Hebrew; lacks `U+05B0–05B6`, `U+05BB`) | OFL-1.1 |
+
+**Niqqud and cantillation coverage:** 49 of the 56 faces map all core niqqud (`U+05B0–05BC`, `U+05C1`, `U+05C2`) with OpenType GPOS `hebr` `mark` lookups; only Noto Hebrew (`Noto Sans Hebrew`, `Noto Serif Hebrew`, `Noto Rashi Hebrew`) and `Cardo Regular` also cover biblical cantillation (`U+0591–05AF`). Seven faces lack complete pointed support: `Solitreo Regular` (has `hebr` GPOS `mark`, lacks `U+05B8`), `Lunasima Regular`/`Bold` (no GPOS table, lack `U+05BA`), `Cardo Bold` and `Cardo Italic` (no `hebr` GPOS `mark` feature), and `Cascadia Code`/`Cascadia Mono` (lack `U+05B0–05B6`, `U+05BB`).
 
 ## How the apps use it
 

@@ -1902,3 +1902,217 @@ fn hebrew_variable_styles_are_variable_fonts() {
         );
     }
 }
+
+/// Pin every complete upstream Hebrew copyright/licence text by SHA-256.
+#[test]
+fn all_hebrew_licences_match_the_reviewed_upstream_catalog() {
+    let expected = [
+        (
+            "fonts/alef/OFL.txt",
+            "c267a00c9476c78a2336d7b372b536885b8b24173a29ed53496f67a742c14961",
+        ),
+        (
+            "fonts/amatic-sc/OFL.txt",
+            "301f77908df2b00141b4dcea50cc1a586c3afcee78843bd811088e8263623f9d",
+        ),
+        (
+            "fonts/assistant/OFL.txt",
+            "7eaf6282cfab122b99ffd62a122fc27b6c3c8f2c65b56ff9b3a25badbc64887d",
+        ),
+        (
+            "fonts/bellefair/OFL.txt",
+            "2348c4852e6322105d130aa2addbe24c962e330094ad6dfbfd9fbd2281d76b0b",
+        ),
+        (
+            "fonts/bona-nova-sc/OFL.txt",
+            "640d65a09191a9c6b84fdc0a8bebdd807bcfb92ff9afd7a668ef2e984b2f251a",
+        ),
+        (
+            "fonts/bona-nova/OFL.txt",
+            "38f7dca74a98bbcc13858c9f56e9c7d86e12b4242f2a5ccbecf6e9277c9fd363",
+        ),
+        (
+            "fonts/cardo/OFL.txt",
+            "8e28b778b6e1a7ff9ca72f4dee2d53120aa2856dc1bfd0be44307e365b0e45bb",
+        ),
+        (
+            "fonts/cascadia-code/OFL.txt",
+            "82c05d6c53dfa0c9025985c19e371810020b74ed2c61d51d370f2a8ab2506d52",
+        ),
+        (
+            "fonts/cascadia-mono/OFL.txt",
+            "82c05d6c53dfa0c9025985c19e371810020b74ed2c61d51d370f2a8ab2506d52",
+        ),
+        (
+            "fonts/david-libre/OFL.txt",
+            "01f227b494c348ca8daeeaecbb1e08988b222673ca4bdad1681e49ba4cc8a592",
+        ),
+        (
+            "fonts/frank-ruhl-libre/OFL.txt",
+            "4e9720b2544d946737e7dfe0027a62c23c7247f0144f08bc437cdcc2e6a7d828",
+        ),
+        (
+            "fonts/fredoka/OFL.txt",
+            "5c9e7eee5c6b25f4b05b8d53b2e470ea4962f9ced742d044a98f7d95d1375bab",
+        ),
+        (
+            "fonts/gveret-levin/OFL.txt",
+            "d9b228718f3f81e69ce614c6b2f4c382fd34396ca8149b4f28d07e85b8781eba",
+        ),
+        (
+            "fonts/handjet/OFL.txt",
+            "934a45d3b43276e1f857301e9cb07e00b829cca3d0c13e8e6f8c6790dd6c8a2c",
+        ),
+        (
+            "fonts/heebo/OFL.txt",
+            "866747cbccae229433e946b90fcfc457b81c33ac89e593855770851354f9e6c3",
+        ),
+        (
+            "fonts/ibm-plex-sans-hebrew/OFL.txt",
+            "7e6b2818edbd8f6a01ae80641cc8f16a51080d08fb4e532be3a0b6f74adb07da",
+        ),
+        (
+            "fonts/karantina/OFL.txt",
+            "d2dcb5c24a68a08bc55e2416d13cd32b077c9637044dd40f3863a0aa90aa228b",
+        ),
+        (
+            "fonts/libertinus-serif/OFL.txt",
+            "543bbe3d066d7ee6b062b6911220355c72720dc16003e5086885d6f543a6f376",
+        ),
+        (
+            "fonts/lunasima/OFL.txt",
+            "07384f69fe8c6045a0e9f05a689a966a4e086e604987d902d5647a0802996f54",
+        ),
+        (
+            "fonts/miriam-libre/OFL.txt",
+            "0cd2b9542857599d480b54cf372a86b523bc5ff683307029f129e1c161360d52",
+        ),
+        (
+            "fonts/noto-rashi-hebrew/OFL.txt",
+            "9b9fe028b5ba74d231659a1bbaf0ed09b11e759d1ca6a070999e16d151616b47",
+        ),
+        (
+            "fonts/noto-sans-hebrew/OFL.txt",
+            "9b9fe028b5ba74d231659a1bbaf0ed09b11e759d1ca6a070999e16d151616b47",
+        ),
+        (
+            "fonts/noto-serif-hebrew/OFL.txt",
+            "9b9fe028b5ba74d231659a1bbaf0ed09b11e759d1ca6a070999e16d151616b47",
+        ),
+        (
+            "fonts/playpen-sans-hebrew/OFL.txt",
+            "59440310cc2c539b53c835306f74ac8c01f1ece58bf4c65e556fca275b80a730",
+        ),
+        (
+            "fonts/rubik/OFL.txt",
+            "472cbe7c25441df63e9c7864b43eb3c0f4b3df950c66a76224e6cfe1eae843fb",
+        ),
+        (
+            "fonts/secular-one/OFL.txt",
+            "0b27313ffedb61d9941c5ba17c8b9ef5d2724c6e9aff41cd1ece24baed059eae",
+        ),
+        (
+            "fonts/solitreo/OFL.txt",
+            "5c1dd86fa761f43e8337de5ebe63ad75504423635de752c63a2f1fa93fcfc80c",
+        ),
+        (
+            "fonts/suez-one/OFL.txt",
+            "aa8a8196a3e22c3bd985e33cd3245ae9a38accba5e79fc0e3b292612a8d6b337",
+        ),
+        (
+            "fonts/varela-round/OFL.txt",
+            "45446732635812510428bf1bad902a8b133f3c7348ad8593ecca90895595b278",
+        ),
+    ];
+    let actual: std::collections::BTreeSet<_> =
+        HEBREW_FONTS.iter().map(|font| font.licence_file).collect();
+    assert_eq!(
+        actual.len(),
+        expected.len(),
+        "every Hebrew family needs a reviewed licence"
+    );
+    for (path, hash) in expected {
+        assert!(actual.contains(path), "missing licence {path}");
+        let data = std::fs::read(craft_fonts_tests::repo_root().join(path)).unwrap();
+        let digest = Sha256::digest(&data);
+        let hex = hex_digest(&digest);
+        assert_eq!(hex, hash, "{path}: complete upstream licence changed");
+    }
+}
+
+fn has_hebrew_gpos_mark(font: &FontRef<'_>) -> bool {
+    let Ok(gpos) = font.gpos() else {
+        return false;
+    };
+    let Ok(scripts) = gpos.script_list() else {
+        return false;
+    };
+    let Ok(features) = gpos.feature_list() else {
+        return false;
+    };
+    let feature_records = features.feature_records();
+    let is_mark = |idx: u16| {
+        feature_records
+            .get(usize::from(idx))
+            .is_some_and(|r| r.feature_tag() == "mark")
+    };
+    scripts.script_records().iter().any(|rec| {
+        if rec.script_tag() != "hebr" {
+            return false;
+        }
+        let Ok(script) = rec.script(scripts.offset_data()) else {
+            return false;
+        };
+        let default_has_mark = script
+            .default_lang_sys()
+            .and_then(Result::ok)
+            .is_some_and(|ls| ls.feature_indices().iter().any(|i| is_mark(i.get())));
+        let lang_has_mark = script.lang_sys_records().iter().any(|lr| {
+            lr.lang_sys(script.offset_data())
+                .is_ok_and(|ls| ls.feature_indices().iter().any(|i| is_mark(i.get())))
+        });
+        default_has_mark || lang_has_mark
+    })
+}
+
+/// Core niqqud (`U+05B0..=U+05BC`, `U+05C1`, `U+05C2`) and GPOS `hebr` `mark` lookup coverage across
+/// `HEBREW_FONTS`, plus biblical cantillation coverage on the Noto Hebrew and Cardo Regular faces.
+#[test]
+fn hebrew_opt_in_pointed_fonts_cover_niqqud_and_gpos_mark() {
+    let core_niqqud: Vec<char> = ('\u{05b0}'..='\u{05bc}')
+        .chain(['\u{05c1}', '\u{05c2}'])
+        .collect();
+    let mut unpointed = Vec::new();
+    for f in HEBREW_FONTS {
+        let data = bytes(f);
+        let font = FontRef::new(&data).unwrap_or_else(|e| panic!("{}: {e}", f.file));
+        let charmap = font.charmap();
+        let has_points = core_niqqud.iter().all(|&c| charmap.map(c).is_some());
+        if !has_points || !has_hebrew_gpos_mark(&font) {
+            unpointed.push(f.file);
+        }
+        if f.family.starts_with("Noto ") || f.file == "fonts/cardo/Cardo-Regular.ttf" {
+            for c in '\u{0591}'..='\u{05af}' {
+                assert!(
+                    charmap.map(c).is_some(),
+                    "{}: expected cantillation glyph U+{:04X}",
+                    f.file,
+                    c as u32
+                );
+            }
+        }
+    }
+    assert_eq!(
+        unpointed,
+        [
+            "fonts/solitreo/Solitreo-Regular.ttf",
+            "fonts/lunasima/Lunasima-Regular.ttf",
+            "fonts/lunasima/Lunasima-Bold.ttf",
+            "fonts/cardo/Cardo-Bold.ttf",
+            "fonts/cardo/Cardo-Italic.ttf",
+            "fonts/cascadia-code/CascadiaCode.ttf",
+            "fonts/cascadia-mono/CascadiaMono.ttf",
+        ],
+        "unexpected set of incomplete/unpointed Hebrew faces: {unpointed:?}"
+    );
+}

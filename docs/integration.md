@@ -196,7 +196,7 @@ presentation, traditional Rashi commentary, handwriting and monospace code typog
   `craft-fonts-tests` to contain drawn outlines for bilingual Hebrew and Latin text (`שלום עולם
   Hello 42`).
 - **Styles.** Both static faces (`Regular`, `Bold`, `Medium`, `Light`, `SemiBold`, `Thin`,
-  `ExtraLight`, `Text`, `Italic`, `SemiBold Italic`, `Bold Italic`) and variable fonts (`Variable`,
+  `ExtraLight`, `Italic`, `SemiBold Italic`, `Bold Italic`) and variable fonts (`Variable`,
   `Italic Variable`) are included. As with the Latin manifest, variable fonts are verified to carry
   a `wght` axis spanning a range that includes 400.
 - **Rust API.** From Rust tools that depend on `craft-fonts`, the catalog is exposed as
