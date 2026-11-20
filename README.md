@@ -23,6 +23,7 @@ This library is meant to have the following:
 | `fonts/` | The font files, one directory per family, each with its licence. |
 | `fonts/manifest.txt` | Machine-readable list of the default fonts: family, style, file, scripts, licence, SHA-256, pinned source. |
 | `fonts/latin-manifest.txt` | Opt-in Latin presentation catalog, same eight-field format: 16 families and 51 faces (about 19.5 MiB). Not in the default `FONTS` or `embed` payload. |
+| `fonts/monospace-manifest.txt` | Opt-in monospace faces for app interfaces, same eight-field format: Droid Sans Mono (plain zero, Apache-2.0). Not in `FONTS`, `LATIN_FONTS` or either embed payload. |
 | `fonts/simplified-chinese-manifest.txt` | Opt-in native-only Simplified Chinese row, same eight-field format. Not in `FONTS` or the embed payload. |
 | `ATTRIBUTION.md` | Authors, pinned sources and licences. |
 | `crates/craft-fonts` | Rust: the default and opt-in Latin manifests as static tables, finding a checkout (`CRAFT_FONTS_DIR`), loading them, and `embed` / `embed-latin` features that compile the fonts in. |
@@ -87,6 +88,17 @@ provenance and reuse. Native consumers that must not embed Adobe fonts filter th
 leaving the 43 permitted Latin faces; DeckCraft already filters them and FigCraft adds the same
 family filter in its own build. The catalog and its hashes do not depend on any consumer filter.
 
+### Monospace faces (`fonts/monospace-manifest.txt`, opt-in)
+
+| Family | Styles | For | Licence |
+|---|---|---|---|
+| Droid Sans Mono | Regular (static) | Monospace counters and readouts: the zero is plain, no slash and no dot, where egui's Hack draws one | Apache-2.0 |
+
+It is a separate manifest because Droid Sans Mono is not OFL: an app that embeds the default or the
+Latin manifest must not receive it (its packaging ships `OFL.txt` files). An app that opts in reads
+this manifest itself and ships `fonts/droid-sans-mono/LICENSE.txt` with the face. See
+[`docs/integration.md`](docs/integration.md).
+
 ## How the apps use it
 
 **Fully optional, never required.** The apps don't list craft-fonts in `Cargo.toml` (Cargo would
@@ -94,15 +106,17 @@ fetch it for every build). Building with `CRAFT_FONTS_DIR=<path to this checkout
 embed the fonts in `fonts/manifest.txt`; without it, the app builds and runs as before. Release
 builds check out a pinned commit of this repo and set the option. Apps that explicitly opt in may
 also read `fonts/latin-manifest.txt` (the full Latin catalog, filtered by the consumer) and, on
-native builds only, `fonts/simplified-chinese-manifest.txt`. Neither is in the default set; only
-the Chinese manifest is native-only and must never enter a wasm allowlist. A consumer that may
+native builds only, `fonts/simplified-chinese-manifest.txt`, or `fonts/monospace-manifest.txt` (a
+monospace face with a plain zero, Apache-2.0). None is in the default set; only the Chinese
+manifest is native-only and must never enter a wasm allowlist. A consumer that may
 not embed Adobe-authored faces filters `Source Sans 3` and `Source Serif 4` from the Latin rows.
 See [`docs/integration.md`](docs/integration.md).
 
 **Font assets for the Crafting Apps belong here**, not in the app repos: add the file, its licence,
 a manifest line and an attribution row, and the tests check it. Put a Latin presentation face in
-`fonts/latin-manifest.txt` and a face that only some native consumers should embed in
-`fonts/simplified-chinese-manifest.txt`; neither belongs in the default `fonts/manifest.txt`.
+`fonts/latin-manifest.txt`, a monospace interface face in `fonts/monospace-manifest.txt`, and a face
+that only some native consumers should embed in `fonts/simplified-chinese-manifest.txt`; none of
+them belongs in the default `fonts/manifest.txt`.
 
 ## Develop
 

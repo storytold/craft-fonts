@@ -1,0 +1,9 @@
+# Opt-in monospace faces for app interfaces. Same 8-field format as fonts/manifest.txt:
+#   family | style | file (relative to the repo root) | scripts (ISO 15924, comma-separated) | licence | licence file | sha256 | source
+# Apps read this file separately from fonts/manifest.txt. It is not part of craft-fonts' default
+# FONTS table or embed payload, nor of the Latin presentation catalog: an app that embeds those
+# must not get these faces, because a face here may have a licence other than the OFL (the
+# packaging of such apps ships OFL.txt files only).
+# Droid Sans Mono draws a plain zero (no slash, no dot), which egui's Hack does not.
+# Pinned source: aosp-mirror/platform_frameworks_base commit 82ef167fca52593c4c4df78691db0e8253067c6f.
+Droid Sans Mono | Regular | fonts/droid-sans-mono/DroidSansMono.ttf | Latn | Apache-2.0 | fonts/droid-sans-mono/LICENSE.txt | db19a1fdaba41cc4a2fec0330e5c15e71c6dd68a3ef074f4f28268828b45c862 | https://github.com/aosp-mirror/platform_frameworks_base/blob/82ef167fca52593c4c4df78691db0e8253067c6f/data/fonts/DroidSansMono.ttf

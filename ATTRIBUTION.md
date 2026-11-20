@@ -3,7 +3,8 @@
 Every font in `fonts/`, with its source and licence. The files are byte-identical to the pinned
 upstream sources (checked by `craft-fonts-tests`, which verifies each SHA-256 in the manifest that
 lists it: `fonts/manifest.txt` for the default embedded set, `fonts/latin-manifest.txt` for the
-opt-in Latin presentation faces, and `fonts/simplified-chinese-manifest.txt` for the opt-in
+opt-in Latin presentation faces, `fonts/monospace-manifest.txt` for the opt-in monospace face, and
+`fonts/simplified-chinese-manifest.txt` for the opt-in
 native-only Simplified Chinese face).
 
 | File | Family / style | Author | Source (pinned) | Licence |
@@ -29,7 +30,13 @@ native-only Simplified Chinese face).
 | `fonts/noto-sans-telugu/NotoSansTelugu.ttf` | Noto Sans Telugu (variable) | The Noto Project Authors | [google/fonts@bd8f81d](https://github.com/google/fonts/tree/bd8f81ddb5c74d5c8897b36ad88b440266245103/ofl/notosanstelugu) | OFL-1.1 (`fonts/noto-sans-telugu/OFL.txt`) |
 | `fonts/noto-sans-kannada/NotoSansKannada.ttf` | Noto Sans Kannada (variable) | The Noto Project Authors | [google/fonts@bd8f81d](https://github.com/google/fonts/tree/bd8f81ddb5c74d5c8897b36ad88b440266245103/ofl/notosanskannada) | OFL-1.1 (`fonts/noto-sans-kannada/OFL.txt`) |
 | `fonts/noto-sans-malayalam/NotoSansMalayalam.ttf` | Noto Sans Malayalam (variable) | The Noto Project Authors | [google/fonts@bd8f81d](https://github.com/google/fonts/tree/bd8f81ddb5c74d5c8897b36ad88b440266245103/ofl/notosansmalayalam) | OFL-1.1 (`fonts/noto-sans-malayalam/OFL.txt`) |
+| `fonts/droid-sans-mono/DroidSansMono.ttf` | Droid Sans Mono Regular (1.00) | Ascender Corporation for Google (© 2007 Google Corporation); © 2005-2008 The Android Open Source Project | [aosp-mirror/platform_frameworks_base@82ef167](https://github.com/aosp-mirror/platform_frameworks_base/blob/82ef167fca52593c4c4df78691db0e8253067c6f/data/fonts/DroidSansMono.ttf) | Apache-2.0 (`fonts/droid-sans-mono/LICENSE.txt`) |
 | `fonts/lxgw-wenkai-lite/LXGWWenKaiLite-Regular.ttf` | LXGW WenKai Lite Regular | LXGW / Luo Xia Gu Wu; derived from Fontworks Klee One | [lxgw/LxgwWenKai-Lite v1.530](https://github.com/lxgw/LxgwWenKai-Lite/releases/tag/v1.530) | OFL-1.1 (`fonts/lxgw-wenkai-lite/OFL.txt`) |
+
+Droid Sans Mono is the one font here that is not under the OFL: it is Apache-2.0, from the Android
+Open Source Project, with its `LICENSE.txt` byte-identical to the project's `data/fonts/NOTICE` at
+the pinned commit. The Apache License allows redistribution, unmodified or not, provided the
+licence text travels with it. The file is unmodified.
 
 The OFL allows these fonts to be bundled, embedded and redistributed with software, provided the
 licence text travels with them and the fonts are not sold on their own. "Shippori Mincho",
