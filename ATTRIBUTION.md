@@ -29,6 +29,7 @@ native-only Simplified Chinese face).
 | `fonts/noto-sans-telugu/NotoSansTelugu.ttf` | Noto Sans Telugu (variable) | The Noto Project Authors | [google/fonts@bd8f81d](https://github.com/google/fonts/tree/bd8f81ddb5c74d5c8897b36ad88b440266245103/ofl/notosanstelugu) | OFL-1.1 (`fonts/noto-sans-telugu/OFL.txt`) |
 | `fonts/noto-sans-kannada/NotoSansKannada.ttf` | Noto Sans Kannada (variable) | The Noto Project Authors | [google/fonts@bd8f81d](https://github.com/google/fonts/tree/bd8f81ddb5c74d5c8897b36ad88b440266245103/ofl/notosanskannada) | OFL-1.1 (`fonts/noto-sans-kannada/OFL.txt`) |
 | `fonts/noto-sans-malayalam/NotoSansMalayalam.ttf` | Noto Sans Malayalam (variable) | The Noto Project Authors | [google/fonts@bd8f81d](https://github.com/google/fonts/tree/bd8f81ddb5c74d5c8897b36ad88b440266245103/ofl/notosansmalayalam) | OFL-1.1 (`fonts/noto-sans-malayalam/OFL.txt`) |
+| `fonts/noto-sans-thaana/NotoSansThaana-Regular.ttf` | Noto Sans Thaana Regular | The Noto Project Authors | [notofonts/thaana NotoSansThaana-v3.001](https://github.com/notofonts/thaana/releases/tag/NotoSansThaana-v3.001) | OFL-1.1 (`fonts/noto-sans-thaana/OFL.txt`) |
 | `fonts/lxgw-wenkai-lite/LXGWWenKaiLite-Regular.ttf` | LXGW WenKai Lite Regular | LXGW / Luo Xia Gu Wu; derived from Fontworks Klee One | [lxgw/LxgwWenKai-Lite v1.530](https://github.com/lxgw/LxgwWenKai-Lite/releases/tag/v1.530) | OFL-1.1 (`fonts/lxgw-wenkai-lite/OFL.txt`) |
 
 The OFL allows these fonts to be bundled, embedded and redistributed with software, provided the
