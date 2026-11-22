@@ -42,7 +42,7 @@ The Symbols variable font keeps its upstream bytes; only its filename changes fr
 
 ## Latin presentation fonts (`fonts/latin-manifest.txt`)
 
-Opt-in fonts for UI, presentation and document apps (see `docs/integration.md`): 16 families and 51 faces, about 19.5 MiB (20,417,364 bytes of font files). All are OFL-1.1.
+Opt-in fonts for UI, presentation and document apps (see `docs/integration.md`): 17 families and 52 faces, about 19.9 MiB (20,842,320 bytes of font files). All are OFL-1.1.
 Variable-font files are renamed without their `[axes]` suffix (e.g. `Montserrat[wght].ttf` is
 `Montserrat.ttf`); each licence file is the upstream licence text (upstream `LICENSE.txt`,
 `LICENSE` or `LICENSE.md` for Inter, Liberation and Source) saved as `OFL.txt`. Font files are
@@ -101,9 +101,10 @@ byte-identical to upstream.
 | `fonts/poppins/Poppins-Italic.ttf` | Poppins Italic | The Poppins Project Authors (Indian Type Foundry) | [google/fonts@7085eb8](https://github.com/google/fonts/tree/7085eb89a950e85db5b166b7a58d414544b4140c/ofl/poppins) | OFL-1.1 (`fonts/poppins/OFL.txt`) |
 | `fonts/nunito-sans/NunitoSans.ttf` | Nunito Sans (variable) | The Nunito Sans Project Authors (Fonthausen) | [google/fonts@7085eb8](https://github.com/google/fonts/tree/7085eb89a950e85db5b166b7a58d414544b4140c/ofl/nunitosans) | OFL-1.1 (`fonts/nunito-sans/OFL.txt`) |
 | `fonts/nunito-sans/NunitoSans-Italic.ttf` | Nunito Sans Italic (variable) | The Nunito Sans Project Authors (Fonthausen) | [google/fonts@7085eb8](https://github.com/google/fonts/tree/7085eb89a950e85db5b166b7a58d414544b4140c/ofl/nunitosans) | OFL-1.1 (`fonts/nunito-sans/OFL.txt`) |
+| `fonts/noto-sans-condensed/NotoSans-CondensedSemiBold.ttf` | Noto Sans Condensed SemiBold | The Noto Project Authors | [notofonts/latin-greek-cyrillic NotoSans-v2.015 release](https://github.com/notofonts/latin-greek-cyrillic/releases/download/NotoSans-v2.015/NotoSans-v2.015.zip) (`NotoSans/unhinted/ttf/NotoSans-CondensedSemiBold.ttf`) | OFL-1.1 (`fonts/noto-sans-condensed/OFL.txt`) |
 
 "Inter", "Carlito", "Caladea", "Liberation", "Source", "Montserrat", "Lato", "Open Sans", "Roboto",
-"Merriweather", "Playfair Display", "Poppins" and "Nunito Sans" are the authors' names for their
+"Merriweather", "Playfair Display", "Poppins", "Nunito Sans" and "Noto" are the authors' names for their
 fonts (several are Reserved Font Names under the OFL); we use the files unmodified. Carlito,
 Caladea and Liberation are metric-compatible with Calibri, Cambria, Arial, Times New Roman and
 Courier New; those names are trademarks of their owners and are used only to describe
@@ -111,6 +112,6 @@ compatibility.
 
 The eight **Adobe-authored** Source Sans 3 and Source Serif 4 faces remain in this central catalog
 for provenance and reuse, but consumers that must not embed Adobe fonts filter those two families
-(8 of the 51 faces, 2,594,420 bytes) and keep the remaining 43. DeckCraft already applies that
+(8 of the 52 faces, 2,594,420 bytes) and keep the remaining 44. DeckCraft already applies that
 filter; FigCraft adds it in its own build. Filtering is a consumer obligation and does not change
 the manifest or these pinned hashes.
