@@ -14,6 +14,17 @@ fn bytes(f: &Font) -> Vec<u8> {
         .unwrap_or_else(|e| panic!("{}: {e}", f.file))
 }
 
+fn hex_digest(digest: &[u8]) -> String {
+    use std::fmt::Write as _;
+
+    digest
+        .iter()
+        .fold(String::with_capacity(digest.len() * 2), |mut hex, byte| {
+            let _ = write!(hex, "{byte:02x}");
+            hex
+        })
+}
+
 /// Every font in both the default and opt-in Latin manifests.
 fn all() -> impl Iterator<Item = &'static Font> {
     FONTS.iter().chain(LATIN_FONTS)
@@ -23,7 +34,7 @@ fn all() -> impl Iterator<Item = &'static Font> {
 fn every_file_matches_its_manifest_checksum() {
     for f in all() {
         let digest = Sha256::digest(bytes(f));
-        let hex: String = digest.iter().map(|b| format!("{b:02x}")).collect();
+        let hex = hex_digest(&digest);
         assert_eq!(
             hex, f.sha256,
             "{}: the file changed; update the manifest only after checking the new upstream source",
@@ -343,6 +354,118 @@ fn thai_fonts_cover_thai_text() {
 }
 
 #[test]
+fn bengali_fonts_cover_bengali_text() {
+    // Bengali: letters, vowel signs and virama, digits, danda.
+    covers(
+        "Beng",
+        concat!(
+            "ঀঅআইঈউঊঋঌএঐওঔকখগঘঙচছজঝঞটঠডঢণতথদধনপফবভমযরলশষসহঽৎড়ঢ়য়ৠৡৰৱ",
+            "ঁংঃ়ািীুূৃৄেৈোৌ্ৗৢৣ৾",
+            "০১২৩৪৫৬৭৮৯",
+            "।॥",
+        ),
+    );
+}
+
+#[test]
+fn gurmukhi_fonts_cover_gurmukhi_text() {
+    // Gurmukhi (Punjabi): letters, vowel signs and virama, digits, danda.
+    covers(
+        "Guru",
+        concat!(
+            "ਅਆਇਈਉਊਏਐਓਔਕਖਗਘਙਚਛਜਝਞਟਠਡਢਣਤਥਦਧਨਪਫਬਭਮਯਰਲਲ਼ਵਸ਼ਸਹਖ਼ਗ਼ਜ਼ੜਫ਼ੲੳੴ",
+            "ਁਂਃ਼ਾਿੀੁੂੇੈੋੌ੍ੑੰੱੵ",
+            "੦੧੨੩੪੫੬੭੮੯",
+            "।॥",
+        ),
+    );
+}
+
+#[test]
+fn gujarati_fonts_cover_gujarati_text() {
+    // Gujarati: letters, vowel signs and virama, digits, danda.
+    covers(
+        "Gujr",
+        concat!(
+            "અઆઇઈઉઊઋઌઍએઐઑઓઔકખગઘઙચછજઝઞટઠડઢણતથદધનપફબભમયરલળવશષસહઽૐૠૡૹ",
+            "ઁંઃ઼ાિીુૂૃૄૅેૈૉોૌ્ૢૣૺૻૼ૽૾૿",
+            "૦૧૨૩૪૫૬૭૮૯",
+            "।॥",
+        ),
+    );
+}
+
+#[test]
+fn oriya_fonts_cover_oriya_text() {
+    // Odia: letters, vowel signs and virama, digits, danda.
+    covers(
+        "Orya",
+        concat!(
+            "ଅଆଇଈଉଊଋଌଏଐଓଔକଖଗଘଙଚଛଜଝଞଟଠଡଢଣତଥଦଧନପଫବଭମଯରଲଳଵଶଷସହଽଡ଼ଢ଼ୟୠୡୱ",
+            "ଁଂଃ଼ାିୀୁୂୃୄେୈୋୌ୍୕ୖୗୢୣ",
+            "୦୧୨୩୪୫୬୭୮୯",
+            "।॥",
+        ),
+    );
+}
+
+#[test]
+fn tamil_fonts_cover_tamil_text() {
+    // Tamil: letters, vowel signs and virama, digits, danda.
+    covers(
+        "Taml",
+        concat!(
+            "ஃஅஆஇஈஉஊஎஏஐஒஓஔகஙசஜஞடணதநனபமயரறலளழவஶஷஸஹௐ",
+            "ஂாிீுூெேைொோௌ்ௗ",
+            "௦௧௨௩௪௫௬௭௮௯",
+            "।॥",
+        ),
+    );
+}
+
+#[test]
+fn telugu_fonts_cover_telugu_text() {
+    // Telugu: letters, vowel signs and virama, digits, danda.
+    covers(
+        "Telu",
+        concat!(
+            "అఆఇఈఉఊఋఌఎఏఐఒఓఔకఖగఘఙచఛజఝఞటఠడఢణతథదధనపఫబభమయరఱలళఴవశషసహఽౘౙౚౠౡ",
+            "ఀఁంఃఄాిీుూృౄెేైొోౌ్ౕౖౢౣ",
+            "౦౧౨౩౪౫౬౭౮౯",
+            "।॥",
+        ),
+    );
+}
+
+#[test]
+fn kannada_fonts_cover_kannada_text() {
+    // Kannada: letters, vowel signs and virama, digits, danda.
+    covers(
+        "Knda",
+        concat!(
+            "ಀಅಆಇಈಉಊಋಌಎಏಐಒಓಔಕಖಗಘಙಚಛಜಝಞಟಠಡಢಣತಥದಧನಪಫಬಭಮಯರಱಲಳವಶಷಸಹಽೞೠೡೱೲ",
+            "ಁಂಃ಼ಾಿೀುೂೃೄೆೇೈೊೋೌ್ೕೖೢೣ",
+            "೦೧೨೩೪೫೬೭೮೯",
+            "।॥",
+        ),
+    );
+}
+
+#[test]
+fn malayalam_fonts_cover_malayalam_text() {
+    // Malayalam: letters, vowel signs and virama, digits, danda.
+    covers(
+        "Mlym",
+        concat!(
+            "അആഇഈഉഊഋഌഎഏഐഒഓഔകഖഗഘങചഛജഝഞടഠഡഢണതഥദധനഩപഫബഭമയരറലളഴവശഷസഹഺഽൎൔൕൖൠൡൺൻർൽൾൿ",
+            "ഀഁംഃ഻഼ാിീുൂൃൄെേൈൊോൌ്ൗൢൣ",
+            "൦൧൨൩൪൫൬൭൮൯",
+            "।॥",
+        ),
+    );
+}
+
+#[test]
 fn georgian_fonts_cover_georgian_text() {
     covers(
         "Geor",
@@ -367,7 +490,7 @@ fn korean_fonts_cover_korean_ui_text() {
 }
 
 /// The Korean `Hang` face really covers all modern Hangul syllables and the 51 compatibility
-/// Jamo. These exact counts come from the pinned NanumGothic cmap, not from a sample string.
+/// Jamo. These exact counts come from the pinned `NanumGothic` cmap, not from a sample string.
 #[test]
 fn korean_fonts_cover_every_modern_syllable_and_compatibility_jamo() {
     let syllables = '\u{ac00}'..='\u{d7a3}';
@@ -592,7 +715,7 @@ fn devanagari_file_and_licence_match_hashes_and_sizes() {
         f.file
     );
     let digest = Sha256::digest(&data);
-    let hex: String = digest.iter().map(|b| format!("{b:02x}")).collect();
+    let hex = hex_digest(&digest);
     assert_eq!(hex, DEVANAGARI_SHA256, "{}: font SHA-256", f.file);
 
     let licence = std::fs::read(craft_fonts_tests::repo_root().join(f.licence_file))
@@ -604,7 +727,7 @@ fn devanagari_file_and_licence_match_hashes_and_sizes() {
         f.licence_file
     );
     let digest = Sha256::digest(&licence);
-    let hex: String = digest.iter().map(|b| format!("{b:02x}")).collect();
+    let hex = hex_digest(&digest);
     assert_eq!(
         hex, DEVANAGARI_LICENCE_SHA256,
         "{}: licence SHA-256",
@@ -678,9 +801,11 @@ fn devanagari_face_is_a_single_static_regular_face() {
 /// The observed failing sequence `फ़ा` (U+092B U+093C U+093E), the Hindi Camera Raw sample
 /// and the individual letter/mark pieces must all map to drawn outlines. This is glyph
 /// coverage, not proof of Devanagari shaping, conjunct formation or mark positioning; the
-/// PhotoCraft Camera Raw test exercises the real shaping path.
+/// `PhotoCraft` Camera Raw test exercises the real shaping path.
 #[test]
 fn devanagari_glyphs_and_hindi_sample_have_drawn_outlines() {
+    const HINDI_SAMPLE: &str = "हिन्दी भाषा क्षत्रिय श्री फ़ाइल फ़िल्टर";
+
     let f = face("Noto Sans Devanagari");
     let failing_sequence = "फ़ा";
     assert_eq!(
@@ -695,7 +820,6 @@ fn devanagari_glyphs_and_hindi_sample_have_drawn_outlines() {
         assert_face_glyph_outline(f, c);
     }
 
-    const HINDI_SAMPLE: &str = "हिन्दी भाषा क्षत्रिय श्री फ़ाइल फ़िल्टर";
     let data = bytes(f);
     let font = FontRef::new(&data).unwrap_or_else(|e| panic!("{}: {e}", f.file));
     assert!(
@@ -787,7 +911,7 @@ fn simplified_chinese_face_matches_its_hash_licence_and_size_ceiling() {
     let e = lxgw_entry();
     let data = bytes_from_entry(&e);
     let digest = Sha256::digest(&data);
-    let hex: String = digest.iter().map(|b| format!("{b:02x}")).collect();
+    let hex = hex_digest(&digest);
     assert_eq!(
         hex, e.sha256,
         "{}: the file changed; update the opt-in manifest only after checking the new upstream source",
@@ -1362,7 +1486,7 @@ fn latin_inter_files_and_their_upstream_licence_match_their_hashes() {
         );
         let data = bytes_from_entry(e);
         let digest = Sha256::digest(&data);
-        let hex: String = digest.iter().map(|b| format!("{b:02x}")).collect();
+        let hex = hex_digest(&digest);
         assert_eq!(
             hex, e.sha256,
             "{}: the file changed; update the opt-in manifest only after checking the pinned upstream source",
@@ -1374,7 +1498,7 @@ fn latin_inter_files_and_their_upstream_licence_match_their_hashes() {
         .unwrap_or_else(|e| panic!("{INTER_LICENCE_FILE}: {e}"));
     assert_eq!(licence.len(), 4_380, "{INTER_LICENCE_FILE}: size");
     let digest = Sha256::digest(&licence);
-    let hex: String = digest.iter().map(|b| format!("{b:02x}")).collect();
+    let hex = hex_digest(&digest);
     assert_eq!(hex, INTER_LICENCE_SHA256, "{INTER_LICENCE_FILE}: SHA-256");
     let text = String::from_utf8_lossy(&licence);
     assert!(
@@ -1648,7 +1772,7 @@ fn all_latin_licences_match_the_reviewed_upstream_catalog() {
         assert!(actual.contains(path), "missing licence {path}");
         let data = std::fs::read(craft_fonts_tests::repo_root().join(path)).unwrap();
         let digest = Sha256::digest(&data);
-        let hex: String = digest.iter().map(|b| format!("{b:02x}")).collect();
+        let hex = hex_digest(&digest);
         assert_eq!(hex, hash, "{path}: complete upstream licence changed");
     }
 }

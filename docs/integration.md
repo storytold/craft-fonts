@@ -2,7 +2,7 @@
 
 craft-fonts is a **fully optional** source of fonts. An app must build, test and run without it;
 with it, the app embeds the fonts listed in `fonts/manifest.txt` and uses them (today: Japanese,
-Korean, Hebrew and UI-symbol fallback). A native consumer may additionally opt in to
+Korean, Hebrew, Indian-script and UI-symbol fallback). A native consumer may additionally opt in to
 `fonts/simplified-chinese-manifest.txt` for the LXGW WenKai Lite Simplified Chinese fallback; that
 manifest is never part of the default set or a wasm build.
 
@@ -238,7 +238,7 @@ one static weight-400 face without `fvar`/`avar`/`STAT`, outlines for `简体中
   document's requested font and the app's existing fallback faces. Preserve the app's asset
   exclusions, and do not treat a script tag as proof that every character in that script exists.
 - **Web (wasm32):** the recipe uses a fixed allowlist. Never embed the whole manifest: the
-  current faces together are roughly 43.8 MiB (45.9 MB), over typical per-file hosting limits.
+  current faces together are roughly 47.9 MiB (50.3 MB), over typical per-file hosting limits.
   Measure the raw bytes of each allowlisted font, plus raw and compressed wasm before and after,
   against the consumer's actual web gate. Do not call the result "within budget" without a named
   number and a real check. GridCraft's decision is documented in
@@ -249,6 +249,14 @@ one static weight-400 face without `fvar`/`avar`/`STAT`, outlines for `简体中
   this round, and web Hebrew remains an unqualified gap. `LXGW WenKai Lite` is likewise
   native-only and must stay out of every wasm allowlist. No existing web allowlist adds
   `Noto Sans Devanagari`; keep every wasm allowlist explicit.
+- **Indian scripts:** eight more Noto Sans faces (`Beng`, `Guru`, `Gujr`, `Orya`, `Taml`, `Telu`,
+  `Knda`, `Mlym`) join `Noto Sans Devanagari` (`Deva`, above), 0.3–0.9 MB each. Register them like
+  Devanagari, after the system faces. Windows ships faces for all of them (Nirmala UI) and macOS
+  does too (Kohinoor, the Sangam MN families, Gurmukhi MN), but a minimal Linux install may have
+  none, so keep the craft faces as the last fallback there. A web build that wants them lists each
+  one in its allowlist explicitly and measures it against its web gate, as above. Their tests check
+  codepoint coverage (each character maps to a glyph), not drawn outlines as for Devanagari;
+  conjuncts and mark positioning need app-level shaping checks either way.
 - Prefer `BIZ UDPGothic` for UI text and `Shippori Mincho` / `BIZ UDMincho` for serif document
   text.
 - Optional-input diagnostics may skip when `CRAFT_FONTS` is empty. Acceptance tests that
