@@ -364,6 +364,11 @@ fn lao_fonts_cover_lao_text() {
             "່້໊໋໌ໍ",
             "໐໑໒໓໔໕໖໗໘໙",
             "ຯ",
+        ),
+    );
+}
+
+#[test]
 fn bengali_fonts_cover_bengali_text() {
     // Bengali: letters, vowel signs and virama, digits, danda.
     covers(
