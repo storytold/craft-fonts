@@ -137,8 +137,8 @@ app was built without craft-fonts. Code that uses it must work when it is empty.
 the Latin presentation catalog: Inter, the metric-compatible Office substitutes (Carlito for
 Calibri, Caladea for Cambria, Liberation Sans / Serif / Mono for Arial / Times New Roman /
 Courier New), Source Sans 3, Source Serif 4, Montserrat, Lato, Open Sans, Roboto, Merriweather,
-Playfair Display, Poppins and Nunito Sans. The central catalog is **16 families, 51 faces, about
-19.5 MiB** (20,417,364 bytes of font files). The fonts are listed in `README.md` and
+Playfair Display, Poppins, Nunito Sans and Noto Sans Condensed SemiBold. The central catalog is
+**17 families, 52 faces, about 19.9 MiB** (20,842,320 bytes of font files). The fonts are listed in `README.md` and
 `ATTRIBUTION.md`.
 
 The recipe above reads only `fonts/manifest.txt`, so **apps that don't opt in are unchanged**. An
@@ -162,7 +162,7 @@ const MANIFESTS: &[(&str, &[(&str, &str)])] = &[
 - **Consumer filter (required for some apps).** Eight faces are Adobe-authored: Source Sans 3
   (4) and Source Serif 4 (4), 2,594,420 bytes. They remain in the central catalog and are valid
   OFL-1.1 assets, but a consumer that must not embed Adobe-authored faces skips those two
-  families, leaving **43** permitted Latin faces. DeckCraft already excludes them; FigCraft adds
+  families, leaving **44** permitted Latin faces. DeckCraft already excludes them; FigCraft adds
   the same family filter in its own `build.rs`. The main manifest is unaffected.
 - **Styles.** Most families are static files (`Regular`, `Bold`, `Italic`, `Bold Italic`,
   `SemiBold` / `Semibold` as each family names it). Montserrat, Open Sans, Roboto, Playfair
@@ -172,6 +172,10 @@ const MANIFESTS: &[(&str, &[(&str, &str)])] = &[
   The tests check that exactly these styles have a `wght` axis with a real range containing 400.
 - **Scripts.** Every line is tagged `Latn` (many also cover Greek and Cyrillic, but nothing
   asserts that, so don't rely on it).
+- **Narrow UI labels.** `Noto Sans` `Condensed SemiBold` is a condensed face for interface
+  labels that need to fit a tight width, such as document tab titles. An app that wants only this
+  face reads just its row from the manifest. Its x-height is larger than Inter's at the same
+  size, so an app that sets it beside Inter scales it to match.
 - **Office documents.** When a document asks for Calibri, Cambria, Arial, Times New Roman or
   Courier New and the system doesn't have it, substitute Carlito, Caladea, Liberation Sans,
   Liberation Serif or Liberation Mono: same advance widths, so line breaks and text boxes match.

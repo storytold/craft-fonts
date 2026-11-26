@@ -1076,8 +1076,8 @@ fn bytes_from_entry(e: &Entry) -> Vec<u8> {
 /// `build.rs`; consumers that read only `fonts/manifest.txt` must not receive these faces, and it
 /// is deliberately not part of the default `FONTS`/`embed` payload.
 const LATIN_MANIFEST: &str = "fonts/latin-manifest.txt";
-const LATIN_FACE_COUNT: usize = 51;
-const LATIN_FAMILY_COUNT: usize = 16;
+const LATIN_FACE_COUNT: usize = 52;
+const LATIN_FAMILY_COUNT: usize = 17;
 const INTER_LICENCE_FILE: &str = "fonts/inter/OFL.txt";
 const INTER_LICENCE_SHA256: &str =
     "262481e844521b326f5ecd053e59b98c8b2da78c8ee1bdbb6e8174305e54935a";
@@ -1392,6 +1392,12 @@ const LATIN_FACES: &[(&str, &str, &str, &str)] = &[
         "Italic Variable",
         "fonts/nunito-sans/NunitoSans-Italic.ttf",
         "d9d5db18f3c11221a4fbb553cbc709391c1179964c7eaa4466ef43c78aa4492f",
+    ),
+    (
+        "Noto Sans",
+        "Condensed SemiBold",
+        "fonts/noto-sans-condensed/NotoSans-CondensedSemiBold.ttf",
+        "b41ecd0838ecd17b706432a01c0d63f8bf977d851cc2cf37242324233edb9294",
     ),
 ];
 
@@ -1709,7 +1715,8 @@ fn latin_variable_styles_are_variable_fonts() {
 /// Preserve every complete upstream copyright/licence text, not only the generic OFL terms.
 #[test]
 fn all_latin_licences_match_the_reviewed_upstream_catalog() {
-    // Hashes of the unchanged 76ba5a0496503c0e2841abd626295038cbe07cde licence blobs.
+    // Hashes of the unchanged 76ba5a0496503c0e2841abd626295038cbe07cde licence blobs, and of
+    // `OFL.txt` from the NotoSans-v2.015 release archive for Noto Sans Condensed.
     let expected = [
         (
             "fonts/caladea/OFL.txt",
@@ -1746,6 +1753,10 @@ fn all_latin_licences_match_the_reviewed_upstream_catalog() {
         (
             "fonts/montserrat/OFL.txt",
             "8b7141c03fa4f8d44e6345d5d4931709290f0f67875e452e95ac1fd3a027802e",
+        ),
+        (
+            "fonts/noto-sans-condensed/OFL.txt",
+            "cee9892f9f0cc8fe882c9e9537ee6a89621d86ee7ceaf70b02e2b2b1c25c061a",
         ),
         (
             "fonts/nunito-sans/OFL.txt",

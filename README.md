@@ -22,7 +22,7 @@ This library is meant to have the following:
 |---|---|
 | `fonts/` | The font files, one directory per family, each with its licence. |
 | `fonts/manifest.txt` | Machine-readable list of the default fonts: family, style, file, scripts, licence, SHA-256, pinned source. |
-| `fonts/latin-manifest.txt` | Opt-in Latin presentation catalog, same eight-field format: 16 families and 51 faces (about 19.5 MiB). Not in the default `FONTS` or `embed` payload. |
+| `fonts/latin-manifest.txt` | Opt-in Latin presentation catalog, same eight-field format: 17 families and 52 faces (about 19.9 MiB). Not in the default `FONTS` or `embed` payload. |
 | `fonts/simplified-chinese-manifest.txt` | Opt-in native-only Simplified Chinese row, same eight-field format. Not in `FONTS` or the embed payload. |
 | `ATTRIBUTION.md` | Authors, pinned sources and licences. |
 | `crates/craft-fonts` | Rust: the default and opt-in Latin manifests as static tables, finding a checkout (`CRAFT_FONTS_DIR`), loading them, and `embed` / `embed-latin` features that compile the fonts in. |
@@ -60,7 +60,7 @@ This library is meant to have the following:
 
 These are not part of the default `FONTS` table or `embed` payload. Apps opt in by reading the
 second manifest in their own `build.rs` (see [`docs/integration.md`](docs/integration.md)).
-The central catalog is 16 families, 51 faces, about 19.5 MiB (20,417,364 bytes of font files).
+The central catalog is 17 families, 52 faces, about 19.9 MiB (20,842,320 bytes of font files).
 "Variable" means one variable-font file (weight axis, some also width or optical size) per
 upright/italic.
 
@@ -82,10 +82,11 @@ upright/italic.
 | Playfair Display | Variable, Italic Variable | Headings (display serif) | OFL-1.1 |
 | Poppins | Regular, Bold, Italic | Headings (geometric sans) | OFL-1.1 |
 | Nunito Sans | Variable, Italic Variable | Presentation text (sans) | OFL-1.1 |
+| Noto Sans | Condensed SemiBold | Narrow UI labels, such as document tab titles (sans) | OFL-1.1 |
 
 The eight Adobe-authored Source Sans 3 / Source Serif 4 faces stay in this central catalog for
 provenance and reuse. Native consumers that must not embed Adobe fonts filter those two families,
-leaving the 43 permitted Latin faces; DeckCraft already filters them and FigCraft adds the same
+leaving the 44 permitted Latin faces; DeckCraft already filters them and FigCraft adds the same
 family filter in its own build. The catalog and its hashes do not depend on any consumer filter.
 
 ## How the apps use it
