@@ -4,7 +4,8 @@ craft-fonts is a **fully optional** source of fonts. An app must build, test and
 with it, the app embeds the fonts listed in `fonts/manifest.txt` and uses them (today: Japanese,
 Korean, Hebrew, Indian-script and UI-symbol fallback). A native consumer may additionally opt in to
 `fonts/simplified-chinese-manifest.txt` for the LXGW WenKai Lite Simplified Chinese fallback; that
-manifest is never part of the default set or a wasm build.
+manifest is never part of the default set or a wasm build. An app that needs a monospace face with a
+plain zero may opt in to `fonts/monospace-manifest.txt` (Droid Sans Mono, Apache-2.0, 108 KB).
 
 ## Why not a Cargo dependency
 
@@ -213,6 +214,31 @@ The central tests in `crates/craft-fonts-tests/tests/fonts.rs` parse the optiona
 one static weight-400 face without `fvar`/`avar`/`STAT`, outlines for `简体中文演示文稿` and
 `简`, the 24 MiB ceiling, and that the face is absent from `FONTS`/`fonts/manifest.txt`.
 
+## Optional monospace manifest
+
+`fonts/monospace-manifest.txt` uses the same eight-field format and parser, and is a separate
+opt-in input like the two above. Its one row is `Droid Sans Mono` / `Regular` (`Latn`, 108 KB): a
+monospace face whose zero is plain, with no slash and no dot, where egui's Hack draws one. egui
+cannot switch the OpenType `zero` feature, so the face itself has to change. Its advance (0.600 em)
+is close to Hack's (0.602 em).
+
+- **Why a separate manifest.** It is Apache-2.0, not OFL. An app that embeds the default or the
+  Latin manifest must not receive it: that app's packaging ships `OFL.txt` files and says its
+  fonts are OFL. Only an app that reads this manifest embeds it, and that app ships
+  `fonts/droid-sans-mono/LICENSE.txt` with it, and names it in its `NOTICE`.
+- **Reading it.** Parse the file with `craft_fonts::parse_manifest` (or `craft-fonts-build`'s
+  `parse_manifest`) and build the table in the app's `build.rs`, after `CRAFT_FONTS_DIR` as in the
+  recipe above. `craft-fonts-build`'s `Embed` reads only `fonts/manifest.txt` today.
+- **Missing file is compatible.** An older checkout without the manifest embeds nothing, with a
+  `cargo::warning`; under `CRAFT_FONTS_REQUIRED=1` it fails the build.
+- **Not in `FONTS`/embed.** Neither the default `FONTS` table and `embed` feature, nor
+  `LATIN_FONTS` and `embed-latin`, include it.
+
+The central tests in `crates/craft-fonts-tests/tests/fonts.rs` check the exact row, the SHA-256 of
+the file and of its licence (a byte-for-byte copy of the AOSP `data/fonts/NOTICE`), that it is a
+static Regular face, that digits, separators and units share one advance, that the zero has the two
+contours of a ring (a dot or a slash would add a third), and that neither the default nor the Latin manifest lists it.
+
 ## Using the fonts
 
 - **UI (egui):** append permitted craft faces at the end of each interface font family, after
@@ -259,6 +285,9 @@ one static weight-400 face without `fvar`/`avar`/`STAT`, outlines for `简体中
   conjuncts and mark positioning need app-level shaping checks either way.
 - Prefer `BIZ UDPGothic` for UI text and `Shippori Mincho` / `BIZ UDMincho` for serif document
   text.
+- **Monospace counters and readouts:** an app that opts in to `fonts/monospace-manifest.txt` (see
+  above) puts `Droid Sans Mono` / `Regular` first in egui's `Monospace` family and keeps Hack
+  behind it for the arrows and shapes it lacks.
 - Optional-input diagnostics may skip when `CRAFT_FONTS` is empty. Acceptance tests that
   validate advertised scripts must run with `CRAFT_FONTS_DIR` set and `CRAFT_FONTS_REQUIRED=1`,
   and must fail (not skip) when a required face or codepoint is missing. Never weaken strict
@@ -267,8 +296,9 @@ one static weight-400 face without `fvar`/`avar`/`STAT`, outlines for `简体中
 
 ## Releases and licences
 
-The fonts are OFL-1.1: they can be embedded and redistributed, but the licence text must go with
-them. In `release.yml`, check out craft-fonts at a pinned commit and build with it:
+The fonts are OFL-1.1 (Droid Sans Mono, in the opt-in monospace manifest, is Apache-2.0): they can
+be embedded and redistributed, but the licence text must go with them. In `release.yml`, check out craft-fonts at a
+pinned commit and build with it:
 
 ```yaml
 - uses: actions/checkout@v4
@@ -283,7 +313,8 @@ env:
 ```
 
 Packages built with craft-fonts must include each embedded font's licence file (copy
-`$CRAFT_FONTS_DIR/fonts/*/OFL.txt` into the package's licences, named after the family) and the
+`$CRAFT_FONTS_DIR/fonts/*/OFL.txt`, and `fonts/droid-sans-mono/LICENSE.txt` when that font is
+embedded, into the package's licences, named after the family) and the
 app's `NOTICE` must say that builds made with `CRAFT_FONTS_DIR` embed the fonts listed in
 craft-fonts' `ATTRIBUTION.md`.
 
@@ -292,8 +323,9 @@ craft-fonts' `ATTRIBUTION.md`.
 1. Put the file and its licence under `fonts/<family>/`, from a pinned upstream commit.
 2. Add a manifest line (with its SHA-256) and an `ATTRIBUTION.md` row. A Latin presentation face
    belongs in `fonts/latin-manifest.txt`; a face that only some native consumers should embed
-   belongs in `fonts/simplified-chinese-manifest.txt`; neither belongs in the default
-   `fonts/manifest.txt`.
+   belongs in `fonts/simplified-chinese-manifest.txt`; a monospace interface face belongs in
+   `fonts/monospace-manifest.txt`. None of them belongs in the default `fonts/manifest.txt`,
+   and a face that is not OFL never goes in a manifest whose apps ship only `OFL.txt` files.
 3. `cargo test --workspace`: `craft-fonts-tests` checks the checksum, licence, family and style
    names, and, for Japanese fonts, coverage and vertical-text support. Add exact ISO 15924
    script assertions for any new face. Coverage tests may claim only glyphs the face really
